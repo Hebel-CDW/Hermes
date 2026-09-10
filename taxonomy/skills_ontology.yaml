@@ -40,6 +40,9 @@ domains:
     relations:
     - azure_compute
     freshness_half_life_days: 120
+    decay_class: fast
+    related_skills:
+    - azure_compute
   - skill_id: azure_networking
     name: Azure Networking
     description: Azure VNets, NSGs, load balancers, private endpoints, and hybrid
@@ -56,6 +59,9 @@ domains:
     relations:
     - azure_compute
     freshness_half_life_days: 120
+    decay_class: medium
+    related_skills:
+    - azure_compute
   - skill_id: azure_compute
     name: Azure Compute
     description: Azure VMs, scale sets, App Service, and related compute services.
@@ -68,6 +74,9 @@ domains:
     - AZ-104
     - AZ-305
     proficiency_levels: *id001
+    decay_class: medium
+    related_skills:
+    - azure_networking
 - domain_id: platform_ops
   name: Platform Operations
   skills:
@@ -83,6 +92,8 @@ domains:
     cert_codes: []
     proficiency_levels: *id001
     freshness_half_life_days: 365
+    decay_class: slow
+    related_skills: []
   - skill_id: infrastructure_as_code
     name: Infrastructure as Code
     description: Bicep, Terraform, and declarative infrastructure delivery.
@@ -94,3 +105,6 @@ domains:
     cert_codes:
     - AZ-400
     proficiency_levels: *id001
+    decay_class: medium
+    related_skills:
+    - container_orchestration

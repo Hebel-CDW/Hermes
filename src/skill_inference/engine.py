@@ -130,14 +130,17 @@ class SkillInferenceEngine:
         return self.config.declared_weight
 
     def half_life_for_skill(self, skill_id: str) -> float:
+        from shared.taxonomy import DECAY_HALF_LIFE_DAYS
+
         skill = self.taxonomy.skill_by_id(skill_id)
         if skill and getattr(skill, "freshness_half_life_days", None):
             return float(skill.freshness_half_life_days)  # type: ignore[attr-defined]
-        # domain defaults
+        if skill and getattr(skill, "decay_class", None):
+            return float(DECAY_HALF_LIFE_DAYS[skill.decay_class])
         if skill_id == "incident_management":
-            return 365.0
+            return DECAY_HALF_LIFE_DAYS["slow"]
         if skill_id in {"azure_networking", "azure_compute", "container_orchestration"}:
-            return 120.0
+            return DECAY_HALF_LIFE_DAYS["fast"]
         return self.config.freshness_half_life_days
 
     def freshness_score(

@@ -36,7 +36,7 @@ hermes-dashboard = "scripts.dashboard_export:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["shared*", "identity_abstraction*", "skill_inference*", "fitness_gap*", "identity_resolution*"]
+include = ["shared*", "identity_abstraction*", "skill_inference*", "fitness_gap*", "identity_resolution*", "phase8*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.yaml", "*.yml", "*.json"]

@@ -33,11 +33,13 @@ class HermesService:
         self.audit = AuditLedger(db=self.db)
         self.inference = SkillInferenceEngine()
         tax = load_taxonomy()
-        adjacency = {
-            s.skill_id: list(getattr(s, "relations", []) or [])
-            for s in tax.all_skills()
-            if getattr(s, "relations", None)
-        }
+        adjacency = {}
+        for s in tax.all_skills():
+            related = list(getattr(s, "related_skills", None) or []) + list(
+                getattr(s, "relations", None) or []
+            )
+            if related:
+                adjacency[s.skill_id] = list(dict.fromkeys(related))
         demand = self.db.get_demand()
         self.fitness = FitnessGapEngine(audit=self.audit, demand_weights=demand, adjacency=adjacency)
         self.resolution = IdentityResolutionGateway(self.gate, audit=self.audit)

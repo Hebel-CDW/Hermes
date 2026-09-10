@@ -29,6 +29,8 @@ class SkillDefinition(BaseModel):
     cert_codes: List[str] = Field(default_factory=list)
     freshness_half_life_days: Optional[float] = None
     relations: List[str] = Field(default_factory=list)
+    related_skills: List[str] = Field(default_factory=list)
+    decay_class: Optional[str] = None  # fast | medium | slow
     proficiency_levels: List[ProficiencyDefinition]
 
 
@@ -76,6 +78,13 @@ def load_taxonomy(path: Optional[Path] = None) -> SkillsTaxonomy:
     return SkillsTaxonomy.model_validate(raw)
 
 
+DECAY_HALF_LIFE_DAYS = {
+    "fast": 90.0,
+    "medium": 365.0,
+    "slow": 1095.0,
+}
+
+
 def validate_taxonomy_completeness(taxonomy: SkillsTaxonomy) -> List[str]:
     """Return list of validation errors; empty means approved-ready."""
     errors: List[str] = []
@@ -87,4 +96,8 @@ def validate_taxonomy_completeness(taxonomy: SkillsTaxonomy) -> List[str]:
         for p in skill.proficiency_levels:
             if not p.behavioural_definition.strip():
                 errors.append(f"{skill.skill_id} L{p.level}: empty behavioural definition")
+        if not skill.decay_class or skill.decay_class not in DECAY_HALF_LIFE_DAYS:
+            errors.append(f"{skill.skill_id}: decay_class must be fast|medium|slow")
+        if not skill.ticket_keywords:
+            errors.append(f"{skill.skill_id}: at least one ticket_keyword required")
     return errors

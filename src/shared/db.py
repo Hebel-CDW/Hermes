@@ -619,3 +619,47 @@ class HermesDB:
         with self.session() as conn:
             conn.execute("DELETE FROM baseline_assessments")
 
+    def count_pending_aliases(self) -> int:
+        with self.session() as conn:
+            row = conn.execute(
+                "SELECT COUNT(*) AS n FROM skill_aliases WHERE mapped_by = 'pending'"
+            ).fetchone()
+        return int(row["n"])
+
+    def upsert_skill_alias(
+        self, alias_label: str, skill_id: str, match_confidence: float, mapped_by: str
+    ) -> None:
+        with self.session() as conn:
+            conn.execute(
+                """
+                INSERT INTO skill_aliases (alias_label, skill_id, match_confidence, mapped_by)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(alias_label) DO UPDATE SET
+                  skill_id=excluded.skill_id,
+                  match_confidence=excluded.match_confidence,
+                  mapped_by=excluded.mapped_by,
+                  mapped_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+                """,
+                (alias_label, skill_id, match_confidence, mapped_by),
+            )
+
+    def get_manager_alias(self, alias_name: str):
+        with self.session() as conn:
+            return conn.execute(
+                "SELECT * FROM manager_aliases WHERE alias_name = ?",
+                (alias_name.strip().lower(),),
+            ).fetchone()
+
+    def upsert_manager_alias(self, alias_name: str, canonical_name: str, mapped_by: str) -> None:
+        with self.session() as conn:
+            conn.execute(
+                """
+                INSERT INTO manager_aliases (alias_name, canonical_name, mapped_by)
+                VALUES (?, ?, ?)
+                ON CONFLICT(alias_name) DO UPDATE SET
+                  canonical_name=excluded.canonical_name,
+                  mapped_by=excluded.mapped_by,
+                  mapped_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+                """,
+                (alias_name.strip().lower(), canonical_name, mapped_by),
+            )
