@@ -281,7 +281,6 @@ cer_cisco_emergency_responder,CER: Cisco Emergency Responder,CER: Cisco Emergenc
 certifications,Certifications,Certifications,1,ZI Ops,candidate,no,
 charter_communications,Charter Communications,Charter Communications,1,Storage,candidate,no,
 checkpoint_firewall,Checkpoint FireWall,Checkpoint FireWall,1,Datacenter,candidate,no,
-church_mutual_insurance_company,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],1,Backup,candidate,no,
 ci_cd,CI/CD,CI/CD,1,GCP,candidate,no,
 cifs_nfs_config_and_troubleshooting,CIFS/NFS config and troubleshooting,CIFS/NFS config and troubleshooting,1,Storage,candidate,no,
 cim_cisco_interaction_manager_eim_wim,CIM: Cisco Interaction Manager (EIM/WIM),CIM: Cisco Interaction Manager (EIM/WIM),1,Collab,candidate,no,
@@ -438,8 +437,6 @@ ibm_storage,IBM Storage,IBM Storage,1,AIX,candidate,no,
 ic_singlewire_informacast,IC: SingleWire InformaCast,IC: SingleWire InformaCast,1,Collab,candidate,no,
 identity_and_access_management_iam,Identity and Access Management (IAM),Identity and Access Management (IAM),1,GCP,candidate,no,
 iei,IEI,IEI,1,Endpoint compliance,candidate,no,
-infinite_electronic,Infinite Electronic,Infinite Electronic,1,CI Ops,candidate,no,
-infinite_electronics_inc,"[REDACTED_ACCOUNT], INC.","[REDACTED_ACCOUNT], INC.",1,Backup,candidate,no,
 information_security,Information Security,Information Security,1,MSS,candidate,no,
 infrastructure_and_os_management,Infrastructure & OS Management,Infrastructure & OS Management,1,Citrix,candidate,no,
 inscape,Inscape,Inscape,1,Azure,candidate,no,
@@ -515,7 +512,7 @@ onen,ONEN,ONEN,1,ZI Ops,candidate,no,
 ontap_tools_for_vmware_vsphere,ONTAP Tools for VMware vSphere,ONTAP Tools for VMware vSphere,1,Storage,candidate,no,
 ontap_upgrade,Ontap Upgrade,Ontap Upgrade,1,Storage,candidate,no,
 ort,ORT,ORT,1,Endpoint compliance,candidate,no,
-ort_[REDACTED_ACCOUNT],ORT - [REDACTED_ACCOUNT],ORT - [REDACTED_ACCOUNT],1,Citrix,candidate,no,
+,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],1,Citrix,excluded,no,client_account_context
 orthicarolina_p_a,"Orthicarolina, P.A","Orthicarolina, P.A",1,CI Ops,candidate,no,
 os_management,OS Management,OS Management,1,iSeries L3,candidate,no,
 outbound_dialer_courtesy_callback,Outbound Dialer / Courtesy Callback,Outbound Dialer / Courtesy Callback,1,Collab,candidate,no,
@@ -702,5 +699,8 @@ zscaler,Zscaler,Zscaler,1,Datacenter,candidate,no,
 ,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],3,Backup|CI Ops|Storage,excluded,no,client_account_context
 ,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],2,Backup|Storage,excluded,no,client_account_context
 ,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],1,Network Security,excluded,no,client_account_context
+,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],1,Backup,excluded,no,client_account_context
 ,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],1,Citrix,excluded,no,client_account_context
 ,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],1,Citrix,excluded,no,client_account_context
+,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],1,CI Ops,excluded,no,client_account_context
+,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],1,Backup,excluded,no,client_account_context

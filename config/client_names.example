@@ -1,7 +1,7 @@
-# One client / account label per line (case-insensitive). Used as CLIENT_NAME_BLOCKLIST.
-# Copy to config/client_names.txt (gitignored) for local runs.
+# One client / account label per line (case-insensitive).
+# Copy to config/client_names.txt (gitignored) and add real account labels locally.
+# Never commit config/client_names.txt or raw source workbooks.
+example-client-alpha
+example-client-beta
+# Tests also seed cottage health via fixture; keep a minimal safe test token:
 cottage health
-church mutual insurance co
-cot-cottage health
-orthocarolina, p.a.
-ie- infinite electronics
