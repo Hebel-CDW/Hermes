@@ -1,0 +1,14 @@
+{
+  "population": 5,
+  "shortlist_events": 0,
+  "gini_shortlist_appearances": 0.0,
+  "never_shortlisted_count": 5,
+  "never_shortlisted_sample": [
+    "EMP-666c8943",
+    "EMP-9a4bf2f6",
+    "EMP-c775791c",
+    "EMP-f232ab6e",
+    "EMP-fd8efec3"
+  ],
+  "note": "Tenure-band accrual requires HR export \u2014 not stored in Hermes ops DB."
+}

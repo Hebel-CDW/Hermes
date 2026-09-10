@@ -1,0 +1,35 @@
+{
+  "name": "sync-servicenow-tickets",
+  "trigger": { "type": "Recurrence", "frequency": "Hour", "interval": 1 },
+  "actions": [
+    {
+      "name": "ListResolvedIncidents",
+      "type": "ServiceNow",
+      "filter": "state=6^sys_updated_on>=javascript:gs.hoursAgo(2)"
+    },
+    {
+      "name": "ForEachIncident",
+      "type": "Foreach",
+      "steps": [
+        {
+          "name": "PostToIdentityGate",
+          "type": "Http",
+          "method": "POST",
+          "uri": "@{parameters('HermesIdentityAbstractUrl')}",
+          "headers": { "x-functions-key": "@{parameters('HermesFunctionKey')}" },
+          "body": {
+            "employee_id": "@{items('ForEachIncident')?['assigned_to']}",
+            "name": "@{items('ForEachIncident')?['assigned_to.name']}",
+            "source": "servicenow",
+            "ticket_number": "@{items('ForEachIncident')?['number']}",
+            "short_description": "@{items('ForEachIncident')?['short_description']}",
+            "category": "@{items('ForEachIncident')?['category']}",
+            "ci_class": "@{items('ForEachIncident')?['cmdb_ci.sys_class_name']}",
+            "resolved_at": "@{items('ForEachIncident')?['resolved_at']}"
+          }
+        }
+      ]
+    }
+  ],
+  "notes": "Definition stub for in-repo versioning; import into Power Automate solution."
+}

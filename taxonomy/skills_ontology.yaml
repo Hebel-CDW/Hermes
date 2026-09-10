@@ -1,0 +1,96 @@
+version: 1.0.0
+domains:
+- domain_id: cloud_platform
+  name: Cloud Platform
+  skills:
+  - skill_id: container_orchestration
+    name: Container Orchestration
+    description: Kubernetes and related container orchestration platforms.
+    ticket_keywords:
+    - kubernetes
+    - k8s
+    - container orchestration
+    - helm
+    - kube
+    cert_codes:
+    - CKA
+    - CKAD
+    - CKS
+    proficiency_levels: &id001
+    - level: 1
+      label: Awareness
+      behavioural_definition: Can describe core concepts and recognize when the skill
+        applies.
+    - level: 2
+      label: Working
+      behavioural_definition: Completes routine tasks with guidance; applies the skill
+        in standard scenarios.
+    - level: 3
+      label: Proficient
+      behavioural_definition: Independently delivers production work; troubleshoots
+        common failures.
+    - level: 4
+      label: Advanced
+      behavioural_definition: Designs solutions, mentors others, and handles non-standard
+        incidents.
+    - level: 5
+      label: Expert
+      behavioural_definition: Sets standards, leads complex programmes, and is a recognised
+        organisational authority.
+    relations:
+    - azure_compute
+    freshness_half_life_days: 120
+  - skill_id: azure_networking
+    name: Azure Networking
+    description: Azure VNets, NSGs, load balancers, private endpoints, and hybrid
+      connectivity.
+    ticket_keywords:
+    - azure networking
+    - vnet
+    - nsg
+    - private endpoint
+    - expressroute
+    cert_codes:
+    - AZ-700
+    proficiency_levels: *id001
+    relations:
+    - azure_compute
+    freshness_half_life_days: 120
+  - skill_id: azure_compute
+    name: Azure Compute
+    description: Azure VMs, scale sets, App Service, and related compute services.
+    ticket_keywords:
+    - azure vm
+    - app service
+    - vmss
+    - azure compute
+    cert_codes:
+    - AZ-104
+    - AZ-305
+    proficiency_levels: *id001
+- domain_id: platform_ops
+  name: Platform Operations
+  skills:
+  - skill_id: incident_management
+    name: Incident Management
+    description: Triage, resolve, and communicate during production incidents.
+    ticket_keywords:
+    - incident
+    - sev1
+    - sev2
+    - outage
+    - p1
+    cert_codes: []
+    proficiency_levels: *id001
+    freshness_half_life_days: 365
+  - skill_id: infrastructure_as_code
+    name: Infrastructure as Code
+    description: Bicep, Terraform, and declarative infrastructure delivery.
+    ticket_keywords:
+    - terraform
+    - bicep
+    - iac
+    - arm template
+    cert_codes:
+    - AZ-400
+    proficiency_levels: *id001

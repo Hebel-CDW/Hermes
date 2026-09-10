@@ -1,0 +1,14 @@
+{
+  "name": "sync-declared-skills",
+  "trigger": { "type": "Recurrence", "frequency": "Day", "interval": 1 },
+  "source": "DeclaredSkillsForm",
+  "actions": [
+    {
+      "name": "PostToIdentityGate",
+      "type": "Http",
+      "method": "POST",
+      "uri": "@{parameters('HermesIdentityAbstractUrl')}"
+    }
+  ],
+  "notes": "Definition stub for in-repo versioning."
+}

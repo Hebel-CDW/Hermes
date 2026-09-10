@@ -1,0 +1,14 @@
+{
+  "tickets": [
+    {"ticket_number": "INC-H01", "short_description": "production kubernetes cluster migration rollback after sev1 outage", "expected_skills": ["container_orchestration", "incident_management"], "label": "depth"},
+    {"ticket_number": "INC-H02", "short_description": "password reset unlock login access", "expected_skills": [], "label": "surface_noise"},
+    {"ticket_number": "INC-H03", "short_description": "azure vnet nsg private endpoint connectivity", "expected_skills": ["azure_networking"], "label": "networking"},
+    {"ticket_number": "INC-H04", "short_description": "helm upgrade kube deployment", "expected_skills": ["container_orchestration"], "label": "k8s"},
+    {"ticket_number": "INC-H05", "short_description": "terraform module apply infrastructure as code", "expected_skills": ["infrastructure_as_code"], "label": "iac"},
+    {"ticket_number": "INC-H06", "short_description": "sev2 outage incident bridge p1 communication", "expected_skills": ["incident_management"], "label": "incident"},
+    {"ticket_number": "INC-H07", "short_description": "azure vm scale set app service compute", "expected_skills": ["azure_compute"], "label": "compute"},
+    {"ticket_number": "INC-H08", "short_description": "mention of k8s in password reset ticket", "expected_skills": ["container_orchestration"], "label": "weak_signal"},
+    {"ticket_number": "INC-H09", "short_description": "expressroute hybrid networking design", "expected_skills": ["azure_networking"], "label": "network_depth"},
+    {"ticket_number": "INC-H10", "short_description": "routine mailbox access request", "expected_skills": [], "label": "irrelevant"}
+  ]
+}

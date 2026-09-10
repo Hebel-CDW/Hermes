@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hermes"
+version = "0.1.0"
+description = "Project Hermes — dynamic skills and workforce intelligence MVP (local-first)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Proprietary — Internal CDW / Project EVOLVE" }
+authors = [{ name = "Hebel" }]
+dependencies = [
+  "pydantic>=2.5",
+  "PyYAML>=6.0",
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.27",
+  "httpx>=0.27",
+  "PyJWT>=2.8",
+  "openpyxl>=3.1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.4",
+  "pytest-cov>=4.1",
+  "ruff>=0.4",
+]
+
+[project.scripts]
+hermes-leakage-audit = "scripts.leakage_audit:main"
+hermes-fairness-audit = "scripts.fairness_audit:main"
+hermes-ingest = "scripts.ingest_fixtures:main"
+hermes-query = "scripts.hermes_query:main"
+hermes-dashboard = "scripts.dashboard_export:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["shared*", "identity_abstraction*", "skill_inference*", "fitness_gap*", "identity_resolution*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.yaml", "*.yml", "*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", ".", "api"]
+addopts = "-q --cov=identity_abstraction --cov=skill_inference --cov=fitness_gap --cov=identity_resolution --cov=shared --cov-report=term-missing --cov-fail-under=80"
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]

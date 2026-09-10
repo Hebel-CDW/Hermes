@@ -1,0 +1,118 @@
+{
+  "pilot_population": [
+    {
+      "employee_id": "E1001",
+      "display_name": "Alex Rivera"
+    },
+    {
+      "employee_id": "E1002",
+      "display_name": "Jordan Lee"
+    },
+    {
+      "employee_id": "E1003",
+      "display_name": "Sam Patel"
+    },
+    {
+      "employee_id": "E1004",
+      "display_name": "Casey Nguyen"
+    },
+    {
+      "employee_id": "E1005",
+      "display_name": "Riley Brooks"
+    }
+  ],
+  "tickets": [
+    {
+      "employee_id": "E1001",
+      "ticket_number": "INC001",
+      "short_description": "Kubernetes migration rollback for prod cluster",
+      "resolved_at": "2026-07-01T12:00:00Z"
+    },
+    {
+      "employee_id": "E1001",
+      "ticket_number": "INC002",
+      "short_description": "Helm chart upgrade on k8s worker pool",
+      "resolved_at": "2026-07-15T12:00:00Z"
+    },
+    {
+      "employee_id": "E1002",
+      "ticket_number": "INC003",
+      "short_description": "Azure networking NSG misconfiguration",
+      "resolved_at": "2026-06-01T12:00:00Z"
+    },
+    {
+      "employee_id": "E1003",
+      "ticket_number": "INC004",
+      "short_description": "Terraform module for App Service",
+      "resolved_at": "2026-05-20T12:00:00Z"
+    },
+    {
+      "employee_id": "E1004",
+      "ticket_number": "INC005",
+      "short_description": "SEV1 outage incident bridge facilitation",
+      "resolved_at": "2026-08-01T12:00:00Z"
+    }
+  ],
+  "certifications": [
+    {
+      "employee_id": "E1001",
+      "cert_code": "CKA",
+      "earned_at": "2025-11-01T00:00:00Z",
+      "skill_id": "container_orchestration",
+      "proficiency": 4
+    },
+    {
+      "employee_id": "E1002",
+      "cert_code": "AZ-700",
+      "earned_at": "2024-01-01T00:00:00Z",
+      "skill_id": "azure_networking",
+      "proficiency": 3
+    }
+  ],
+  "declared": [
+    {
+      "employee_id": "E1001",
+      "skill_id": "container_orchestration",
+      "proficiency": 3,
+      "manager_confirmed": true,
+      "declared_at": "2026-01-15T00:00:00Z"
+    },
+    {
+      "employee_id": "E1005",
+      "skill_id": "azure_compute",
+      "proficiency": 2,
+      "manager_confirmed": true,
+      "declared_at": "2025-06-01T00:00:00Z"
+    }
+  ],
+  "demand_weights": {
+    "container_orchestration": 0.9,
+    "azure_networking": 0.85,
+    "azure_compute": 0.5,
+    "incident_management": 0.6,
+    "infrastructure_as_code": 0.55
+  },
+  "role_senior_cloud": {
+    "role_id": "senior_cloud_engineer",
+    "role_name": "Senior Cloud Engineer",
+    "required_skills": {
+      "container_orchestration": 4,
+      "azure_networking": 4,
+      "infrastructure_as_code": 3
+    },
+    "critical_skills": [
+      "container_orchestration"
+    ],
+    "min_coverage_ratio": 0.6
+  },
+  "org_edges": [
+    {
+      "manager_employee_id": "E1001",
+      "report_employee_id": "E1002"
+    },
+    {
+      "manager_employee_id": "E1001",
+      "report_employee_id": "E1003"
+    }
+  ]
+}

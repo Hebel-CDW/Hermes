@@ -1,0 +1,108 @@
+{
+  "n": 30,
+  "top1_agreement": 0.4,
+  "top3_agreement": 0.4,
+  "disagreement_count": 18,
+  "disagreements_sample": [
+    {
+      "id": 5,
+      "skill": "incident_management",
+      "manager": "EMP-f232ab6e",
+      "hermes_top": [
+        "EMP-666c8943"
+      ],
+      "notes": "baseline"
+    },
+    {
+      "id": 6,
+      "skill": "incident_management",
+      "manager": "EMP-f232ab6e",
+      "hermes_top": [
+        "EMP-666c8943"
+      ],
+      "notes": "baseline"
+    },
+    {
+      "id": 7,
+      "skill": "azure_compute",
+      "manager": "EMP-666c8943",
+      "hermes_top": [
+        "EMP-fd8efec3",
+        "EMP-f232ab6e",
+        "EMP-c775791c"
+      ],
+      "notes": "baseline"
+    },
+    {
+      "id": 8,
+      "skill": "azure_compute",
+      "manager": "EMP-666c8943",
+      "hermes_top": [
+        "EMP-fd8efec3",
+        "EMP-f232ab6e",
+        "EMP-c775791c"
+      ],
+      "notes": "baseline"
+    },
+    {
+      "id": 9,
+      "skill": "infrastructure_as_code",
+      "manager": "EMP-9a4bf2f6",
+      "hermes_top": [
+        "EMP-f232ab6e"
+      ],
+      "notes": "baseline"
+    },
+    {
+      "id": 10,
+      "skill": "infrastructure_as_code",
+      "manager": "EMP-9a4bf2f6",
+      "hermes_top": [
+        "EMP-f232ab6e"
+      ],
+      "notes": "baseline"
+    },
+    {
+      "id": 12,
+      "skill": "container_orchestration",
+      "manager": null,
+      "hermes_top": [
+        "EMP-fd8efec3",
+        "EMP-f232ab6e",
+        "EMP-9a4bf2f6"
+      ],
+      "notes": "disagreement_candidate"
+    },
+    {
+      "id": 14,
+      "skill": "incident_management",
+      "manager": "EMP-f232ab6e",
+      "hermes_top": [
+        "EMP-666c8943"
+      ],
+      "notes": "baseline"
+    },
+    {
+      "id": 15,
+      "skill": "azure_compute",
+      "manager": "EMP-666c8943",
+      "hermes_top": [
+        "EMP-fd8efec3",
+        "EMP-f232ab6e",
+        "EMP-c775791c"
+      ],
+      "notes": "baseline"
+    },
+    {
+      "id": 17,
+      "skill": "azure_networking",
+      "manager": null,
+      "hermes_top": [
+        "EMP-c775791c",
+        "EMP-f232ab6e",
+        "EMP-9a4bf2f6"
+      ],
+      "notes": "disagreement_candidate"
+    }
+  ]
+}

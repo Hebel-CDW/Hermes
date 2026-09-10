@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.env
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Azure Functions
+local.settings.json
+.python_packages/
+.azure/
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Secrets / local data
+*.pem
+*.key
+secrets/
+data/local/
+*.pbix.bak
+
+# Terraform / Bicep local
+infra/.terraform/
+*.tfstate*
+.azure-deploy/
+
+# Local-first data
+data/hermes.db
+data/hermes.db-*
+data/reports/
+
+# Frontend
+web/node_modules/
+web/dist/
+
+# Phase 8 — raw source (confidential); keep expected paths documented
+data/source/*
+!data/source/README.md
+config/client_names.txt
+data/hermes_validation.db
+data/hermes_validation.db-*

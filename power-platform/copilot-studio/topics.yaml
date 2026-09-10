@@ -1,0 +1,28 @@
+topics:
+  - name: StaffingFit
+    trigger_phrases:
+      - "who can staff"
+      - "find engineers for"
+      - "who has experience with"
+    actions:
+      - RankCandidates
+      - ResolveShortlist
+    response_template: |
+      Ranked shortlist (recommendation only — manager approval required):
+      {{#each candidates}}
+      - {{display_name}} ({{coded_identity}}): score {{fitness_score}}
+        Reasoning: {{reasoning}}
+      {{/each}}
+
+  - name: LearningPath
+    trigger_phrases:
+      - "what should I learn"
+      - "gap to senior"
+      - "path to role"
+    actions:
+      - ComputeGaps
+    response_template: |
+      Highest-impact gaps for {{role_name}}:
+      {{#each gaps}}
+      - {{skill_id}}: {{reasoning}} (demand impact {{demand_impact}})
+      {{/each}}
