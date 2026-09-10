@@ -1963,3 +1963,36 @@ accept / reject / override. Legal and Employee Relations own consultation sequen
 Until an external WORM sink exists, describe the ledger as an **integrity-chained audit log**,
 not integrity-chained WORM storage.
 
+
+## Phase 8 — Real data integration (decision log entry)
+
+| Decision | Choice |
+|---|---|
+| D1 | `0.0` baseline = NOT ASSESSED (`normalised_level` NULL) |
+| D2 | Client-named columns → `account_context` only, never fitness |
+| D3 | Soft-skill columns excluded; `culture fit` raises via classifier |
+| D4 | 2025 matrix is BASELINE only — isolated from scoring |
+
+### New tables (section 6 addendum)
+
+- `account_context` — account familiarity; never scoring
+- `baseline_assessments` — manager-assessed baseline; never scoring
+- `skill_aliases` / `manager_aliases` — pending until `mapped_by=human`
+- `cert_staging` — certificates with nullable `earned_at`
+
+### New guardrails (section 4 addendum)
+
+- Client-name blocklist (`config/client_names.txt`)
+- Soft-skill exclusion log (`data/reports/phase8_exclusions.json`)
+- Baseline isolation test (`tests/guardrails/test_baseline_isolation.py`)
+- Guardrail 8 remains: never score on historical staffing decisions
+
+### New scripts (section 19 addendum)
+
+- `scripts/phase8/extract_labels.py`
+- `scripts/phase8/generate_template_v2.py`
+- `scripts/phase8/ingest_baseline.py`
+- `scripts/phase8/ingest_certificates.py`
+- `scripts/phase8/promote_certs.py`
+- `scripts/phase8/baseline_agreement.py`
+

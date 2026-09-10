@@ -13,7 +13,7 @@
         "cert-CKA-E1001",
         "decl-E1001-container_orchestration"
       ],
-      "computed_at": "2026-09-10T10:07:47.285146Z",
+      "computed_at": "2026-09-10T10:21:05.458754Z",
       "scoring_config_version": "e0014592104e"
     },
     {
@@ -27,7 +27,7 @@
         "INC003:azure_networking",
         "cert-AZ-700-E1002"
       ],
-      "computed_at": "2026-09-10T10:07:47.285179Z",
+      "computed_at": "2026-09-10T10:21:05.458775Z",
       "scoring_config_version": "e0014592104e"
     },
     {
@@ -35,12 +35,12 @@
       "skill_id": "azure_compute",
       "proficiency": 3,
       "confidence": 0.35,
-      "freshness": 0.5209,
+      "freshness": 0.807,
       "volume_score": 0.2953,
       "evidence_ids": [
         "INC004:azure_compute"
       ],
-      "computed_at": "2026-09-10T10:07:47.285204Z",
+      "computed_at": "2026-09-10T10:21:05.458791Z",
       "scoring_config_version": "e0014592104e"
     },
     {
@@ -48,12 +48,12 @@
       "skill_id": "infrastructure_as_code",
       "proficiency": 2,
       "confidence": 0.35,
-      "freshness": 0.6474,
+      "freshness": 0.807,
       "volume_score": 0.2953,
       "evidence_ids": [
         "INC004:infrastructure_as_code"
       ],
-      "computed_at": "2026-09-10T10:07:47.285227Z",
+      "computed_at": "2026-09-10T10:21:05.458804Z",
       "scoring_config_version": "e0014592104e"
     },
     {
@@ -66,7 +66,7 @@
       "evidence_ids": [
         "INC005:incident_management"
       ],
-      "computed_at": "2026-09-10T10:07:47.285250Z",
+      "computed_at": "2026-09-10T10:21:05.458817Z",
       "scoring_config_version": "e0014592104e"
     },
     {
@@ -74,12 +74,12 @@
       "skill_id": "azure_compute",
       "proficiency": 2,
       "confidence": 0.35,
-      "freshness": 0.0676,
+      "freshness": 0.4124,
       "volume_score": 0.0,
       "evidence_ids": [
         "decl-E1005-azure_compute"
       ],
-      "computed_at": "2026-09-10T10:07:47.285272Z",
+      "computed_at": "2026-09-10T10:21:05.458829Z",
       "scoring_config_version": "e0014592104e"
     }
   ]

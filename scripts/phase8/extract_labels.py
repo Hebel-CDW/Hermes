@@ -12,7 +12,8 @@ from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "src"))
+# Prefer src/phase8 over scripts/phase8 on sys.path
+sys.path = [str(ROOT / "src"), str(ROOT)] + [p for p in sys.path if Path(p).resolve() != (ROOT / "scripts" / "phase8").resolve()]
 sys.path.insert(0, str(ROOT))
 
 from phase8.workbook import (  # noqa: E402

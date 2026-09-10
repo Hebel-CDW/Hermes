@@ -512,7 +512,7 @@ onen,ONEN,ONEN,1,ZI Ops,candidate,no,
 ontap_tools_for_vmware_vsphere,ONTAP Tools for VMware vSphere,ONTAP Tools for VMware vSphere,1,Storage,candidate,no,
 ontap_upgrade,Ontap Upgrade,Ontap Upgrade,1,Storage,candidate,no,
 ort,ORT,ORT,1,Endpoint compliance,candidate,no,
-,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],1,Citrix,excluded,no,client_account_context
+,[REDACTED_ACCOUNT_1],[REDACTED_ACCOUNT_1],1,Citrix,excluded,no,client_account_context
 orthicarolina_p_a,"Orthicarolina, P.A","Orthicarolina, P.A",1,CI Ops,candidate,no,
 os_management,OS Management,OS Management,1,iSeries L3,candidate,no,
 outbound_dialer_courtesy_callback,Outbound Dialer / Courtesy Callback,Outbound Dialer / Courtesy Callback,1,Collab,candidate,no,
@@ -696,11 +696,11 @@ zscaler,Zscaler,Zscaler,1,Datacenter,candidate,no,
 ,Process Awareness,Process Awareness,7,AIX|CTS|Storage|Tools|Windows|ZI Ops|iSeries L2,excluded,no,soft_skill_excluded
 ,Email Ethiquette,Email Ethiquette,5,AIX|Datacenter|ECC-OPS|Virtualization|iSeries L3,excluded,no,soft_skill_excluded
 ,Tools Expertise,Tools Expertise,4,Datacenter|ECC-OPS|Virtualization|iSeries L3,excluded,no,soft_skill_excluded
-,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],3,Backup|CI Ops|Storage,excluded,no,client_account_context
-,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],2,Backup|Storage,excluded,no,client_account_context
-,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],1,Network Security,excluded,no,client_account_context
-,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],1,Backup,excluded,no,client_account_context
-,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],1,Citrix,excluded,no,client_account_context
-,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],1,Citrix,excluded,no,client_account_context
-,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],1,CI Ops,excluded,no,client_account_context
-,[REDACTED_ACCOUNT],[REDACTED_ACCOUNT],1,Backup,excluded,no,client_account_context
+,[REDACTED_ACCOUNT_2],[REDACTED_ACCOUNT_2],3,Backup|CI Ops|Storage,excluded,no,client_account_context
+,[REDACTED_ACCOUNT_3],[REDACTED_ACCOUNT_3],2,Backup|Storage,excluded,no,client_account_context
+,[REDACTED_ACCOUNT_4],[REDACTED_ACCOUNT_4],1,Network Security,excluded,no,client_account_context
+,[REDACTED_ACCOUNT_5],[REDACTED_ACCOUNT_5],1,Backup,excluded,no,client_account_context
+,[REDACTED_ACCOUNT_6],[REDACTED_ACCOUNT_6],1,Citrix,excluded,no,client_account_context
+,[REDACTED_ACCOUNT_7],[REDACTED_ACCOUNT_7],1,Citrix,excluded,no,client_account_context
+,[REDACTED_ACCOUNT_8],[REDACTED_ACCOUNT_8],1,CI Ops,excluded,no,client_account_context
+,[REDACTED_ACCOUNT_9],[REDACTED_ACCOUNT_9],1,Backup,excluded,no,client_account_context

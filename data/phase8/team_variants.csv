@@ -1,0 +1,32 @@
+canonical_proposal,variants,count,needs_human_review,mapped_by
+AIX,AIX,1,no,pending
+AIX & Linux,AIX & Linux,4,no,pending
+AWS,AWS,19,no,pending
+Azure,Azure,16,no,pending
+Backup,Backup,1,no,pending
+Backup Team,Backup Team,12,no,pending
+CI Ops,CI Ops,1,no,pending
+Citrix,Citrix,1,no,pending
+Citrix Engineering,Citrix Engineering,4,no,pending
+Collab,Collab,10,no,pending
+Converged Infrastructure operations,Converged Infrastructure operations,21,no,pending
+CTS,CTS,1,no,pending
+CTS-Cisco,CTS-Cisco,1,no,pending
+CTS-Microsoft,CTS-Microsoft,6,no,pending
+Datacenter,Datacenter,1,no,pending
+DC Network,DC Network,4,no,pending
+ECC-OPS,ECC-OPS,1,no,pending
+Endpoint Compliance,Endpoint Compliance|Endpoint compliance,7,yes,pending
+GCP,GCP,6,no,pending
+IBM i L3,IBM i L3,4,no,pending
+iSeries,iSeries,11,no,pending
+iSeries L2,iSeries L2|iSeries L3,2,yes,pending
+MSS,MSS,1,no,pending
+Network Security,Network Security,1,no,pending
+NETWORKING/ SECURITY CANADA,NETWORKING/ SECURITY CANADA,3,no,pending
+NETWORKING/ SECURITY US,NETWORKING/ SECURITY US,32,no,pending
+Storage,Storage,11,no,pending
+Tools,Tools,3,no,pending
+Virtulization,Virtulization|Virtualization,9,yes,pending
+Windows,Windows,11,no,pending
+zi Ops,zi Ops|ZI Ops,19,yes,pending

@@ -53,3 +53,8 @@ data/source/*
 config/client_names.txt
 data/hermes_validation.db
 data/hermes_validation.db-*
+data/phase8/cert_date_request.csv
+data/phase8/manager_variants.csv
+data/hermes_phase8.db
+data/hermes_phase8.db-*
+data/phase8/label_extraction_report.json
