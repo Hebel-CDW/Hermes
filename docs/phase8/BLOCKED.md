@@ -14,7 +14,7 @@ String similarity ≥ 0.87 flagged ~38 clusters for human review (`needs_human_r
 
 ## B-MANAGER-VARIANTS
 
-`manager_variants.csv` proposes canonical forms for spelling variants (e.g. Xavier / Xavier Cardoz). **No auto-merge** into `org_edges`. Apply only after `mapped_by=human` rows are written.
+`manager_variants.csv` proposes canonical forms for spelling variants (e.g. Zeldor / Zeldor Cardoz). **No auto-merge** into `org_edges`. Apply only after `mapped_by=human` rows are written.
 
 ## B-TEAM-VARIANTS
 

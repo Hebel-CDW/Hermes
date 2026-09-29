@@ -27,7 +27,7 @@ def client(tmp_path):
 def _h(client):
     tok = client.post(
         "/api/auth/token",
-        json={"sub": "mgr-ui", "roles": ["manager", "admin"]},
+        json={"sub": "demo-admin"},  # registry principal; roles are server-derived
     ).json()["access_token"]
     return {"Authorization": f"Bearer {tok}"}
 

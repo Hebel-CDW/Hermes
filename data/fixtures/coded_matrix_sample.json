@@ -5,7 +5,7 @@
       "skill_id": "container_orchestration",
       "proficiency": 4,
       "confidence": 1.0,
-      "freshness": 0.4499,
+      "freshness": 0.4031,
       "volume_score": 0.5034,
       "evidence_ids": [
         "INC001:container_orchestration",
@@ -13,74 +13,122 @@
         "cert-CKA-E1001",
         "decl-E1001-container_orchestration"
       ],
-      "computed_at": "2026-09-10T10:21:05.458754Z",
-      "scoring_config_version": "e0014592104e"
+      "computed_at": "2026-09-29T10:36:26.544071Z",
+      "scoring_config_version": "9220dcfdfcf3",
+      "computation_run_id": ""
+    },
+    {
+      "coded_identity": "EMP-fd8efec3",
+      "skill_id": "workload_migration",
+      "proficiency": 4,
+      "confidence": 0.35,
+      "freshness": 0.843,
+      "volume_score": 0.2953,
+      "evidence_ids": [
+        "INC001:workload_migration"
+      ],
+      "computed_at": "2026-09-29T10:36:26.544120Z",
+      "scoring_config_version": "9220dcfdfcf3",
+      "computation_run_id": ""
+    },
+    {
+      "coded_identity": "EMP-fd8efec3",
+      "skill_id": "active_directory",
+      "proficiency": 3,
+      "confidence": 0.35,
+      "freshness": 0.8657,
+      "volume_score": 0.2953,
+      "evidence_ids": [
+        "INC002:active_directory"
+      ],
+      "computed_at": "2026-09-29T10:36:26.544162Z",
+      "scoring_config_version": "9220dcfdfcf3",
+      "computation_run_id": ""
     },
     {
       "coded_identity": "EMP-c775791c",
       "skill_id": "azure_networking",
       "proficiency": 3,
       "confidence": 0.9,
-      "freshness": 0.2808,
+      "freshness": 0.2516,
       "volume_score": 0.2953,
       "evidence_ids": [
         "INC003:azure_networking",
         "cert-AZ-700-E1002"
       ],
-      "computed_at": "2026-09-10T10:21:05.458775Z",
-      "scoring_config_version": "e0014592104e"
+      "computed_at": "2026-09-29T10:36:26.544202Z",
+      "scoring_config_version": "9220dcfdfcf3",
+      "computation_run_id": ""
+    },
+    {
+      "coded_identity": "EMP-c775791c",
+      "skill_id": "network_security",
+      "proficiency": 2,
+      "confidence": 0.35,
+      "freshness": 0.7963,
+      "volume_score": 0.2953,
+      "evidence_ids": [
+        "INC003:network_security"
+      ],
+      "computed_at": "2026-09-29T10:36:26.544240Z",
+      "scoring_config_version": "9220dcfdfcf3",
+      "computation_run_id": ""
     },
     {
       "coded_identity": "EMP-f232ab6e",
       "skill_id": "azure_compute",
       "proficiency": 3,
       "confidence": 0.35,
-      "freshness": 0.807,
+      "freshness": 0.7784,
       "volume_score": 0.2953,
       "evidence_ids": [
         "INC004:azure_compute"
       ],
-      "computed_at": "2026-09-10T10:21:05.458791Z",
-      "scoring_config_version": "e0014592104e"
+      "computed_at": "2026-09-29T10:36:26.544275Z",
+      "scoring_config_version": "9220dcfdfcf3",
+      "computation_run_id": ""
     },
     {
       "coded_identity": "EMP-f232ab6e",
       "skill_id": "infrastructure_as_code",
       "proficiency": 2,
       "confidence": 0.35,
-      "freshness": 0.807,
+      "freshness": 0.7784,
       "volume_score": 0.2953,
       "evidence_ids": [
         "INC004:infrastructure_as_code"
       ],
-      "computed_at": "2026-09-10T10:21:05.458804Z",
-      "scoring_config_version": "e0014592104e"
+      "computed_at": "2026-09-29T10:36:26.544311Z",
+      "scoring_config_version": "9220dcfdfcf3",
+      "computation_run_id": ""
     },
     {
       "coded_identity": "EMP-666c8943",
       "skill_id": "incident_management",
       "proficiency": 4,
       "confidence": 0.35,
-      "freshness": 0.927,
+      "freshness": 0.8941,
       "volume_score": 0.2953,
       "evidence_ids": [
         "INC005:incident_management"
       ],
-      "computed_at": "2026-09-10T10:21:05.458817Z",
-      "scoring_config_version": "e0014592104e"
+      "computed_at": "2026-09-29T10:36:26.544346Z",
+      "scoring_config_version": "9220dcfdfcf3",
+      "computation_run_id": ""
     },
     {
       "coded_identity": "EMP-9a4bf2f6",
       "skill_id": "azure_compute",
       "proficiency": 2,
       "confidence": 0.35,
-      "freshness": 0.4124,
+      "freshness": 0.3978,
       "volume_score": 0.0,
       "evidence_ids": [
         "decl-E1005-azure_compute"
       ],
-      "computed_at": "2026-09-10T10:21:05.458829Z",
-      "scoring_config_version": "e0014592104e"
+      "computed_at": "2026-09-29T10:36:26.544380Z",
+      "scoring_config_version": "9220dcfdfcf3",
+      "computation_run_id": ""
     }
   ]
 }

@@ -41,9 +41,16 @@ jobs:
         run: python -m scripts.dashboard_export
       - name: Query smoke
         run: python -m scripts.hermes_query staff --skills container_orchestration --level 3
+      - name: Impact audit
+        run: python -m scripts.impact_audit
+      - name: SVP demo determinism
+        run: python -m scripts.demo_svp --verify
       - name: Install web
         working-directory: web
         run: npm ci
       - name: Build web
         working-directory: web
         run: npm run build
+      - name: Test web
+        working-directory: web
+        run: npm test

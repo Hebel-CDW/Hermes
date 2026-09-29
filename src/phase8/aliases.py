@@ -44,7 +44,7 @@ class SkillAliasResolver:
                 "SELECT skill_id, match_confidence, mapped_by FROM skill_aliases WHERE alias_label = ?",
                 (key,),
             ).fetchone()
-        if row and row["mapped_by"] in {"auto", "human"}:
+        if row and row["mapped_by"] in {"auto", "human"} and row["skill_id"]:
             res = AliasResolution(row["skill_id"], float(row["match_confidence"]), row["mapped_by"], label)
             self._cache[key] = res
             return res

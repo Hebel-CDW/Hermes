@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path = [str(ROOT / "src"), str(ROOT)] + sys.path
-os.environ.setdefault("HERMES_TEST_MODE", "1")
+# No secret needed: this script only reads the database; it never tokenises people.
 
 from shared.db import HermesDB  # noqa: E402
 

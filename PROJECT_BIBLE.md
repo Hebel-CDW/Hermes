@@ -5,17 +5,18 @@
 **Initiative:** Project EVOLVE / Project Hermes  
 **Runtime posture:** Local-first MVP (Azure/Power Platform stubs retained for a future tenancy)  
 **Repo root:** `/Users/hebel/Hermes`  
-**Version of this bible:** 1.0 (aligned to codebase as of implementation)  
+**Version of this bible:** 2.0 (Phases 1–8 hardening + real-data integration)  
+**Aligned to:** codebase as of 2026-09-14 · ~77 pytest cases · coverage ≥80%  
 
 > **How to use this document**  
 > Give this file to a human leader *or* to GPT/Claude/Cursor. It is designed so a model that has *only* this document (plus the repo files it points to) can correctly reason about product intent, architecture, APIs, data model, algorithms, ops, and risks.  
-> When implementing changes: treat the **source files listed under “Canonical code”** as ground truth; this bible summarizes and quotes them.
+> When implementing changes: treat the **source files listed under “Canonical code”** and the **executable tests** as ground truth. Section 17 embeds historical engine snapshots that may lag; prefer opening the live paths.
 
 ---
 
 ## 0. One-paragraph elevator
 
-**Hermes** is a **recommendation-only** skills and workforce intelligence system. It converts operational evidence (resolved tickets, certifications, manager-confirmed declared skills) into a living **coded skills matrix**, then answers two questions: (1) *Who fits this work?* (2) *What should this person learn next?* Managers always approve staffing; Hermes never auto-assigns. Scoring never sees real names or protected demographics—only coded tokens like `EMP-0142`—until an audited shortlist resolution step.
+**Hermes** is a **recommendation-only** skills and workforce intelligence system. It converts operational evidence (resolved tickets, dated certifications, manager-confirmed declared skills) into a living **coded skills matrix**, then answers two questions: (1) *Who fits this work?* (2) *What should this person learn next?* Managers always approve staffing via an explicit decision lifecycle; Hermes never auto-assigns. Scoring never sees real names, protected demographics, client/account labels, or the 2025 manager baseline—only coded tokens like `EMP-a1b2c3d4`—until an audited shortlist resolution step. The Skill Matrix 2025 workbook is ingested as an **isolated human baseline** for validation, never as scoring seed. **Skill Matrix 2026 will not be issued**; living scores come from tickets, dated certificates, and manager-confirmed declared skills. See `docs/EXCEL_SUNSET.md`.
 
 ---
 
@@ -23,12 +24,12 @@
 
 | Role | Care about | Read sections |
 |------|------------|---------------|
-| **C-suite / VP** | Why it exists, risk, ROI narrative, what is / is not automated | 0, 2, 3, 11, 13 |
-| **CTO / Architect** | Hybrid philosophy, fairness-by-architecture, layer boundaries | 2–6, 10, 12 |
-| **Product / Delivery** | Screens, worked examples, success metrics | 3, 7, 8, 11 |
-| **Engineering IC** | Packages, algorithms, APIs, tests | 5–10, 14 |
-| **DevOps / Platform** | Run locally, CI, env vars, SQLite, future Azure | 9, 12, 15 |
-| **Security / HR / Fairness** | Guardrails, audits, what data is forbidden | 4, 6, 11 |
+| **C-suite / VP** | Why it exists, risk, ROI narrative, what is / is not automated, EU AI Act posture | 0, 2, 3, 13, 23 |
+| **CTO / Architect** | Hybrid philosophy, fairness-by-architecture, baseline isolation, layer boundaries | 2–6, 10, 12, 24 |
+| **Product / Delivery** | Screens, worked examples, success metrics, Phase 8 human decisions | 3, 7, 8, 11, 24 |
+| **Engineering IC** | Packages, algorithms, APIs, tests, guardrails | 5–10, 14, 24 |
+| **DevOps / Platform** | Run locally, CI, env vars, SQLite, Phase 8 ingest, future Azure | 9, 12, 15, 19 |
+| **Security / HR / Fairness** | Guardrails, audits, forbidden data, bias methodology | 4, 6, 11, 23–24 |
 | **Any LLM** | Full context pack — read entire bible, then open listed files | All |
 
 ---
@@ -42,17 +43,19 @@ Staffing is done from memory (“who did something like this last time?”). Exp
 Make demonstrated capability **visible, searchable, current, and auditable**—with the same discipline applied to infrastructure inventory.
 
 ### Positioning pillars
-1. **Evidence-first** — demonstrated > certified > declared (weighted, not exclusive).
-2. **Coded identity by design** — no names inside scoring.
-3. **Fairness by architecture** — schema has no field for protected attributes.
-4. **Living inventory** — matrix updates from new evidence, not annual surveys.
+1. **Evidence-first** — demonstrated > certified > declared (weighted, not exclusive).  
+2. **Coded identity by design** — no names inside scoring (`EMP-` + 8 hex).  
+3. **Fairness by architecture** — schema has no field for protected attributes.  
+4. **Living inventory** — matrix updates from new evidence, not annual surveys.  
+5. **Baseline-as-judge, not seed** — manager assessments grade the engine; they do not train it.
 
-### Explicit non-goals (out of scope for MVP)
+### Explicit non-goals (out of scope for current MVP)
 - Automated staffing assignment  
 - Performance review, compensation, or promotion decisions  
 - Ingesting any protected demographic attribute  
 - Displaying real names inside the core matrix / scoring / Matrix UI  
-- Org-wide rollout beyond the coded pilot population  
+- Feeding 2025 baseline ratings or historical staffing decisions into fitness scores  
+- Soft-skill or client/account columns as skills  
 
 ### Governing slogan
 **Rules decide. Rules compute.** Language models / UI / Copilot (future) may only **narrate** engine output—never invent candidates or scores.
@@ -62,19 +65,21 @@ Make demonstrated capability **visible, searchable, current, and auditable**—w
 ## 3. Product surfaces (what a user experiences)
 
 ### 3.1 Animated operator console (`web/`)
-Stack: Vite + React + TypeScript + Framer Motion.
+Stack: Vite + React + TypeScript + Framer Motion. API client stores a JWT in `sessionStorage` (`ensureAuth`).
 
 | Route | Job | Notes |
 |-------|-----|-------|
 | `/` Entry | Brand-first hero: **HERMES** + one line + CTA | Letter stagger + atmosphere drift |
-| `/staff` | Pick skill + level → ranked shortlist → optional Resolve names | NarrateBanner: manager approval required |
-| `/learn` | Pick coded identity + target role → demand-ranked gaps | No names on this surface |
-| `/matrix` | Coverage ring, freshness bars, skill heatmap | **Coded IDs only** |
+| `/staff` | Rank shortlist → explainability drill-down → resolve ceremony → accept/reject/override decision → what-if level slider | `requester_id` from JWT; decision never scored |
+| `/learn` | Coded identity + role → numbered demand-ranked learning path | No names |
+| `/matrix` | Coverage, freshness, heatmap + **time scrubber** over `skills_matrix_history` runs | Coded IDs only |
+| `/me` | Employee evidence view + contest → audit event | Token needs `coded_identity` claim |
+| `/constellation` | Decorative skill-node view (deck / screenshot) | Respects `prefers-reduced-motion` |
 
 Visual direction: deep graphite, teal + amber accents; fonts Syne (display) + IBM Plex Sans (body).
 
 ### 3.2 FastAPI (`api/main.py`)
-HTTP API for judgment + dashboard; serves `web/dist` when built. Dev UI proxies `/api` → `:8000`.
+HTTP API for judgment + dashboard + auth stub + decision lifecycle; serves `web/dist` when built. Dev UI proxies `/api` → `:8000`.
 
 ### 3.3 CLI
 - `python -m scripts.hermes_query staff ...`  
@@ -82,312 +87,331 @@ HTTP API for judgment + dashboard; serves `web/dist` when built. Dev UI proxies 
 - `python -m scripts.dashboard_export` → static HTML report  
 
 ### 3.4 Ingestion
-`python -m scripts.ingest_fixtures` loads pilot JSON → identity gate → inference → SQLite.
+- **Pilot / demonstrated path:** `python -m scripts.ingest_fixtures` → identity gate → inference → `skills_matrix` (+ history).  
+- **Phase 8 baseline path:** `python scripts/phase8/ingest_baseline.py` → `baseline_assessments` + `account_context` only.  
+- **Phase 8 certs:** `python scripts/phase8/ingest_certificates.py` → `cert_staging` with `earned_at=NULL` until humans complete `cert_date_request.csv`.
 
 ---
 
 ## 4. Guardrails (non-negotiable)
 
 1. **Single identity abstraction entry** — all records enter via `IdentityAbstractionGate` / `HermesService.abstract`.  
-2. **No protected attributes** — blocked at gate; schema audited (`scripts/fairness_audit.py`). Forbidden fields include age, gender, ethnicity, race, religion, disability, etc. (`PROTECTED_ATTRIBUTE_FIELDS` in `src/shared/models.py`).  
-3. **Governed identity resolution** — names only for shortlisted candidates, only for the requesting manager, integrity-chained audit.  
-4. **Human override** — every staffing suggestion requires manager approval.  
-5. **Full audit lineage** — ingestion, inference, ranking, resolution events in `audit_ledger`.  
-6. **Confidence + freshness** on every skill record.  
-7. **Leakage audit** — matrix scanned for PII field names, emails, blocklisted display names (`scripts/leakage_audit.py`).
+2. **No protected attributes** — blocked at gate; schema audited (`scripts/fairness_audit.py`).  
+3. **Governed identity resolution** — names only for shortlisted candidates owned by the JWT principal; rate-limited; integrity-chained audit.  
+4. **Human override** — every staffing suggestion ends in `POST /api/staffing/{id}/decision` (accept / reject / override).  
+5. **Integrity-chained audit lineage** — `prev_hash` / `row_hash` on `audit_ledger`; CI verifies via `scripts/verify_audit_chain.py`. Not external WORM yet.  
+6. **Confidence + volume + freshness** on every skill record (freshness applied once; per-skill half-life / `decay_class`).  
+7. **Leakage audit** — matrix scanned for PII, emails, name blocklist, **and client/account labels** (`CLIENT_NAME_BLOCKLIST`).  
+8. **Never score on historical staffing decisions** — decisions are audit labels only.  
+9. **Fail-closed secrets** — `IDENTITY_MAP_SECRET` / `HERMES_JWT_SECRET` required outside `HERMES_TEST_MODE=1`; denylisted defaults rejected.  
+10. **Gaps ACL** — self / direct-report via `org_edges` / admin (admin access audited).  
+11. **Shortlist cap** — `shortlist_size` hard-capped at 10.  
+12. **No ticket excerpts** — persist `matched_keywords` + `source_ref` only.  
+13. **Baseline isolation** — `baseline_assessments` has no path into `merge_evidence` / `rank_candidates` / `compute_gaps` (see `tests/guardrails/test_baseline_isolation.py`).  
+14. **Soft-skill exclusion** — excluded fields logged; `culture fit` raises via `classify_assessment_column`.  
+15. **Account context isolation** — client columns → `account_context` only; never fitness.  
+16. **No fabricated dates** — missing `earned_at` / `assessed_at` stay NULL; NULL-dated certs never enter `skills_matrix`.  
+17. **No auto manager merge** — `manager_aliases` require `mapped_by='human'`.
 
 ---
 
 ## 5. System architecture
 
 ```text
-[pilot_population.json fixtures]
-            |
-            v
-   scripts/ingest_fixtures.py
-            |
-            v
-   IdentityAbstractionGate  -----> identity_map + identity_vault (names ONLY here)
-            |
-            v
-   SkillInferenceEngine ---------> evidence_staging + skills_matrix
-            |
-            +---- demand_signals, role_profiles
-            |
-   +--------+--------+
-   |                 |
- Staff/Learn UI   FitnessGapEngine
-   FastAPI/CLI           |
-                         v
-              ranked shortlist / gaps
-                         |
-              IdentityResolutionGateway  (optional, audited)
-                         |
-                    display names
+[pilot fixtures]                    [Skill_Matrix_2025.xlsx]  (gitignored source)
+       |                                      |
+       v                                      v
+ ingest_fixtures.py              phase8/ingest_baseline.py
+       |                         phase8/ingest_certificates.py
+       v                                      |
+ IdentityAbstractionGate -----> identity_map + identity_vault
+       |                                      |
+       |                         +------------+-------------+
+       |                         |                          |
+       |                    baseline_assessments      cert_staging
+       |                    account_context           (earned_at NULL)
+       |                         |                          |
+       |                         | (validation only)   promote when dated
+       |                         v                          |
+       |              baseline_agreement.py                 |
+       v                                                    v
+ SkillInferenceEngine ------------------------------> evidence_staging
+       |                                                    |
+       v                                                    v
+ skills_matrix (+ skills_matrix_history, computation_run_id)
+       |
+ FitnessGapEngine  <--- role_profiles, demand_signals, allocation, adjacency
+       |
+ ranked shortlist / gaps  ---> staffing decision (audit only)
+       |
+ IdentityResolutionGateway (JWT owner, rate-limited)
 ```
 
-### Hybrid philosophy (original EVOLVE design)
-- **Low-code / orchestration** (future Azure): move data reliably.  
-- **Custom Python**: identity, inference, fitness/gap, resolution — must be deterministic and testable.  
+**Load-bearing rule:** arrows from `baseline_assessments` must never enter `SkillInferenceEngine` or `FitnessGapEngine` except the offline agreement harness.
 
-**Today (local-first):** fixtures + CLI replace Power Automate; React console replaces Copilot/Power BI runtime; SQLite replaces Azure SQL. Stubs remain under `infra/`, `power-platform/`, `functions/`.
+### Hybrid philosophy
+- **Low-code / orchestration** (future Azure): move data reliably.  
+- **Custom Python**: identity, inference, fitness/gap, resolution — deterministic and testable.  
+**Today:** fixtures + Phase 8 spreadsheets + FastAPI + React + SQLite. Stubs under `infra/`, `power-platform/`, `functions/`.
 
 ---
 
-## 6. Data model (SQLite) — full schema
+## 6. Data model (SQLite)
 
 Canonical file: [`infra/sqlite/001_schema.sql`](infra/sqlite/001_schema.sql)  
-Runtime DB path: `HERMES_DB_PATH` or default `data/hermes.db`
+Runtime DB: `HERMES_DB_PATH` or `data/hermes.db`
 
-```sql
--- identity_map: coded token <-> irreversible source_hash (SHA-256 of employee key)
--- identity_vault: RESTRICTED — display_name + source_employee_key; NEVER join into matrix UI queries
--- evidence_staging: demonstrated | certified | declared rows
--- skills_matrix: scored skill per coded_identity (confidence, freshness, evidence_ids_json)
--- role_profiles: target roles + required_skills_json
--- demand_signals: skill_id -> demand_weight (0..1) for gap ranking
--- availability: coded_identity -> is_available
--- audit_ledger: integrity-chained events
--- staffing_requests: request_id, requester_id, shortlist_json (for resolve authz)
-```
+### Core (scoring path)
+| Table | Role |
+|-------|------|
+| `identity_map` | `coded_identity` ↔ irreversible `source_hash` |
+| `identity_vault` | Restricted display names — never join into Matrix UI queries |
+| `org_edges` | Manager → report for gaps ACL |
+| `evidence_staging` | demonstrated / certified / declared |
+| `skills_matrix` | Scored skills: proficiency, confidence, freshness, **volume_score**, evidence, config version, `computation_run_id` |
+| `skills_matrix_history` | Point-in-time matrix rows per run |
+| `role_profiles` | Required skills + `critical_skills` + `min_coverage_ratio` |
+| `demand_signals` | Gap demand weights |
+| `availability` | **allocation** 0..1 (graduated; not boolean bonus) |
+| `audit_ledger` | Integrity-chained events (`prev_hash`, `row_hash`) |
+| `staffing_requests` | Shortlist + decision fields (`status`, `approved_by`, `chosen_coded_identity`, `engine_rank_of_choice`, …) |
+| `evidence_contests` | Employee contests from `/api/me/contest` |
 
-**Timestamps:** ISO-8601 UTC strings (`strftime('%Y-%m-%dT%H:%M:%fZ','now')` or Python `.isoformat()`).
+### Phase 8 (non-scoring / staging)
+| Table | Role |
+|-------|------|
+| `baseline_assessments` | Manager baseline; `assessed_at` always NULL from workbook; `0.0` → `normalised_level` NULL |
+| `account_context` | Client familiarity — never fitness |
+| `skill_aliases` | Label → `skill_id`; `mapped_by` = auto \| human \| pending |
+| `manager_aliases` | Spelling variants; merge only if `mapped_by='human'` |
+| `cert_staging` | Cert labels with nullable `earned_at`; `promoted` flag |
 
-**Pilot fixture shape** (`data/fixtures/pilot_population.json`):
-- `pilot_population[]`: `{employee_id, display_name}`  
-- `tickets[]`: `{employee_id, ticket_number, short_description, resolved_at}`  
-- `certifications[]`: `{employee_id, cert_code, earned_at, skill_id, proficiency}`  
-- `declared[]`: `{employee_id, skill_id, proficiency, manager_confirmed, declared_at}`  
-- `demand_weights`, `role_senior_cloud`
+**Timestamps:** ISO-8601 UTC. **Do not invent dates.**
 
-Synthetic pilot people: E1001 Alex Rivera, E1002 Jordan Lee, E1003 Sam Patel, E1004 Casey Nguyen, E1005 Riley Brooks.
+### Pilot fixture (`data/fixtures/pilot_population.json`)
+People E1001–E1005, tickets, certs, declared skills, demand weights, role profile, `org_edges`.
+
+### Phase 8 source (gitignored)
+Place under `data/source/` (see `data/source/README.md`):
+- `Skill_Matrix_2025.xlsx`
+- `Project_Hermes_Technical_Skills_Collection_Template.xlsx`  
+Client blocklist: `config/client_names.txt` (from `config/client_names.example`).
 
 ---
 
 ## 7. Skills taxonomy
 
-Canonical file: [`taxonomy/skills_ontology.yaml`](taxonomy/skills_ontology.yaml)
+Canonical: [`taxonomy/skills_ontology.yaml`](taxonomy/skills_ontology.yaml)
 
-Domains (MVP):
+MVP domains:
 - **cloud_platform:** `container_orchestration`, `azure_networking`, `azure_compute`  
 - **platform_ops:** `incident_management`, `infrastructure_as_code`  
 
-Each skill has **5 proficiency levels** (1 Awareness … 5 Expert) with written behavioural definitions, ticket keywords, and optional cert codes (e.g. CKA, AZ-700).
+Each skill requires:
+- five proficiency levels with behavioural definitions (ontology wording wins over any template v1 text)  
+- ≥1 `ticket_keywords`  
+- `decay_class`: `fast` (90d) / `medium` (365d) / `slow` (1095d) half-lives  
+- optional `cert_codes`, `related_skills` / `relations` (adjacency discount in fitness)  
 
-Loader: `shared.taxonomy.load_taxonomy()` / `validate_taxonomy_completeness()`.
+Phase 8 label clustering proposals: `data/phase8/candidate_skills.csv` (account labels redacted for commit). Collection template v2: `data/phase8/Hermes_Skills_Collection_Template_v2.xlsx`.
+
+Loader / validation: `shared.taxonomy.load_taxonomy()` / `validate_taxonomy_completeness()`.
 
 ---
 
 ## 8. Worked examples (must remain reproducible)
 
 ### A) Staff a Kubernetes migration
-1. Manager asks for `container_orchestration` level ≥ 3.  
-2. Engine ranks coded candidates; E1001’s token typically ranks first (multiple k8s tickets + CKA + declared).  
-3. Resolve shortlist → “Alex Rivera” appears only after audited resolution.  
+1. Authenticate (`POST /api/auth/token`).  
+2. Rank `container_orchestration` ≥ 3 → coded shortlist (≤10).  
+3. Resolve → display names; record accept/override decision.  
 
-Tests: `tests/integration/test_pipeline.py`, `tests/e2e/test_local_pipeline.py`, UI `/staff`.
+Tests: `tests/integration/test_pipeline.py`, `tests/e2e/test_local_pipeline.py`, `tests/api/test_api.py`, UI `/staff`.
 
 ### B) Learning path toward Senior Cloud Engineer
-1. Engineer coded as E1003’s token asks gaps vs `senior_cloud_engineer`.  
-2. Gaps ranked by `demand_impact` (deficit × demand_weight)—networking / orchestration usually dominate.  
+Gaps vs `senior_cloud_engineer`, ranked by demand impact → numbered path on `/learn`.
 
-UI: `/learn`.
+### C) Baseline does not move the shortlist
+Populate `baseline_assessments`; `merge_evidence` / `rank_candidates` / `compute_gaps` outputs stay identical (`tests/guardrails/test_baseline_isolation.py`).
+
+### D) NULL-dated cert stays out of matrix
+`cert_staging` with `earned_at=NULL` never yields `skills_matrix` rows; dated certified evidence does (`tests/phase8/test_cert_null_dates.py`).
 
 ---
 
 ## 9. Runbook (DevOps / local)
 
 ### Prerequisites
-- Python ≥ 3.9  
-- Node 20+ (for `web/`)  
-- macOS/Linux shell  
+Python ≥ 3.9 · Node 20+ · openpyxl (via `pip install -e .`)
 
 ### Bootstrap
 ```bash
 cd /Users/hebel/Hermes
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
+export HERMES_TEST_MODE=1   # pytest / local fixture secrets only
 python -m scripts.ingest_fixtures
 pytest
 ```
 
-### API
+### API + UI
 ```bash
+# Strong secrets required if HERMES_TEST_MODE is unset:
+# export IDENTITY_MAP_SECRET=... HERMES_JWT_SECRET=...
 uvicorn api.main:app --reload --port 8000
-# health: GET http://127.0.0.1:8000/health
+cd web && npm install && npm run start:web   # :5173, proxies /api
 ```
 
-### Web UI (dev)
+### Phase 8 (optional real workbook)
 ```bash
-cd web
-npm install
-npm run start:web   # Vite on :5173, proxies /api → :8000
-```
-
-### Web UI (served by API)
-```bash
-cd web && npm run build
-uvicorn api.main:app --port 8000
-# open http://127.0.0.1:8000/
+# files already at data/source/*.xlsx (gitignored)
+python scripts/phase8/extract_labels.py
+python scripts/phase8/ingest_baseline.py data/source/Skill_Matrix_2025.xlsx data/hermes.db
+python scripts/phase8/ingest_certificates.py
+python scripts/phase8/baseline_agreement.py
+python scripts/verify_audit_chain.py --db data/hermes.db
 ```
 
 ### Environment variables
-| Var | Purpose | Default |
-|-----|---------|---------|
-| `HERMES_DB_PATH` | SQLite file | `data/hermes.db` |
-| `IDENTITY_MAP_SECRET` | HMAC salt for tokenization | `local-dev-secret` |
-| `HERMES_API_KEY` / `FUNCTION_AUTH_KEY` | Optional API auth header `x-api-key` | empty = open local |
-| `SCORING_CONFIG_VERSION` | Version stamp on skill records | `1.0.0` |
-| `VITE_HERMES_API_KEY` | Frontend API key if backend requires it | unset |
+| Var | Purpose | Notes |
+|-----|---------|-------|
+| `HERMES_DB_PATH` | SQLite path | default `data/hermes.db` |
+| `IDENTITY_MAP_SECRET` | HMAC tokenization | fail-closed outside test mode; ≥16 chars; no denylist defaults |
+| `HERMES_JWT_SECRET` | HS256 JWT | fail-closed outside test mode |
+| `HERMES_TEST_MODE` | Allow fixture secrets | `1` for pytest only |
+| `HERMES_API_KEY` | Optional `x-api-key` | empty = open local |
+| `HERMES_W_DEMO` / `W_CERT` / `W_DECL` | Evidence weights | version = hash of config values |
+| `HERMES_HALF_LIFE` | Default half-life days | overridden by `decay_class` |
+| `HERMES_MAX_SHORTLIST` | Cap (≤10) | |
+| `HERMES_MIN_COVERAGE` | Coverage floor | default 0.6 |
+| `VITE_HERMES_API_KEY` | Frontend API key | if backend requires it |
 
-### CI (`.github/workflows/ci.yml`)
-1. pip install  
-2. ingest fixtures  
-3. pytest (≥80% coverage on custom packages)  
-4. leakage + fairness audits  
-5. coverage report + CLI smoke  
-6. `npm ci` + `npm run build` in `web/`  
+Scoring **version** is `sha256(canonical_json(config))[:12]` — not a free-form env stamp.
+
+### CI
+Ingest → pytest (cov ≥80%) → verify audit chain → leakage + fairness → coverage + CLI smoke → `web` build. Env: `HERMES_TEST_MODE=1` + test secrets.
 
 ### Audits
 ```bash
 python -m scripts.leakage_audit
 python -m scripts.fairness_audit
-python -m scripts.coverage_report   # expects ≥80% demonstrated coverage on pilot
+python scripts/verify_audit_chain.py --db data/hermes.db
+python -m scripts.impact_audit          # HR-held metrics; not in scoring path
+python -m scripts.coverage_report
 ```
 
 ---
 
-## 10. Canonical code map (every important module)
+## 10. Canonical code map
 
-### Judgment engines (`src/`)
+### Judgment & shared (`src/`)
 | Path | Responsibility |
 |------|----------------|
-| `src/identity_abstraction/gate.py` | Tokenize employee keys → `EMP-####`; strip PII; reject protected attrs; leakage scanner |
-| `src/skill_inference/engine.py` | Ticket keyword → skills; merge evidence; confidence & freshness |
-| `src/fitness_gap/engine.py` | Fitness ranking + demand-ranked gaps |
-| `src/identity_resolution/gateway.py` | Shortlist + requester-gated name resolution |
-| `src/shared/models.py` | Pydantic domain models + forbidden field sets |
-| `src/shared/config.py` | Scoring weights |
-| `src/shared/taxonomy.py` | YAML ontology loader |
-| `src/shared/db.py` | SQLite access layer |
-| `src/shared/audit.py` | In-memory + SQLite audit ledger |
-| `src/shared/service.py` | Application service wiring engines ↔ DB |
+| `identity_abstraction/gate.py` | `EMP-`+8hex HMAC tokens; recursive PII/leakage/client scan |
+| `skill_inference/engine.py` | Depth-based demo levels; confidence vs volume; freshness once; decay_class half-lives |
+| `fitness_gap/engine.py` | Cap 10; coverage/critical floors; allocation; adjacency discount; structured `reasoning_detail` |
+| `identity_resolution/gateway.py` | Shortlist + owner-gated name reveal |
+| `shared/auth.py` | JWT issue/verify (`AuthPrincipal`) |
+| `shared/secrets.py` | Fail-closed secret validation |
+| `shared/org.py` | Gaps subject binding |
+| `shared/rate_limit.py` | Resolve rate limit (10/min/principal) |
+| `shared/exclusions.py` | Soft-skill / culture-fit / account classification + log |
+| `shared/config.py` | Config-hash scoring version |
+| `shared/service.py` | App wiring; decisions; `/me`; contests |
+| `shared/db.py` | SQLite + audit hashing + history |
+| `phase8/*` | Workbook parsers, normalize, aliases (isolated from scoring) |
 
 ### API / scripts / web
 | Path | Responsibility |
 |------|----------------|
-| `api/main.py` | FastAPI routes + CORS + SPA static |
-| `scripts/ingest_fixtures.py` | Fixture → matrix pipeline |
-| `scripts/hermes_query.py` | CLI staff/gaps |
-| `scripts/narrate.py` | Narrate-only formatter + grounding asserts |
-| `scripts/dashboard_export.py` | Static coded-only HTML/JSON |
-| `web/src/pages/*` | Entry, Staff, Learn, Matrix |
-| `web/src/api/client.ts` | Typed fetch client |
-| `web/src/components/*` | Motion UI building blocks |
-
-### Future Azure stubs (not required to run MVP)
-`infra/main.bicep`, `infra/sql/001_schema.sql`, `power-platform/**`, `functions/function_app.py` — see `docs/future-azure.md`.
+| `api/main.py` | Auth, rank, gaps ACL, resolve, decision, me, matrix runs, SPA |
+| `scripts/ingest_fixtures.py` | Pilot → matrix |
+| `scripts/phase8/*.py` | Labels, template v2, baseline, certs, agreement |
+| `scripts/verify_audit_chain.py` | Chain integrity |
+| `web/src/pages/*` | Entry, Staff, Learn, Matrix, Me, Constellation |
 
 ---
 
 ## 11. Algorithms (precise enough to reimplement)
 
 ### 11.1 Identity abstraction
-- Input: raw record with `employee_id` (+ optional `name`/`display_name`).  
-- Reject if any key ∈ `PROTECTED_ATTRIBUTE_FIELDS`.  
-- Token = `EMP-` + deterministic HMAC-SHA256-derived 4-digit code (collision walk).  
-- Strip `IDENTITY_PII_FIELDS` before matrix write.  
-- Store display name **only** in `identity_vault` / gate `_display_names`.  
+- Token = `EMP-` + first 8 hex of HMAC-SHA256(`IDENTITY_MAP_SECRET`, normalised key); reuse `identity_map` for same `source_hash`.  
+- Recursive PII / protected-attribute / email / client-label scans.  
+- Display names only in vault.
 
 ### 11.2 Skill inference / merge
-Weights (default): demonstrated **0.55**, certified **0.30**, declared **0.15**.  
-Freshness: `0.5 ** (days_since / half_life)` with half_life **180** days.  
-Declared without `manager_confirmed` is skipped.  
-Proficiency: freshness-weighted vote by level; if demonstrated within ±1 of winner, take max.  
-Confidence: sum(contributions) / sum(type weights), floored at `min_confidence` (0.1).  
-Freshness on skill record: mean of per-evidence freshness.
+- Weights: demonstrated 0.55 / certified 0.30 / declared 0.15 (configurable; version hashed).  
+- Demonstrated level from depth vs surface keywords (not hard-coded 3).  
+- **Confidence** = cross-type agreement; **volume_score** = `1 - exp(-k * n_demo)`.  
+- Freshness once on the skill record; half-life from `decay_class` or skill override.  
+- Declared without manager confirmation skipped.  
+- No `ticket_excerpt` persistence.
 
 ### 11.3 Fitness ranking
-For each coded identity with evidence on at least one required skill:
 ```
-contrib(skill) = min(1, current_level/required_level) * confidence * freshness
-fitness = mean(contrib over required skills) + availability_bonus(if available)
+contrib = min(1, level/required) * confidence * volume_score * freshness * adjacency_discount
+fitness = mean(contrib) * (0.85 + 0.15 * allocation)
 ```
-Exclude candidates with **no** evidenced match. Sort by fitness desc, take shortlist_size. Every candidate must carry `evidence_ids` + `per_skill_reasoning`.
+Exclude below `min_coverage_ratio` or missing critical skills. Cap shortlist at 10. Emit `reasoning_detail`.
 
-### 11.4 Gap computation
-For each required skill where current < required:
-```
-demand_impact = demand_weight[skill] * (required - current_or_0)
-```
-Sort gaps by demand_impact desc.
+### 11.4 Gaps
+`demand_impact = demand_weight * deficit`; subject ACL enforced at API.
 
-### 11.5 Resolution
-Require `requester_id == staffing_requests.requester_id` and coded id ∈ shortlist. Log `identity_resolution` audit event. Raise `ResolutionDenied` otherwise.
+### 11.5 Resolution & decisions
+Resolve only if JWT `sub` owns the staffing request. Decisions audit-only (Guardrail 8).
+
+### 11.6 Baseline scale (Phase 8)
+Single function `phase8.normalize.normalize_level`: `0.0` → NULL; `five_point_undefined` 1–5; `collab_four_point` 1–4 mapped to 1,2,4,5.
 
 ---
 
 ## 12. HTTP API contract
 
-Auth: if `HERMES_API_KEY` set, send header `x-api-key: <key>`.
+**Auth:** `Authorization: Bearer <jwt>` from `POST /api/auth/token` (local/test stub). Optional `x-api-key` if `HERMES_API_KEY` set. Body `requester_id` is ignored — principal wins.
 
-| Method | Path | Body / notes | Response |
-|--------|------|--------------|----------|
-| GET | `/health` | — | `{status, service, mode}` |
-| GET | `/api/skills` | taxonomy | `{skills:[{skill_id,name,description,domain_*}]}` |
-| GET | `/api/roles` | SQLite roles | `{roles:[{role_id,role_name,required_skills}]}` |
-| GET | `/api/identities` | coded only | `{identities:["EMP-..."]}` |
-| GET | `/api/dashboard` | coded matrix stats | coverage, freshness, skill_distribution |
-| POST | `/api/identity/abstract` | raw employee record | coded record + stripped_fields |
-| POST | `/api/inference/merge` | `{evidence:[EvidenceRecord]}` | `{skills:[SkillRecord]}` |
-| POST | `/api/fitness/rank` | `{request_id,requester_id,required_skills,shortlist_size?}` | FitnessResult |
-| POST | `/api/fitness/gaps` | `{coded_identity,role_id,role_name,required_skills}` | GapResult |
-| POST | `/api/identity/resolve` | `{request_id,requester_id}` | `{resolved:[{coded_identity,display_name,...}]}` |
-
-SPA: if `web/dist` exists, non-API paths serve `index.html`.
+| Method | Path | Notes |
+|--------|------|-------|
+| GET | `/health` | Liveness |
+| POST | `/api/auth/token` | Dev/test JWT issuer |
+| GET | `/api/skills` `/api/roles` `/api/identities` `/api/dashboard` | JWT |
+| GET | `/api/matrix/runs` · `/api/matrix/runs/{id}` | History scrubber |
+| POST | `/api/identity/abstract` | Gate |
+| POST | `/api/inference/merge` | Returns `computation_run_id` |
+| POST | `/api/fitness/rank` | Cap shortlist; coverage floors |
+| POST | `/api/fitness/gaps` | ACL: self / report / admin |
+| POST | `/api/identity/resolve` | Owner + rate limit → 429 |
+| POST | `/api/staffing/{request_id}/decision` | accepted \| rejected \| overridden |
+| GET | `/api/me` · POST `/api/me/contest` | Employee evidence rights |
 
 ---
 
 ## 13. Business / risk narrative (C-suite)
 
-**Value:** better-fit staffing; expertise stops being invisible; defensible auditable process; first measured baseline of demonstrated skill coverage (MVP byproduct).
+**Value:** better-fit staffing; invisible expertise surfaces; defensible oversight; baseline agreement grades the engine without contaminating it.
 
-**Risk controls:** no auto-assignment; no protected attributes; names gated; full audit trail; recommendation language only.
+**Controls:** no auto-assign; no demographics; names gated; integrity-chained audit; JWT + ACL; baseline/account isolation; EU AI Act high-risk documentation posture (section 23).
 
-**Current limitation:** local-first with synthetic pilot fixtures—not live ServiceNow/LMS/HR. Production connectors are designed but not activated (`docs/runbooks/source-connectors.md`, `docs/future-azure.md`).
+**Current limitation:** pilot fixtures + optional spreadsheet ingest; live ServiceNow/LMS connectors not activated. Phase 8 human decisions tracked in `docs/phase8/BLOCKED.md`.
 
-**Success metrics (MVP):**
-| Metric | Target |
-|--------|--------|
-| Evidence coverage | ≥ 80% pilot with demonstrated evidence |
-| Identity leakage | Zero |
-| Ranking traceability | 100% |
-| Query latency (engine path) | ≤ 3s |
-| Matrix availability | Operational on coded pilot data |
+**Success metrics:** ≥80% demonstrated coverage on pilot; zero leakage; ≤3s engine path; baseline isolation tests green; web build green.
 
 ---
 
 ## 14. Testing strategy
 
-- **Unit:** gate, inference, fitness/gap, resolution, taxonomy, narrate grounding  
-- **Integration:** abstract → infer → rank → resolve  
-- **API:** FastAPI TestClient including frontend endpoints  
-- **Audits:** leakage + fairness schema  
-- **E2E:** ingest → rank → resolve → dashboard HTML has no real names  
-- **Coverage gate:** pytest `--cov-fail-under=80` on custom packages  
-
-Run: `pytest` from repo root with venv active.
+- Unit / integration / API / e2e / security (`tests/security`) / validation (`tests/validation`)  
+- **Guardrails:** `tests/guardrails/*` (client blocklist, soft-skills, account isolation, baseline isolation)  
+- **Phase 8:** `tests/phase8/*` (extract membership, aliases, normalize, template round-trip, NULL certs)  
+- Coverage gate ≥80% on custom packages — **do not lower**  
+- Never skip/delete tests to go green; use `docs/phase8/BLOCKED.md` if stuck  
 
 ---
 
 ## 15. Dependency stack
 
-**Python:** pydantic, PyYAML, fastapi, uvicorn, httpx (+ pytest, pytest-cov, ruff for dev).  
+**Python:** pydantic, PyYAML, fastapi, uvicorn, httpx, **PyJWT**, **openpyxl** (+ pytest, pytest-cov, ruff).  
 **Web:** react 18, react-router-dom 6, framer-motion 11, vite 5, typescript 5.  
-**Data:** SQLite (stdlib).  
-
-Package config: `pyproject.toml`, `web/package.json`.
+**Data:** SQLite.
 
 ---
 
@@ -395,19 +419,21 @@ Package config: `pyproject.toml`, `web/package.json`.
 
 | Term | Meaning |
 |------|---------|
-| Coded identity | Anonymised token `EMP-####` used in matrix/scoring |
-| Identity Abstraction Gate | Sole deterministic ingress that strips PII |
-| Demonstrated / Certified / Declared evidence | Ticket-inferred / cert-backed / manager-confirmed self-report |
-| Confidence | Strength of evidence support (0..1) |
-| Freshness | Recency decay of evidence (0..1) |
-| Fitness & Gap Engine | Deterministic ranker + gap analyzer |
-| Identity Resolution Gateway | Logged shortlist-only name reveal |
-| Audit ledger | Integrity-chained event history |
+| Coded identity | `EMP-` + 8 hex HMAC token |
+| Baseline assessment | Manager rating in isolated table — not scoring seed |
+| Account context | Client familiarity — never a skill |
+| Volume score | Evidence-count factor separate from confidence |
+| Decay class | fast/medium/slow freshness half-life |
+| Integrity-chained audit | Hash-linked ledger (not yet WORM) |
+| Pending alias | Unresolved label; never fuzzy-forced into live `skill_id` |
 | Narrate-only | UI/LLM may only restate engine JSON |
 
 ---
 
 ## 17. Canonical source excerpts (engines)
+
+> **Staleness notice (bible v2.0):** The long excerpts below were captured mid-hardening and **may lag** the live tree (JWT, EMP-8hex, volume_score, baseline isolation, Phase 8). For implementation, open the paths named in each subsection and trust tests over this snapshot.
+
 
 ### Identity gate — abstract + protect
 
@@ -1849,21 +1875,16 @@ export const api = {
 | `web/src/main.tsx` | React root + BrowserRouter |
 | `web/src/App.tsx` | Nav + AnimatePresence routes |
 | `web/src/pages/Entry.tsx` | Brand hero |
-| `web/src/pages/Staff.tsx` | Rank + resolve flow |
-| `web/src/pages/Learn.tsx` | Gap flow |
-| `web/src/pages/Matrix.tsx` | Coverage / heatmap |
-| `web/src/components/BrandMark.tsx` | Animated HERMES letters |
-| `web/src/components/ScoreMeter.tsx` | Animated fitness bar |
-| `web/src/components/ShortlistReveal.tsx` | Staggered shortlist + name morph |
-| `web/src/components/GapCascade.tsx` | Demand gap bars |
-| `web/src/components/CoverageRing.tsx` | SVG coverage ring |
-| `web/src/components/SkillHeatmap.tsx` | Coded-only heatmap |
-| `web/src/components/NarrateBanner.tsx` | Rules/approval notice |
-| `web/src/motion/presets.ts` | Shared motion + reduced-motion |
-| `web/src/styles/tokens.css` | Design tokens / atmosphere |
-| `web/vite.config.ts` | Dev proxy `/api` → `:8000` |
-
-For full UI source, open those paths in the repo (quoted engines + API above are the judgment core).
+| `web/src/pages/Staff.tsx` | Rank, explain, resolve ceremony, decision, what-if |
+| `web/src/pages/Learn.tsx` | Numbered learning path |
+| `web/src/pages/Matrix.tsx` | Coverage / heatmap / run scrubber |
+| `web/src/pages/Me.tsx` | Evidence + contest |
+| `web/src/pages/Constellation.tsx` | Decorative skill constellation |
+| `web/src/api/client.ts` | JWT `ensureAuth` + typed API |
+| `web/src/components/ShortlistReveal.tsx` | Shortlist + expandable `reasoning_detail` |
+| `web/src/components/*` | ScoreMeter, GapCascade, CoverageRing, SkillHeatmap, NarrateBanner, BrandMark |
+| `web/src/motion/presets.ts` | Motion + reduced-motion |
+| `web/src/styles/tokens.css` | Design tokens |
 
 ---
 
@@ -1873,126 +1894,117 @@ For full UI source, open those paths in the repo (quoted engines + API above are
 |---------|----------------|
 | `python -m scripts.ingest_fixtures` | Rebuild SQLite from pilot fixtures |
 | `python -m scripts.seed_local_matrix` | Wrapper around ingest |
-| `python -m scripts.hermes_query staff --skills X --level N [--resolve]` | CLI staffing |
-| `python -m scripts.hermes_query gaps EMP-#### --role ROLE` | CLI gaps |
-| `python -m scripts.dashboard_export` | Write `data/reports/dashboard.html` |
-| `python -m scripts.leakage_audit` | Fail on PII in matrix sample |
+| `python -m scripts.hermes_query staff …` / `gaps …` | CLI |
+| `python -m scripts.dashboard_export` | Coded-only HTML/JSON report |
+| `python -m scripts.leakage_audit` | Fail on PII / client labels in matrix sample |
 | `python -m scripts.fairness_audit` | Fail if protected columns in schema |
 | `python -m scripts.coverage_report` | Pilot demonstrated coverage % |
+| `python scripts/verify_audit_chain.py` | Verify integrity chain |
+| `python -m scripts.impact_audit` | Offline shortlist concentration (not scoring) |
+| `python scripts/phase8/extract_labels.py` | Cluster workbook labels → `candidate_skills.csv` |
+| `python scripts/phase8/generate_template_v2.py` | Ontology-aligned collection template |
+| `python scripts/phase8/ingest_baseline.py` | Baseline + account_context ingest |
+| `python scripts/phase8/ingest_certificates.py` | Cert staging + date request CSV |
+| `python scripts/phase8/promote_certs.py` | Promote dated certs into certified evidence |
+| `python scripts/phase8/baseline_agreement.py` | Baseline vs engine agreement report |
 
 ---
 
-## 20. Decision log (locked for this MVP)
+## 20. Decision log
 
+### Locked for local-first MVP
 1. **Local-first** — no Azure required to run.  
-2. **Full hybrid repo layout** retained — Power Platform/Bicep stubs for future.  
-3. **FastAPI** replaces Azure Functions for local HTTP.  
+2. **Hybrid repo layout** retained for future Azure/Power Platform.  
+3. **FastAPI** replaces Azure Functions locally.  
 4. **SQLite** replaces Azure SQL.  
-5. **React animated console** is the primary human UI; CLI secondary.  
+5. **React animated console** is the primary human UI.  
 6. **Fixtures** stand in for ServiceNow/LMS/HR until connectors are authorized.  
+
+### Hardening roadmap (Phases 1–7) — shipped
+7. JWT local auth; shortlist cap 10; resolve rate limit; recursive PII; no excerpts; gaps ACL; EMP-8hex stability; fail-closed secrets.  
+8. Integrity-chained audit; staffing decisions; matrix history; config-hash scoring version.  
+9. Depth-based levels; confidence vs volume; single freshness + decay; allocation; coverage/critical floors; adjacency.  
+10. Validation harness (keyword precision, manager agreement n=30, cold-start visibility).  
+11. Bias methodology, `/me`+contest, Guardrail 8, connector contract docs.  
+12. Immersive UI (explainability, ceremony, what-if, scrubber, learn path, constellation).  
+13. EU AI Act / consultation documentation posture.
+
+### Phase 8 — real data (locked human decisions)
+| ID | Decision |
+|----|----------|
+| D1 | `0.0` in 2025 matrix = **NOT ASSESSED** → `normalised_level` NULL |
+| D2 | Client-named columns → `account_context` only |
+| D3 | Soft-skills excluded; **culture fit** raises in classifier |
+| D4 | 2025 matrix is **baseline, not seed** — isolated from scoring |
+
+Open human items: [`docs/phase8/BLOCKED.md`](docs/phase8/BLOCKED.md).
 
 ---
 
 ## 21. Handoff checklist for another AI / new engineer
 
-1. Read this bible end-to-end.  
-2. Open and skim: `src/shared/service.py`, `api/main.py`, `web/src/App.tsx`.  
-3. Run ingest + pytest + `npm run build` in `web/`.  
-4. Manually hit `/staff` and `/learn` against live API.  
-5. Never add protected attributes or auto-assignment.  
-6. Never show names on Matrix or in scoring payloads.  
-7. Prefer extending engines with tests first (TDD).  
+1. Read this bible end-to-end (especially sections 4, 6, 11, 24).  
+2. Skim: `src/shared/service.py`, `api/main.py`, `web/src/App.tsx`, `src/phase8/parsers.py`.  
+3. Run `HERMES_TEST_MODE=1 pytest` (≥77) + `cd web && npm run build`.  
+4. Confirm `tests/guardrails/test_baseline_isolation.py` green.  
+5. Never add protected attributes, auto-assignment, fabricated dates, or baseline→score paths.  
+6. Never show names on Matrix or in scoring payloads; never commit raw `data/source/*.xlsx` or `config/client_names.txt`.  
+7. Prefer TDD; if blocked by ambiguity, write `docs/phase8/BLOCKED.md` — do not guess.
 
 ---
 
 ## 22. Related docs in-repo
 
 - `README.md` — quick start  
-- `docs/architecture.md` — layer summary  
-- `docs/mvp-success-criteria.md` — metrics  
-- `docs/mvp-validation-report.md` — validation status  
-- `docs/evidence-merge-rules.md` — merge rules  
-- `docs/future-azure.md` — future cloud path  
-- `docs/runbooks/local-dev.md` — local ops  
-- `docs/runbooks/source-connectors.md` — future field catalogue  
-- `docs/adrs/001-hybrid-build.md` — hybrid ADR  
+- `docs/architecture.md` · `docs/mvp-success-criteria.md` · `docs/evidence-merge-rules.md`  
+- `docs/future-azure.md` · `docs/runbooks/local-dev.md` · `docs/runbooks/source-connectors.md`  
+- `docs/bias-audit-methodology.md` · `docs/cold-start-policy.md` · `docs/risk-register.md` · `docs/human-oversight.md`  
+- `docs/taxonomy-governance.md` · `docs/validation/*`  
+- `docs/phase8/BLOCKED.md` — Phase 8 human decisions  
+- `data/source/README.md` — expected workbook paths  
 - `web/README.md` — frontend DX  
 
 ---
 
-*End of PROJECT BIBLE. If something in the repo disagrees with a prose claim above, trust the executable tests and source files.*
-
-## Legal / EU AI Act and consultation
+## 23. Legal / EU AI Act and consultation
 
 ### High-risk posture
+Hermes supports employment / task-allocation **recommendations**. Under EU AI Act Annex III this may be **high-risk**. Treat as high-risk-by-default for EU staff in scope until legal confirms otherwise.
 
-Hermes supports **employment / task-allocation** recommendations. Under the EU AI Act
-Annex III, systems used for recruitment or for decisions affecting terms of work /
-task allocation may be classified as **high-risk**. Treat Hermes as high-risk-by-default
-for EU staff in scope until legal confirms otherwise.
-
-### Required artefacts (living)
-
-| Artefact | Location / owner |
-|---|---|
+### Required artefacts
+| Artefact | Location |
+|----------|----------|
 | Technical documentation | This bible + `docs/architecture.md` |
-| Bias / impact testing | `docs/bias-audit-methodology.md`, `scripts/impact_audit.py` (HR-held; not in ops path) |
-| Human oversight evidence | Staffing decision endpoint `POST /api/staffing/{id}/decision` + integrity-chained audit ledger |
-| Transparency | Coded-identity UI; resolve gateway; explainability `reasoning_detail` |
+| Bias / impact testing | `docs/bias-audit-methodology.md`, `scripts/impact_audit.py` (HR-held; not ops path) |
+| Human oversight | `POST /api/staffing/{id}/decision` + integrity-chained audit |
+| Transparency | Coded UI; resolve gateway; `reasoning_detail` |
 | Risk register | `docs/risk-register.md` |
 
 ### Works council / consultation
-
-If EU employees are in pilot scope, **works-council or equivalent consultation obligations
-may already be live** before production use. Product must not auto-assign; managers retain
-accept / reject / override. Legal and Employee Relations own consultation sequencing.
-
-### Guardrails (reaffirmed)
-
-1. Recommendation-only — no auto-assignment  
-2. No protected demographics in schema or features  
-3. Names only via audited resolution gateway  
-4. Evidence required for fitness claims  
-5. Fail-closed secrets outside test mode  
-6. Gaps subject-bound (self / manager edge / admin+audit)  
-7. Integrity-chained audit log (not yet external WORM)  
-8. **Never score on historical staffing decisions**
+If EU employees are in pilot scope, consultation obligations may already be live. No auto-assignment; managers retain accept / reject / override.
 
 ### Softened audit language
+Until an external WORM sink exists: **integrity-chained audit log**, not WORM storage.
 
-Until an external WORM sink exists, describe the ledger as an **integrity-chained audit log**,
-not integrity-chained WORM storage.
+---
 
+## 24. Phase 8 — Real data integration (summary)
 
-## Phase 8 — Real data integration (decision log entry)
+**Mission:** Integrate Skill Matrix 2025 + collection template without degrading Phases 1–7 guarantees.
 
-| Decision | Choice |
-|---|---|
-| D1 | `0.0` baseline = NOT ASSESSED (`normalised_level` NULL) |
-| D2 | Client-named columns → `account_context` only, never fitness |
-| D3 | Soft-skill columns excluded; `culture fit` raises via classifier |
-| D4 | 2025 matrix is BASELINE only — isolated from scoring |
+**Structural isolation:** baseline → agreement harness only; certificates undated until humans supply `earned_at`; soft-skills/clients excluded; culture-fit classifier raises; manager merges human-only.
 
-### New tables (section 6 addendum)
+**Key outputs**
+- `data/phase8/candidate_skills.csv` (redacted accounts)  
+- `data/phase8/Hermes_Skills_Collection_Template_v2.xlsx`  
+- `data/phase8/team_variants.csv` · manager/cert CSVs generated locally (often gitignored for PII)  
+- `data/reports/phase8_*.json`, `baseline_agreement.json`  
+- `docs/phase8/BLOCKED.md`
 
-- `account_context` — account familiarity; never scoring
-- `baseline_assessments` — manager-assessed baseline; never scoring
-- `skill_aliases` / `manager_aliases` — pending until `mapped_by=human`
-- `cert_staging` — certificates with nullable `earned_at`
+**Determinism:** three sheet-order ingests → identical `identity_map` and baseline counts (verified in Phase 8 delivery).
 
-### New guardrails (section 4 addendum)
+**Do not:** put baseline into `skills_matrix`; invent dates; auto-merge managers; commit client names or raw workbooks; weaken tests/coverage; ingest a Skill Matrix 2026 workbook.
 
-- Client-name blocklist (`config/client_names.txt`)
-- Soft-skill exclusion log (`data/reports/phase8_exclusions.json`)
-- Baseline isolation test (`tests/guardrails/test_baseline_isolation.py`)
-- Guardrail 8 remains: never score on historical staffing decisions
+---
 
-### New scripts (section 19 addendum)
-
-- `scripts/phase8/extract_labels.py`
-- `scripts/phase8/generate_template_v2.py`
-- `scripts/phase8/ingest_baseline.py`
-- `scripts/phase8/ingest_certificates.py`
-- `scripts/phase8/promote_certs.py`
-- `scripts/phase8/baseline_agreement.py`
-
+*End of PROJECT BIBLE v2.0. If the repo disagrees with prose above, trust executable tests and live source files.*

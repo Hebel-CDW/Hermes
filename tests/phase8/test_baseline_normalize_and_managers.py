@@ -26,8 +26,8 @@ def test_collab_four_point_mapping():
 
 def test_manager_alias_requires_human(tmp_path):
     db = HermesDB(tmp_path / "mgr.db")
-    db.upsert_manager_alias("xavier", "Xavier Cardoz", mapped_by="pending")
-    row = db.get_manager_alias("xavier")
+    db.upsert_manager_alias("zeldor", "Zeldor Cardoz", mapped_by="pending")
+    row = db.get_manager_alias("zeldor")
     assert row["mapped_by"] != "human"
     # org edge merge path must refuse non-human
     assert row["mapped_by"] == "pending"

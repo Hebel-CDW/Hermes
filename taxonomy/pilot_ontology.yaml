@@ -1,0 +1,526 @@
+domains:
+- domain_id: cloud_platform
+  name: Cloud Platform
+  skills:
+  - skill_id: aws_compute
+    name: AWS Compute
+    description: EC2, autoscaling, and core AWS compute operations.
+    ticket_keywords:
+    - aws
+    - ec2
+    - aws compute
+    - aws basics
+    cert_codes:
+    - AWS-SAA
+    - AWS-SOA
+    proficiency_levels: &id001
+    - level: 1
+      label: Awareness
+      behavioural_definition: Can describe core concepts and recognize when the skill
+        applies.
+    - level: 2
+      label: Working
+      behavioural_definition: Completes routine tasks with guidance; applies the skill
+        in standard scenarios.
+    - level: 3
+      label: Proficient
+      behavioural_definition: Independently delivers production work; troubleshoots
+        common failures.
+    - level: 4
+      label: Advanced
+      behavioural_definition: Designs solutions, mentors others, and handles non-standard
+        incidents.
+    - level: 5
+      label: Expert
+      behavioural_definition: Sets standards, leads complex programmes, and is a recognised
+        organisational authority.
+    decay_class: medium
+    related_skills: []
+  - skill_id: gcp_compute
+    name: GCP Compute
+    description: Google Cloud compute, GCE, and related operations.
+    ticket_keywords:
+    - gcp
+    - gce
+    - google cloud
+    cert_codes:
+    - ACE
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: ibm_cloud
+    name: IBM Cloud
+    description: IBM Cloud fundamentals and IaaS operations.
+    ticket_keywords:
+    - ibm cloud
+    - ibm iaas
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: oracle_cloud
+    name: Oracle Cloud
+    description: Oracle Cloud infrastructure fundamentals.
+    ticket_keywords:
+    - oracle cloud
+    - oci
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+- domain_id: platform_ops
+  name: Platform Operations
+  skills:
+  - skill_id: vmware
+    name: VMware
+    description: vSphere, ESXi, and VMware virtualization.
+    ticket_keywords:
+    - vmware
+    - vsphere
+    - esxi
+    - vm-ware
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: nutanix
+    name: Nutanix
+    description: Nutanix hyperconverged infrastructure.
+    ticket_keywords:
+    - nutanix
+    - ahv
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: citrix_adc
+    name: Citrix ADC
+    description: Citrix NetScaler / ADC load balancing and access.
+    ticket_keywords:
+    - citrix
+    - netscaler
+    - citrix adc
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: windows_server
+    name: Windows Server
+    description: Windows Server administration and operations.
+    ticket_keywords:
+    - windows server
+    - windows
+    - ad ds
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: linux_administration
+    name: Linux Administration
+    description: Linux OS administration for production hosts.
+    ticket_keywords:
+    - linux
+    - rhel
+    - ubuntu
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: aix
+    name: AIX
+    description: IBM AIX UNIX administration.
+    ticket_keywords:
+    - aix
+    - lpar
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: virtualization
+    name: Virtualization
+    description: Hypervisor and VM lifecycle operations.
+    ticket_keywords:
+    - virtualization
+    - hypervisor
+    - vm
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: container_runtime
+    name: Container Runtime
+    description: Docker and container runtime operations.
+    ticket_keywords:
+    - docker
+    - container runtime
+    - containerd
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+- domain_id: network_security
+  name: Network Security
+  skills:
+  - skill_id: cisco_networking
+    name: Cisco Networking
+    description: Cisco ACI, switching, and fabric.
+    ticket_keywords:
+    - cisco
+    - aci fabric
+    - cisco aci
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: firewall_administration
+    name: Firewall Administration
+    description: FortiGate, Cisco firewall, and perimeter controls.
+    ticket_keywords:
+    - fortigate
+    - firewall
+    - cisco firewall
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: identity_access_management
+    name: Identity and Access Management
+    description: PAM, Thycotic, and privileged access.
+    ticket_keywords:
+    - thycotic
+    - pam
+    - privileged access
+    - cyberark
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: network_security
+    name: Network Security
+    description: Network security operations and controls.
+    ticket_keywords:
+    - network security
+    - nsg
+    - ids
+    - ips
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: load_balancing
+    name: Load Balancing
+    description: ADC and load-balancer operations.
+    ticket_keywords:
+    - load balancer
+    - load balancing
+    - f5
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+- domain_id: service_management
+  name: Service Management
+  skills:
+  - skill_id: servicenow
+    name: ServiceNow
+    description: ServiceNow ITSM, incident and change workflows.
+    ticket_keywords:
+    - servicenow
+    - service now
+    - snow
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: slow
+    related_skills: []
+    freshness_half_life_days: 365
+  - skill_id: itil
+    name: ITIL
+    description: ITIL process execution for incidents, problems, and changes.
+    ticket_keywords:
+    - itil
+    - change management
+    - problem management
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: slow
+    related_skills: []
+  - skill_id: monitoring
+    name: Monitoring
+    description: ScienceLogic, SL1, Halcyon, and ops monitoring.
+    ticket_keywords:
+    - sciencelogic
+    - sl1
+    - halcyon
+    - monitoring
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: endpoint_compliance
+    name: Endpoint Compliance
+    description: Endpoint compliance and patch posture.
+    ticket_keywords:
+    - endpoint compliance
+    - endpoint
+    - intune
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: patch_management
+    name: Patch Management
+    description: OS and firmware patching.
+    ticket_keywords:
+    - patch
+    - os upgradation
+    - firmware upgrade
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+- domain_id: data_operations
+  name: Data Operations
+  skills:
+  - skill_id: backup_restore
+    name: Backup and Restore
+    description: Backup handling, BRMS, and restore operations.
+    ticket_keywords:
+    - backup
+    - restore
+    - brms
+    - commvault
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: disaster_recovery
+    name: Disaster Recovery
+    description: DR runbooks, replication, and recovery tests.
+    ticket_keywords:
+    - disaster recovery
+    - diaster recovery
+    - dr drill
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: storage_administration
+    name: Storage Administration
+    description: SAN/NAS and storage operations.
+    ticket_keywords:
+    - storage
+    - san
+    - nas
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: sql
+    name: SQL
+    description: SQL commands and database operations.
+    ticket_keywords:
+    - sql
+    - sql commands
+    - t-sql
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: java
+    name: Java
+    description: Java application support.
+    ticket_keywords:
+    - java
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+- domain_id: automation
+  name: Automation
+  skills:
+  - skill_id: python
+    name: Python
+    description: Python scripting for operations and automation.
+    ticket_keywords:
+    - python
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: ansible
+    name: Ansible
+    description: Ansible automation and playbooks.
+    ticket_keywords:
+    - ansible
+    - playbook
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: bash_scripting
+    name: Bash Scripting
+    description: Bash/shell scripting for operations.
+    ticket_keywords:
+    - bash
+    - bash scripting
+    - shell script
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: powershell
+    name: PowerShell
+    description: PowerShell automation on Windows estates.
+    ticket_keywords:
+    - powershell
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: active_directory
+    name: Active Directory
+    description: AD and identity directory operations.
+    ticket_keywords:
+    - active directory
+    - ad
+    - group policy
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+- domain_id: systems
+  name: Systems
+  skills:
+  - skill_id: datacenter_operations
+    name: Datacenter Operations
+    description: Datacenter, power, and rack operations.
+    ticket_keywords:
+    - datacenter
+    - data centre
+    - rack
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: server_lifecycle
+    name: Server Lifecycle
+    description: Commissioning and decommissioning servers.
+    ticket_keywords:
+    - commissioning
+    - decommissioning
+    - server lifecycle
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: os_patching
+    name: OS Patching
+    description: Operating system upgrades and patch windows.
+    ticket_keywords:
+    - os upgradation
+    - os upgrade
+    - os patch
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: workload_migration
+    name: Workload Migration
+    description: Migration activities across platforms.
+    ticket_keywords:
+    - migration
+    - migrate
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: microsoft_365
+    name: Microsoft 365
+    description: M365 / collaboration administration.
+    ticket_keywords:
+    - microsoft 365
+    - m365
+    - exchange
+    - teams admin
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: ftp_sftp
+    name: FTP and SFTP
+    description: Secure file transfer operations.
+    ticket_keywords:
+    - ftp
+    - sftp
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: job_scheduling
+    name: Job Scheduling
+    description: Tivoli, Robot Scheduler, and batch jobs.
+    ticket_keywords:
+    - tivoli
+    - robot scheduler
+    - workload scheduler
+    - job scheduler
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+- domain_id: ibm_i
+  name: IBM i
+  skills:
+  - skill_id: ibm_i
+    name: IBM i
+    description: IBM i / iSeries operations.
+    ticket_keywords:
+    - ibm i
+    - iseries
+    - as400
+    - as/400
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: hmc
+    name: HMC
+    description: Hardware Management Console operations.
+    ticket_keywords:
+    - hmc
+    - hardware management console
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: rpgle
+    name: RPGLE
+    description: RPGLE development and support on IBM i.
+    ticket_keywords:
+    - rpgle
+    - rpg
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: clp_programming
+    name: CLP Programming
+    description: CL/CLP programming on IBM i.
+    ticket_keywords:
+    - clp
+    - cl programming
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []
+  - skill_id: high_availability
+    name: High Availability
+    description: Mimix, iTera, and IBM i HA.
+    ticket_keywords:
+    - mimix
+    - itera
+    - high availability
+    cert_codes: []
+    proficiency_levels: *id001
+    decay_class: medium
+    related_skills: []

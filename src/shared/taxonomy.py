@@ -71,10 +71,35 @@ def default_taxonomy_path() -> Path:
     return Path(__file__).resolve().parents[2] / "taxonomy" / "skills_ontology.yaml"
 
 
+def _merge_pilot(raw: Dict[str, Any], taxonomy_path: Path) -> Dict[str, Any]:
+    """Append governed pilot skills from taxonomy/pilot_ontology.yaml when present."""
+    if taxonomy_path.name != "skills_ontology.yaml":
+        return raw
+    pilot_path = taxonomy_path.with_name("pilot_ontology.yaml")
+    if not pilot_path.is_file():
+        return raw
+    extra = yaml.safe_load(pilot_path.read_text(encoding="utf-8")) or {}
+    by_id = {d["domain_id"]: d for d in raw.get("domains") or []}
+    existing_skills = {
+        s["skill_id"] for d in raw.get("domains") or [] for s in d.get("skills") or []
+    }
+    for domain in extra.get("domains") or []:
+        target = by_id.get(domain["domain_id"])
+        new_skills = [s for s in domain.get("skills") or [] if s["skill_id"] not in existing_skills]
+        if target is None:
+            raw.setdefault("domains", []).append({**domain, "skills": new_skills})
+            by_id[domain["domain_id"]] = raw["domains"][-1]
+        else:
+            target["skills"] = list(target.get("skills") or []) + new_skills
+        existing_skills.update(s["skill_id"] for s in new_skills)
+    return raw
+
+
 def load_taxonomy(path: Optional[Path] = None) -> SkillsTaxonomy:
     taxonomy_path = path or default_taxonomy_path()
     with taxonomy_path.open("r", encoding="utf-8") as handle:
         raw: Dict[str, Any] = yaml.safe_load(handle)
+    raw = _merge_pilot(raw, taxonomy_path)
     return SkillsTaxonomy.model_validate(raw)
 
 

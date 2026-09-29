@@ -18,13 +18,17 @@ def load_fixture(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def ingest(fixture_path: Path, db_path: Path) -> dict:
+def ingest(fixture_path: Path, db_path: Path, write_samples: bool = True) -> dict:
+    """Ingest the SYNTHETIC pilot fixture. ``write_samples`` refreshes the committed
+    leakage-audit samples under data/fixtures (disable for throwaway/demo databases)."""
     os.environ["HERMES_DB_PATH"] = str(db_path)
     if db_path.exists():
         db_path.unlink()
     db = HermesDB(db_path)
     os.environ.setdefault("HERMES_TEST_MODE", "1")
     svc = HermesService(db=db, mapping_secret=os.getenv("IDENTITY_MAP_SECRET"))
+    # Explicit trust metadata: this database holds synthetic people only.
+    svc.mark_database("synthetic")
     fixture = load_fixture(fixture_path)
     engine = SkillInferenceEngine()
 
@@ -94,6 +98,8 @@ def ingest(fixture_path: Path, db_path: Path) -> dict:
 
     # also refresh JSON samples for leakage audit
     matrix = [m.model_dump(mode="json") for m in merged]
+    if not write_samples:
+        return {"db_path": str(db_path), "skills_scored": len(merged), "coverage": svc.db.pilot_coverage()}
     out_dir = Path("data/fixtures")
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "coded_matrix_sample.json").write_text(

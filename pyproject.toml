@@ -44,7 +44,9 @@ include = ["shared*", "identity_abstraction*", "skill_inference*", "fitness_gap*
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src", ".", "api"]
-addopts = "-q --cov=identity_abstraction --cov=skill_inference --cov=fitness_gap --cov=identity_resolution --cov=shared --cov-report=term-missing --cov-fail-under=80"
+# phase8 IS included: real-workbook ingestion must not be exempt from the gate.
+# Threshold raised 80 -> 85 once parsers.py went from 0% to 86% coverage. Never lower it.
+addopts = "-q --cov=identity_abstraction --cov=skill_inference --cov=fitness_gap --cov=identity_resolution --cov=shared --cov=phase8 --cov-report=term-missing --cov-fail-under=85"
 
 [tool.ruff]
 line-length = 100

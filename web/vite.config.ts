@@ -6,8 +6,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      "/api": "http://127.0.0.1:8000",
-      "/health": "http://127.0.0.1:8000",
+      "/api": process.env.HERMES_API_ORIGIN || "http://127.0.0.1:8000",
+      "/health": process.env.HERMES_API_ORIGIN || "http://127.0.0.1:8000",
     },
   },
 });

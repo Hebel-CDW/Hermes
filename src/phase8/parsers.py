@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from phase8.normalize import classify_scale, normalize_level
+from phase8.quality import RejectionReason
 from phase8.workbook import (
     META_COLUMNS,
     cell_str,
@@ -15,10 +16,9 @@ from phase8.workbook import (
     is_group_average_name,
     normalize_label,
     person_name_from_row,
-    sheet_rows,
 )
 from shared.exclusions import ExclusionLog, classify_assessment_column
-from shared.models import CultureFitForbiddenError, is_culture_fit_label
+from shared.models import is_culture_fit_label
 
 
 @dataclass(frozen=True)
@@ -42,6 +42,38 @@ class DroppedRow:
 def _baseline_id(sheet: str, person: str, label: str) -> str:
     material = f"{sheet}|{person.strip().lower()}|{label.strip().lower()}"
     return hashlib.sha256(material.encode("utf-8")).hexdigest()[:32]
+
+
+#: Inclusive upper bound of raw values per scale. 0 is always legal — it means
+#: "not assessed" and normalises to NULL (never level 0 or 1).
+SCALE_MAX = {"collab_four_point": 4.0, "five_point_undefined": 5.0}
+
+
+def _row_is_group_average(headers: Sequence[str], row: Sequence[Any]) -> bool:
+    """True when any name-ish cell on the row reads 'Group Average'.
+
+    `person_name_from_row` deliberately returns None for these rows, which meant they
+    were rejected as `missing_name` — hiding genuine group-average rows behind a
+    misleading code in the data-quality report. Detect them explicitly first.
+    """
+    mapping = {normalize_label(h): i for i, h in enumerate(headers) if h}
+    for key in ("name", "coworker name", "first name", "first"):
+        idx = mapping.get(key)
+        if idx is None or idx >= len(row):
+            continue
+        if is_group_average_name(cell_str(row[idx])):
+            return True
+    return False
+
+
+def _out_of_range(value: float, scale: str) -> bool:
+    """True when a numeric value falls outside the sheet's declared rating scale.
+
+    Previously such values were stored with ``normalised_level=NULL`` and **no
+    rejection record**, so bad data was silently indistinguishable from
+    "not assessed". Now it is rejected with a reason.
+    """
+    return value < 0.0 or value > SCALE_MAX.get(scale, 5.0)
 
 
 def parse_standard_people_rows(
@@ -72,30 +104,56 @@ def parse_standard_people_rows(
 
     for row in rows[header_idx + 1 :]:
         name = person_name_from_row(headers, row)
+        if _row_is_group_average(headers, row):
+            dropped.append(
+                DroppedRow(sheet_name, RejectionReason.GROUP_OR_SECTION_HEADER, "Group Average")
+            )
+            continue
         if not name:
-            dropped.append(DroppedRow(sheet_name, "missing_name", repr(row[:3])))
+            dropped.append(DroppedRow(sheet_name, RejectionReason.MISSING_NAME, repr(row[:3])))
             continue
         if is_group_average_name(name) or normalize_label(name).startswith("ibm i"):
-            dropped.append(DroppedRow(sheet_name, "group_or_section_header", name))
+            dropped.append(
+                DroppedRow(sheet_name, RejectionReason.GROUP_OR_SECTION_HEADER, name)
+            )
             continue
         # Skip blank-ish designation-only section headers
         if name.lower() in {sheet_name.lower(), "name"}:
-            dropped.append(DroppedRow(sheet_name, "section_header", name))
+            dropped.append(DroppedRow(sheet_name, RejectionReason.SECTION_HEADER, name))
             continue
         for idx, (kind, label) in col_kinds.items():
             raw = row[idx] if idx < len(row) else None
             if raw is None or cell_str(raw) == "":
                 continue
             if isinstance(raw, str) and not any(ch.isdigit() for ch in raw):
-                dropped.append(DroppedRow(sheet_name, "non_numeric_cell", f"{name}/{label}"))
+                dropped.append(
+                    DroppedRow(sheet_name, RejectionReason.NON_NUMERIC_CELL, f"{name}/{label}")
+                )
                 continue
             if is_fractional_assessment(raw):
-                dropped.append(DroppedRow(sheet_name, "fractional_average", f"{name}/{label}={raw}"))
+                dropped.append(
+                    DroppedRow(
+                        sheet_name, RejectionReason.FRACTIONAL_AGGREGATE, f"{name}/{label}={raw}"
+                    )
+                )
                 continue
             try:
                 value = float(raw)
             except (TypeError, ValueError):
-                dropped.append(DroppedRow(sheet_name, "unparseable_value", f"{name}/{label}={raw}"))
+                dropped.append(
+                    DroppedRow(
+                        sheet_name, RejectionReason.UNPARSEABLE_VALUE, f"{name}/{label}={raw}"
+                    )
+                )
+                continue
+            if _out_of_range(value, scale):
+                dropped.append(
+                    DroppedRow(
+                        sheet_name,
+                        RejectionReason.OUT_OF_RANGE_VALUE,
+                        f"{name}/{label}={value} outside {scale}",
+                    )
+                )
                 continue
             assessments.append(
                 ParsedAssessment(
@@ -143,12 +201,25 @@ def parse_collab_transposed(
             if raw is None or cell_str(raw) == "":
                 continue
             if is_fractional_assessment(raw):
-                dropped.append(DroppedRow(sheet_name, "fractional_average", f"{person}/{app}"))
+                dropped.append(
+                    DroppedRow(sheet_name, RejectionReason.FRACTIONAL_AGGREGATE, f"{person}/{app}")
+                )
                 continue
             try:
                 value = float(raw)
             except (TypeError, ValueError):
-                dropped.append(DroppedRow(sheet_name, "unparseable_value", f"{person}/{app}"))
+                dropped.append(
+                    DroppedRow(sheet_name, RejectionReason.UNPARSEABLE_VALUE, f"{person}/{app}")
+                )
+                continue
+            if _out_of_range(value, scale):
+                dropped.append(
+                    DroppedRow(
+                        sheet_name,
+                        RejectionReason.OUT_OF_RANGE_VALUE,
+                        f"{person}/{app}={value} outside {scale}",
+                    )
+                )
                 continue
             assessments.append(
                 ParsedAssessment(
@@ -161,7 +232,11 @@ def parse_collab_transposed(
                     kind=kind,
                 )
             )
-    return assessments, [DroppedRow(sheet_name, "people_columns", str(len(people)))] + dropped
+    # NOTE: the discovered-people count is a *metric*, not a rejection. It used to be
+    # prepended here as a synthetic DroppedRow, which inflated the rejection count and
+    # polluted phase8_dropped_rows.json with a non-reason. Counts now belong to the
+    # data-quality report (phase8.quality), reachable via count_raw_person_rows().
+    return assessments, dropped
 
 
 PARSERS = {
@@ -174,7 +249,9 @@ def parse_sheet(
     sheet_name: str, rows: Sequence[Sequence[Any]], log: ExclusionLog
 ) -> Tuple[List[ParsedAssessment], List[DroppedRow]]:
     if sheet_name == "Certificates":
-        return [], [DroppedRow(sheet_name, "deferred_to_cert_workstream", "not baseline")]
+        return [], [
+            DroppedRow(sheet_name, RejectionReason.DEFERRED_TO_CERT_WORKSTREAM, "not baseline")
+        ]
     parser = PARSERS.get(sheet_name, parse_standard_people_rows)
     return parser(sheet_name, rows, log)
 

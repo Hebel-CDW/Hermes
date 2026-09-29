@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 from shared.config import ScoringConfig, load_scoring_config
+from shared.errors import UnknownSkillError
 from shared.models import (
     EvidenceRecord,
     EvidenceType,
@@ -130,18 +131,18 @@ class SkillInferenceEngine:
         return self.config.declared_weight
 
     def half_life_for_skill(self, skill_id: str) -> float:
-        from shared.taxonomy import DECAY_HALF_LIFE_DAYS
+        """Effective half-life: ontology override if present, else the configured class value.
 
+        Both inputs are versioned: the override through ``taxonomy_fingerprint`` and the
+        class half-lives as explicit config fields. Unknown skills are rejected rather
+        than decayed with an unversioned default.
+        """
         skill = self.taxonomy.skill_by_id(skill_id)
-        if skill and getattr(skill, "freshness_half_life_days", None):
-            return float(skill.freshness_half_life_days)  # type: ignore[attr-defined]
-        if skill and getattr(skill, "decay_class", None):
-            return float(DECAY_HALF_LIFE_DAYS[skill.decay_class])
-        if skill_id == "incident_management":
-            return DECAY_HALF_LIFE_DAYS["slow"]
-        if skill_id in {"azure_networking", "azure_compute", "container_orchestration"}:
-            return DECAY_HALF_LIFE_DAYS["fast"]
-        return self.config.freshness_half_life_days
+        if skill is None:
+            raise UnknownSkillError(f"skill {skill_id!r} is not in the governed ontology")
+        if skill.freshness_half_life_days:
+            return float(skill.freshness_half_life_days)
+        return float(self.config.half_life_for_class(skill.decay_class or ""))
 
     def freshness_score(
         self,
@@ -151,7 +152,8 @@ class SkillInferenceEngine:
     ) -> float:
         now = as_of or datetime.now(timezone.utc)
         days = _days_between(now, occurred_at)
-        half = self.half_life_for_skill(skill_id) if skill_id else self.config.freshness_half_life_days
+        # No skill: utility use only (never a scored record) — medium class half-life.
+        half = self.half_life_for_skill(skill_id) if skill_id else self.config.half_life_medium_days
         return max(0.0, min(1.0, math.pow(0.5, days / half)))
 
     def merge_evidence(
@@ -161,6 +163,10 @@ class SkillInferenceEngine:
     ) -> List[SkillRecord]:
         grouped: Dict[Tuple[str, str], List[EvidenceRecord]] = defaultdict(list)
         for item in evidence:
+            if self.taxonomy.skill_by_id(item.skill_id) is None:
+                raise UnknownSkillError(
+                    f"evidence {item.evidence_id!r} references unknown skill {item.skill_id!r}"
+                )
             if item.evidence_type == EvidenceType.DECLARED:
                 confirmed = getattr(item, "manager_confirmed", None)
                 if confirmed is False:

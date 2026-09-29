@@ -17,13 +17,14 @@ sys.path = [str(ROOT / "src"), str(ROOT)] + [p for p in sys.path if Path(p).reso
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-os.environ.setdefault("HERMES_TEST_MODE", "1")
-
 from phase8.aliases import SkillAliasResolver, ontology_lookup_map  # noqa: E402
 from phase8.parsers import ParsedAssessment, _baseline_id, count_raw_person_rows, parse_sheet  # noqa: E402
-from phase8.workbook import cell_str, open_workbook, sheet_rows  # noqa: E402
+from phase8.quality import build_report  # noqa: E402
+from phase8.workbook import cell_str, normalize_label, open_workbook, sheet_rows  # noqa: E402
 from shared.db import HermesDB  # noqa: E402
+from shared.excel_sunset import freeze_database, refuse_future_workbook  # noqa: E402
 from shared.exclusions import ExclusionLog  # noqa: E402
+from shared.secrets import require_real_data_ingest_secret  # noqa: E402
 from shared.service import HermesService  # noqa: E402
 from shared.taxonomy import load_taxonomy  # noqa: E402
 
@@ -101,24 +102,71 @@ def propose_variants(values: List[str], out_path: Path, kind: str) -> None:
             )
 
 
-def ingest(path: Path, db_path: Path, sheet_order: Optional[List[str]] = None) -> dict:
-    if db_path.exists():
-        # keep identity if rebuilding baseline only — for fresh, caller deletes
-        pass
-    db = HermesDB(db_path)
-    svc = HermesService(db=db)
+def _name_free_dropped(dropped) -> List[dict]:
+    """Rejections persisted to disk carry sheet + machine code only.
+
+    The parser's free-text ``detail`` embeds the person's name (``"<name>/<label>"``); it is
+    useful in memory for debugging but must never be written to a report or log.
+    """
+    return [{"sheet": d.sheet, "reason": d.reason} for d in dropped]
+
+
+def ingest(
+    path: Path,
+    db_path: Path,
+    sheet_order: Optional[List[str]] = None,
+    reports_dir: Optional[Path] = None,
+    governance_worksheets: bool = False,
+    svc: Optional[HermesService] = None,
+    quiet: bool = False,
+) -> dict:
+    """Parse -> validate -> abstract identities -> resolve aliases -> stage baseline (never scoring).
+
+    Performance: each distinct person is abstracted once per run (one audited identity
+    event per person, not per cell) and rows are written in one transaction per sheet.
+    Validation, rejection codes and alias governance are unchanged.
+
+    Every artefact written here is aggregate or label-level; person names never leave
+    memory except through identity abstraction into the vault.
+    """
+    refuse_future_workbook(path)
+    # C-2 guardrail: real people are tokenised here. Refuse the published
+    # fixture secret outright — see shared.secrets.require_real_data_ingest_secret.
+    secret = require_real_data_ingest_secret()
+    if svc is None:
+        db = HermesDB(db_path)
+        svc = HermesService(db=db, mapping_secret=secret)
+    db = svc.db
+    freeze_database(db)
+    svc.mark_database("real")  # refuses to relabel a synthetic DB or switch secrets
+    out_dir = reports_dir or (ROOT / "data" / "reports")
     tax = load_taxonomy()
     resolver = SkillAliasResolver(db, ontology_lookup_map(tax))
     log = ExclusionLog()
     wb = open_workbook(path)
     order = sheet_order or list(wb.sheetnames)
-    dropped_all = []
+    dropped_all: List[dict] = []
     managers: List[str] = []
     teams: List[str] = []
+    coded_for: Dict[str, str] = {}
     pending = 0
     skill_rows = 0
     account_rows = 0
     per_sheet = {}
+    quality_inputs: Dict[str, dict] = {}
+    skill_label_keys: Dict[str, Optional[str]] = {}
+    mapped_trace: Dict[str, dict] = {}
+    account_label_keys: set = set()
+
+    def coded(person: str) -> str:
+        key = person.strip().lower()
+        if key not in coded_for:
+            # Known identities are reused (already abstracted and audited); only new people
+            # pass through abstraction, once per run — never once per cell.
+            coded_for[key] = db.resolve_coded_for_source(key) or svc.abstract(
+                {"employee_id": key, "name": person}
+            )["coded_identity"]
+        return coded_for[key]
 
     for sheet_name in order:
         if sheet_name not in wb.sheetnames:
@@ -128,9 +176,30 @@ def ingest(path: Path, db_path: Path, sheet_order: Optional[List[str]] = None) -
             continue
         rows = sheet_rows(wb[sheet_name])
         raw_count = count_raw_person_rows(sheet_name, rows)
+        log_mark = len(log.entries)
         assessments, dropped = parse_sheet(sheet_name, rows, log)
-        dropped_all.extend([d.__dict__ for d in dropped])
+        dropped_all.extend(_name_free_dropped(dropped))
         people = {a.person_name for a in assessments}
+        sheet_log = log.entries[log_mark:]
+        excluded_labels = {
+            e["label"] for e in sheet_log if e["reason"] != "client_account_context"
+        }
+        account_labels = {a.raw_label for a in assessments if a.kind == "account"}
+        skill_labels = {a.raw_label for a in assessments if a.kind == "skill"}
+        pending_labels = {
+            lab for lab in skill_labels if resolver.resolve(lab).mapped_by == "pending"
+        }
+        quality_inputs[sheet_name] = {
+            "raw_person_rows": raw_count,
+            "people_discovered": raw_count,
+            "accepted_people": people,
+            "assessments": assessments,
+            "dropped": dropped,
+            "labels_discovered": len(skill_labels | account_labels | excluded_labels),
+            "labels_excluded": len(excluded_labels),
+            "labels_account": len(account_labels),
+            "labels_pending": len(pending_labels),
+        }
         per_sheet[sheet_name] = {
             "raw_person_rows": raw_count,
             "expected": EXPECTED_PERSON_ROWS.get(sheet_name),
@@ -138,34 +207,47 @@ def ingest(path: Path, db_path: Path, sheet_order: Optional[List[str]] = None) -
             "assessments": len(assessments),
             "dropped": len(dropped),
         }
+        baseline_batch = []
+        account_batch = []
         for a in assessments:
-            abstracted = svc.abstract({"employee_id": a.person_name.lower(), "name": a.person_name})
-            coded = abstracted["coded_identity"]
+            token = coded(a.person_name)
             if a.kind == "account":
-                db.upsert_account_context(coded, a.raw_label, a.raw_value, a.source_sheet)
+                account_label_keys.add(normalize_label(a.raw_label))
+                account_batch.append((token, a.raw_label, a.raw_value, a.source_sheet))
                 account_rows += 1
                 continue
             resolved = resolver.resolve(a.raw_label)
+            label_key = normalize_label(a.raw_label)
+            skill_label_keys[label_key] = resolved.skill_id
             if resolved.mapped_by == "pending":
                 pending += 1
-            db.insert_baseline(
-                baseline_id=_baseline_id(a.source_sheet, a.person_name, a.raw_label),
-                coded_identity=coded,
-                raw_label=a.raw_label,
-                raw_value=a.raw_value,
-                normalised_level=a.normalised_level,
-                source_sheet=a.source_sheet,
-                source_scale=a.source_scale,
-                skill_id=resolved.skill_id,
-                assessed_at=None,
+            else:
+                mapped_trace[label_key] = {
+                    "label": label_key,
+                    "skill_id": resolved.skill_id,
+                    "mapped_by": resolved.mapped_by,
+                    "match_confidence": resolved.match_confidence,
+                }
+            baseline_batch.append(
+                (
+                    _baseline_id(a.source_sheet, a.person_name, a.raw_label),
+                    token,
+                    resolved.skill_id,
+                    a.raw_label,
+                    a.raw_value,
+                    a.normalised_level,
+                    a.source_sheet,
+                    a.source_scale,
+                    None,  # assessed_at: the workbook carries no assessment dates
+                )
             )
             skill_rows += 1
-
-        # Collect manager/team from Certificates later; from skill sheets if present
-        # Certificates handled in C; still gather teams from sheet names
+        # One transaction per sheet: a failure rolls the whole sheet back.
+        db.insert_baselines(baseline_batch)
+        db.upsert_account_contexts(account_batch)
         teams.append(sheet_name)
 
-    # Certificates sheet for manager/team variants (not scored here)
+    # Certificates sheet: abstract the people listed there (certs themselves: ingest_certificates)
     if "Certificates" in wb.sheetnames:
         rows = sheet_rows(wb["Certificates"])
         # header row index 1
@@ -174,33 +256,56 @@ def ingest(path: Path, db_path: Path, sheet_order: Optional[List[str]] = None) -
             team = cell_str(row[1] if len(row) > 1 else None)
             mgr = cell_str(row[2] if len(row) > 2 else None)
             if name:
-                svc.abstract({"employee_id": name.lower(), "name": name})
+                coded(name)
             if team:
                 teams.append(team)
             if mgr:
                 managers.append(mgr)
 
-    excl_path = log.write(ROOT / "data" / "reports" / "phase8_exclusions.json")
-    propose_variants(managers, ROOT / "data" / "phase8" / "manager_variants.csv", "manager")
-    propose_variants(teams, ROOT / "data" / "phase8" / "team_variants.csv", "team")
-    dropped_path = ROOT / "data" / "reports" / "phase8_dropped_rows.json"
-    dropped_path.parent.mkdir(parents=True, exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    excl_path = log.write(out_dir / "phase8_exclusions.json")
+    if governance_worksheets:
+        # Name-bearing human review worksheets: opt-in only, gitignored location only.
+        propose_variants(managers, out_dir / "governance" / "manager_variants.csv", "manager")
+        propose_variants(teams, out_dir / "governance" / "team_variants.csv", "team")
+    dropped_path = out_dir / "phase8_dropped_rows.json"
     dropped_path.write_text(json.dumps({"dropped": dropped_all}, indent=2), encoding="utf-8")
 
+    quality = build_report(str(path.name), quality_inputs, EXPECTED_PERSON_ROWS)
+    quality_path = quality.write(out_dir / "phase8_data_quality.json")
+
+    exclusion_reasons = Counter(e["reason"] for e in log.entries)
+    excluded_label_keys: Dict[str, set] = defaultdict(set)
+    for e in log.entries:
+        excluded_label_keys[e["reason"]].add(normalize_label(e["label"]))
     report = {
+        "data_quality_path": str(quality_path),
+        "data_quality_totals": quality.totals(),
         "baseline_rows": skill_rows,
         "account_rows": account_rows,
         "pending_aliases": pending,
         "pending_alias_table": db.count_pending_aliases(),
+        "people_detected": len(coded_for),
+        "label_governance": {
+            "skill_labels": len(skill_label_keys),
+            "mapped": len(mapped_trace),
+            "pending": sum(1 for v in skill_label_keys.values() if v is None),
+            "mapped_trace": sorted(mapped_trace.values(), key=lambda m: m["label"]),
+            "rejected": {
+                "client_account": len(account_label_keys),
+                "soft_skill": len(excluded_label_keys.get("soft_skill_excluded", set())),
+                "culture_fit": len(excluded_label_keys.get("culture_fit_forbidden_column", set())),
+            },
+        },
+        "exclusion_column_occurrences": dict(sorted(exclusion_reasons.items())),
         "per_sheet": per_sheet,
         "exclusions_path": str(excl_path),
         "dropped_path": str(dropped_path),
         "db_path": str(db_path),
     }
-    (ROOT / "data" / "reports" / "phase8_ingest_report.json").write_text(
-        json.dumps(report, indent=2), encoding="utf-8"
-    )
-    print(json.dumps(report, indent=2))
+    (out_dir / "phase8_ingest_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    if not quiet:
+        print(json.dumps({k: v for k, v in report.items() if k != "per_sheet"}, indent=2))
     return report
 
 

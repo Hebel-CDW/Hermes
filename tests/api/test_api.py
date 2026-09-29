@@ -26,11 +26,19 @@ def client(tmp_path):
         yield c
 
 
+# V2 auth: roles and coded identity are derived server-side from the synthetic demo
+# registry; the token endpoint accepts only ``sub``. Legacy test principal names map to
+# registry principals holding the role each test relies on.
+_REGISTRY = {
+    "mgr-1": "demo-manager",
+    "mgr-2": "demo-manager-2",
+    "stranger": "demo-employee-2",
+    "admin-1": "demo-admin",
+}
+
+
 def _token(client, sub="mgr-1", roles=None, coded_identity=None):
-    r = client.post(
-        "/api/auth/token",
-        json={"sub": sub, "roles": roles or ["manager", "admin"], "coded_identity": coded_identity},
-    )
+    r = client.post("/api/auth/token", json={"sub": _REGISTRY.get(sub, sub)})
     assert r.status_code == 200
     return r.json()["access_token"]
 
@@ -109,7 +117,9 @@ def test_resolve_mismatch_forbidden(client):
 def test_gaps_acl(client):
     db = HermesDB(Path(os.environ["HERMES_DB_PATH"]))
     matrix = db.load_skills_matrix()
-    coded = matrix[0].coded_identity
+    # The subject must not be the stranger's own identity (self-access is allowed).
+    stranger_coded = db.resolve_coded_for_source("E1005")
+    coded = next(m.coded_identity for m in matrix if m.coded_identity != stranger_coded)
     role = db.get_role("senior_cloud_engineer")
     # employee without matching coded_identity and not manager of subject
     h = _auth(client, sub="stranger", roles=["employee"], coded_identity="EMP-deadbeef")

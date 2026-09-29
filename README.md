@@ -32,13 +32,13 @@ python -m scripts.ingest_fixtures
 uvicorn api.main:app --port 8000
 ```
 
-### Animated frontend
+### Web application
 
 ```bash
 cd web && npm install && npm run start:web
 ```
 
-Open http://localhost:5173 (Staff / Learn / Matrix). Or build and serve from the API:
+Open http://localhost:5173 and sign in as a synthetic demo principal (Overview, Workforce, Skills, Matrix, Requests, Find Capability, Learning, Insights, Profile). Frontend tests: `npm test`. Or build and serve from the API:
 
 ```bash
 cd web && npm run build

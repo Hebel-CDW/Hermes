@@ -15,7 +15,7 @@ from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-os.environ.setdefault("HERMES_TEST_MODE", "1")
+# No secret needed: this script only reads the database; it never tokenises people.
 
 from shared.db import HermesDB
 

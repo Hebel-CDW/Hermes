@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 import os
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Mapping, Optional, Sequence
+from typing import Any, Dict, Iterator, List, Mapping, Optional, Sequence, Tuple
 
+from shared.errors import RequestOwnershipError, RequestStateConflict
 from shared.models import (
     EvidenceRecord,
     EvidenceType,
@@ -48,6 +50,27 @@ def hash_audit_row(
     return hashlib.sha256(material.encode("utf-8")).hexdigest()
 
 
+
+_BASELINE_UPSERT = """
+INSERT INTO baseline_assessments (
+  baseline_id, coded_identity, skill_id, raw_label, raw_value,
+  normalised_level, source_sheet, source_scale, assessed_at
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+ON CONFLICT(baseline_id) DO UPDATE SET
+  skill_id=excluded.skill_id,
+  raw_value=excluded.raw_value,
+  normalised_level=excluded.normalised_level
+"""
+
+_ACCOUNT_CONTEXT_UPSERT = """
+INSERT INTO account_context (coded_identity, account_label, familiarity_raw, source_sheet)
+VALUES (?, ?, ?, ?)
+ON CONFLICT(coded_identity, account_label) DO UPDATE SET
+  familiarity_raw=excluded.familiarity_raw,
+  source_sheet=excluded.source_sheet,
+  ingested_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+"""
+
 class HermesDB:
     def __init__(self, path: Optional[Path] = None) -> None:
         self.path = Path(path) if path else default_db_path()
@@ -76,6 +99,149 @@ class HermesDB:
         ddl = schema_path().read_text(encoding="utf-8")
         with self.session() as conn:
             conn.executescript(ddl)
+            cols = {r["name"] for r in conn.execute("PRAGMA table_info(staffing_requests)")}
+            if "excluded_json" not in cols:
+                conn.execute(
+                    "ALTER TABLE staffing_requests ADD COLUMN excluded_json TEXT NOT NULL DEFAULT '[]'"
+                )
+            # Read models for the UI: the exact ranking payload and its inputs, stored
+            # verbatim so detail views never recompute or re-rank.
+            for col in ("result_json", "requirements_json"):
+                if col not in cols:
+                    conn.execute(f"ALTER TABLE staffing_requests ADD COLUMN {col} TEXT NOT NULL DEFAULT '{{}}'")
+        self._migrate_audit_seq()
+        self._ensure_audit_anchor()
+        self._ensure_principal_bindings()
+
+    def _ensure_principal_bindings(self) -> None:
+        with self.session() as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS principal_bindings (
+                    sub              TEXT NOT NULL PRIMARY KEY,
+                    coded_identity   TEXT NOT NULL,
+                    mapped_by        TEXT NOT NULL,
+                    mapped_at        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+                    FOREIGN KEY (coded_identity) REFERENCES identity_map(coded_identity)
+                )
+                """
+            )
+    def get_meta(self, key: str) -> Optional[str]:
+        with self.session() as conn:
+            row = conn.execute("SELECT value FROM hermes_meta WHERE key = ?", (key,)).fetchone()
+        return row["value"] if row else None
+
+    def set_meta(self, key: str, value: str) -> None:
+        with self.session() as conn:
+            conn.execute(
+                "INSERT INTO hermes_meta (key, value) VALUES (?, ?) "
+                "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                (key, value),
+            )
+
+    # ------------------------------------------------------------ audit anchor
+    def anchor_path(self) -> Path:
+        """Location of the external integrity anchor for this database.
+
+        Defaults to ``<db>.audit-anchor.json`` beside the database. Set
+        ``HERMES_AUDIT_ANCHOR_DIR`` to keep anchors on storage the database writer
+        cannot modify — the anchor only defends against tampering by someone who
+        cannot also rewrite it.
+        """
+        anchor_dir = os.getenv("HERMES_AUDIT_ANCHOR_DIR", "").strip()
+        if anchor_dir:
+            digest = hashlib.sha256(str(self.path.resolve()).encode("utf-8")).hexdigest()[:24]
+            return Path(anchor_dir) / f"{digest}.audit-anchor.json"
+        return self.path.with_name(self.path.name + ".audit-anchor.json")
+
+    @staticmethod
+    def _anchor_key() -> bytes:
+        key = os.getenv("HERMES_AUDIT_ANCHOR_KEY") or os.getenv("IDENTITY_MAP_SECRET") or ""
+        return key.encode("utf-8")
+
+    @classmethod
+    def _sign_anchor(cls, body: Mapping[str, Any]) -> Optional[str]:
+        key = cls._anchor_key()
+        if not key:
+            return None
+        return hmac.new(key, _canonical_json(body).encode("utf-8"), hashlib.sha256).hexdigest()
+
+    def _chain_state(self, conn: sqlite3.Connection) -> Dict[str, Any]:
+        head = conn.execute(
+            "SELECT seq, row_hash FROM audit_ledger ORDER BY seq DESC LIMIT 1"
+        ).fetchone()
+        count = conn.execute("SELECT COUNT(*) AS n FROM audit_ledger").fetchone()["n"]
+        return {
+            "seq": int(head["seq"]) if head and head["seq"] is not None else 0,
+            "chain_head": head["row_hash"] if head else "",
+            "event_count": int(count),
+        }
+
+    def _write_anchor(self, state: Mapping[str, Any]) -> None:
+        path = self.anchor_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        existing = self._read_anchor()
+        if existing and int(existing.get("seq", 0)) > int(state["seq"]):
+            return  # never move the anchor backwards
+        body = {
+            "seq": int(state["seq"]),
+            "chain_head": state["chain_head"],
+            "event_count": int(state["event_count"]),
+            "updated_at": utc_now().isoformat(),
+        }
+        doc = dict(body, signature=self._sign_anchor(body))
+        tmp = path.with_name(path.name + ".tmp")
+        tmp.write_text(json.dumps(doc, indent=2), encoding="utf-8")
+        os.replace(tmp, path)
+
+    def _read_anchor(self) -> Optional[Dict[str, Any]]:
+        path = self.anchor_path()
+        if not path.is_file():
+            return None
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    def _ensure_audit_anchor(self) -> None:
+        """Create the anchor exactly once per database (explicit, recorded adoption).
+
+        If the anchor is missing but the database records that one was already
+        established, the anchor has been removed — ``verify_audit_chain`` reports it.
+        """
+        if self.anchor_path().is_file() or self.get_meta("audit_anchor_initialised"):
+            return
+        with self.session() as conn:
+            state = self._chain_state(conn)
+        self._write_anchor(state)
+        self.set_meta("audit_anchor_initialised", utc_now().isoformat())
+
+    def _migrate_audit_seq(self) -> None:
+        """Give audit_ledger a monotonic `seq` and backfill it (G-2).
+
+        The chain used to be ordered by (created_at, event_id) with random UUID
+        event ids, so two events sharing a timestamp could replay in a different
+        order than they were written and fail verification. `seq` is allocated
+        inside an IMMEDIATE transaction at append time and is the only ordering
+        the verifier trusts. Existing rows are backfilled in rowid order, which is
+        SQLite's insertion order for this table.
+        """
+        with self.session() as conn:
+            cols = {r["name"] for r in conn.execute("PRAGMA table_info(audit_ledger)")}
+            if "seq" not in cols:
+                conn.execute("ALTER TABLE audit_ledger ADD COLUMN seq INTEGER")
+            missing = conn.execute(
+                "SELECT rowid FROM audit_ledger WHERE seq IS NULL ORDER BY rowid"
+            ).fetchall()
+            if missing:
+                start = conn.execute(
+                    "SELECT COALESCE(MAX(seq), 0) AS m FROM audit_ledger"
+                ).fetchone()["m"]
+                for offset, row in enumerate(missing, start=1):
+                    conn.execute(
+                        "UPDATE audit_ledger SET seq = ? WHERE rowid = ?",
+                        (start + offset, row["rowid"]),
+                    )
+            conn.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS UX_audit_seq ON audit_ledger(seq)"
+            )
 
     @staticmethod
     def source_hash(employee_key: str) -> str:
@@ -126,6 +292,14 @@ class HermesDB:
                 (coded_identity,),
             ).fetchone()
             return row["display_name"] if row else None
+
+    def list_identity_directory(self) -> List[Dict[str, str]]:
+        """Synthetic demo overlay: vault names keyed by coded identity. Not a scoring input."""
+        with self.session() as conn:
+            rows = conn.execute(
+                "SELECT coded_identity, display_name FROM identity_vault ORDER BY display_name COLLATE NOCASE"
+            ).fetchall()
+        return [{"coded_identity": r["coded_identity"], "display_name": r["display_name"]} for r in rows]
 
     def stage_evidence(self, record: EvidenceRecord, payload: Optional[Mapping[str, Any]] = None) -> None:
         meta = payload if payload is not None else record.metadata
@@ -249,9 +423,34 @@ class HermesDB:
                 evidence_ids=json.loads(row["evidence_ids_json"]),
                 scoring_config_version=row["scoring_config_version"],
                 computed_at=__import__("datetime").datetime.fromisoformat(row["computed_at"]),
+                computation_run_id=(
+                    row["computation_run_id"]
+                    if "computation_run_id" in row.keys() and row["computation_run_id"]
+                    else ""
+                ),
             )
             for row in rows
         ]
+
+    def evidence_source_refs_by_skill(self) -> Dict[tuple, List[str]]:
+        """(coded_identity, skill_id) -> distinct source_refs, for the inspector.
+
+        Keyed per person, not per skill: a candidate's drill-down must cite only
+        that candidate's own evidence. Source refs are ticket numbers / cert codes
+        already persisted on evidence_staging — no ticket text is stored or
+        returned (Guardrail 12).
+        """
+        with self.session() as conn:
+            rows = conn.execute(
+                "SELECT DISTINCT coded_identity, skill_id, source_ref FROM evidence_staging "
+                "WHERE skill_id IS NOT NULL ORDER BY coded_identity, skill_id, source_ref"
+            ).fetchall()
+        out: Dict[tuple, List[str]] = {}
+        for row in rows:
+            out.setdefault((row["coded_identity"], row["skill_id"]), []).append(
+                row["source_ref"]
+            )
+        return out
 
     def load_matrix_as_of(self, computation_run_id: str) -> List[Dict[str, Any]]:
         with self.session() as conn:
@@ -378,21 +577,57 @@ class HermesDB:
         requester_id: str,
         shortlist: Sequence[str],
         computation_run_id: str = "",
+        excluded: Optional[Sequence[Mapping[str, Any]]] = None,
+        result: Optional[Mapping[str, Any]] = None,
+        requirements: Optional[Mapping[str, Any]] = None,
     ) -> None:
+        """Create a request, or update the ranking of an open request the caller owns.
+
+        Ownership is immutable: ``requester_id`` is written once on insert and is never
+        part of the update clause. The update is conditioned on the stored owner and
+        an ``open`` status inside one statement, so a second principal reusing a
+        request_id cannot take it over even under concurrent writes.
+        """
+        excluded_json = json.dumps(list(excluded or []), default=str)
+        result_json = json.dumps(dict(result or {}), default=str)
+        requirements_json = json.dumps(dict(requirements or {}), default=str)
         with self.session() as conn:
-            conn.execute(
+            conn.execute("BEGIN IMMEDIATE")
+            cur = conn.execute(
                 """
                 INSERT INTO staffing_requests (
-                  request_id, requester_id, shortlist_json, computation_run_id, status
+                  request_id, requester_id, shortlist_json, computation_run_id, status, excluded_json,
+                  result_json, requirements_json
                 )
-                VALUES (?, ?, ?, ?, 'open')
+                VALUES (?, ?, ?, ?, 'open', ?, ?, ?)
                 ON CONFLICT(request_id) DO UPDATE SET
-                  requester_id=excluded.requester_id,
                   shortlist_json=excluded.shortlist_json,
-                  computation_run_id=excluded.computation_run_id
+                  computation_run_id=excluded.computation_run_id,
+                  excluded_json=excluded.excluded_json,
+                  result_json=excluded.result_json,
+                  requirements_json=excluded.requirements_json
+                WHERE staffing_requests.requester_id = excluded.requester_id
+                  AND staffing_requests.status = 'open'
                 """,
-                (request_id, requester_id, json.dumps(list(shortlist)), computation_run_id),
+                (
+                    request_id,
+                    requester_id,
+                    json.dumps(list(shortlist)),
+                    computation_run_id,
+                    excluded_json,
+                    result_json,
+                    requirements_json,
+                ),
             )
+            if cur.rowcount == 1:
+                return
+            row = conn.execute(
+                "SELECT requester_id, status FROM staffing_requests WHERE request_id = ?",
+                (request_id,),
+            ).fetchone()
+        if row is not None and row["requester_id"] != requester_id:
+            raise RequestOwnershipError("staffing request is owned by another principal")
+        raise RequestStateConflict("staffing request is no longer open")
 
     def get_staffing_request(self, request_id: str) -> Optional[Dict[str, Any]]:
         with self.session() as conn:
@@ -413,24 +648,45 @@ class HermesDB:
             "override_note": row["override_note"],
             "engine_rank_of_choice": row["engine_rank_of_choice"],
             "computation_run_id": row["computation_run_id"],
+            "excluded": json.loads(row["excluded_json"] or "[]")
+            if "excluded_json" in row.keys()
+            else [],
+            "result": json.loads(row["result_json"] or "{}") if "result_json" in row.keys() else {},
+            "requirements": json.loads(row["requirements_json"] or "{}")
+            if "requirements_json" in row.keys()
+            else {},
+            "created_at": row["created_at"],
         }
+
+    def list_staffing_requests(self, requester_id: str) -> List[Dict[str, Any]]:
+        with self.session() as conn:
+            rows = conn.execute(
+                "SELECT request_id FROM staffing_requests WHERE requester_id = ? "
+                "ORDER BY created_at DESC, request_id",
+                (requester_id,),
+            ).fetchall()
+        return [self.get_staffing_request(r["request_id"]) for r in rows]
 
     def append_audit(
         self, event_id: str, event_type: str, actor: str, payload: Mapping[str, Any]
     ) -> Dict[str, str]:
         created_at = utc_now().isoformat()
         with self.session() as conn:
+            # IMMEDIATE takes the write lock before reading the chain head, so two
+            # writers cannot both read the same predecessor and fork the chain.
+            conn.execute("BEGIN IMMEDIATE")
             prev = conn.execute(
-                "SELECT row_hash FROM audit_ledger ORDER BY created_at DESC, event_id DESC LIMIT 1"
+                "SELECT row_hash, seq FROM audit_ledger ORDER BY seq DESC LIMIT 1"
             ).fetchone()
             prev_hash = prev["row_hash"] if prev else ""
+            seq = (int(prev["seq"]) if prev and prev["seq"] is not None else 0) + 1
             row_hash = hash_audit_row(prev_hash, event_id, event_type, actor, payload, created_at)
             conn.execute(
                 """
                 INSERT INTO audit_ledger (
-                  event_id, event_type, actor, payload_json, prev_hash, row_hash, created_at
+                  event_id, event_type, actor, payload_json, prev_hash, row_hash, created_at, seq
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     event_id,
@@ -440,15 +696,19 @@ class HermesDB:
                     prev_hash,
                     row_hash,
                     created_at,
+                    seq,
                 ),
             )
-        return {"prev_hash": prev_hash, "row_hash": row_hash}
+            state = self._chain_state(conn)
+        # Anchor is written only after the event is durably committed.
+        self._write_anchor(state)
+        return {"prev_hash": prev_hash, "row_hash": row_hash, "seq": str(seq)}
 
     def verify_audit_chain(self) -> List[str]:
         errors: List[str] = []
         with self.session() as conn:
             rows = conn.execute(
-                "SELECT * FROM audit_ledger ORDER BY created_at ASC, event_id ASC"
+                "SELECT * FROM audit_ledger ORDER BY seq ASC"
             ).fetchall()
         expected_prev = ""
         for row in rows:
@@ -466,6 +726,39 @@ class HermesDB:
             if row["row_hash"] != expected:
                 errors.append(f"{row['event_id']}: row_hash mismatch")
             expected_prev = row["row_hash"]
+        errors.extend(self._verify_anchor(rows))
+        return errors
+
+    def _verify_anchor(self, rows: Sequence[sqlite3.Row]) -> List[str]:
+        """Compare the ledger with the external anchor.
+
+        Detects what a hash chain alone cannot: deletion of the most recent events,
+        deletion of every event, and a chain recomputed end-to-end after tampering.
+        """
+        errors: List[str] = []
+        anchor = self._read_anchor()
+        if anchor is None:
+            if rows or self.get_meta("audit_anchor_initialised"):
+                errors.append("anchor: external integrity anchor is missing")
+            return errors
+        body = {k: anchor.get(k) for k in ("seq", "chain_head", "event_count", "updated_at")}
+        expected_sig = self._sign_anchor(body)
+        if expected_sig is not None and anchor.get("signature") != expected_sig:
+            errors.append("anchor: signature invalid (anchor forged or signed with a different key)")
+        head_seq = int(rows[-1]["seq"]) if rows else 0
+        head_hash = rows[-1]["row_hash"] if rows else ""
+        if len(rows) != int(anchor.get("event_count", -1)):
+            errors.append(
+                f"anchor: event count {len(rows)} != anchored {anchor.get('event_count')} "
+                "(events deleted or inserted)"
+            )
+        if head_seq < int(anchor.get("seq", 0)):
+            errors.append(
+                f"anchor: ledger head seq {head_seq} is behind anchored seq {anchor.get('seq')} "
+                "(most recent events deleted)"
+            )
+        elif head_hash != anchor.get("chain_head"):
+            errors.append("anchor: chain head hash differs from anchor (chain rewritten)")
         return errors
 
     def pilot_coverage(self) -> Dict[str, Any]:
@@ -514,13 +807,14 @@ class HermesDB:
         override_note: Optional[str] = None,
         engine_rank_of_choice: Optional[int] = None,
     ) -> None:
+        """Write a decision atomically: only the owner, only while the request is open."""
         with self.session() as conn:
-            conn.execute(
+            cur = conn.execute(
                 """
                 UPDATE staffing_requests SET
                   status=?, approved_by=?, decided_at=?, chosen_coded_identity=?,
                   rejection_reason=?, override_note=?, engine_rank_of_choice=?
-                WHERE request_id=?
+                WHERE request_id=? AND requester_id=? AND status='open'
                 """,
                 (
                     status,
@@ -531,8 +825,19 @@ class HermesDB:
                     override_note,
                     engine_rank_of_choice,
                     request_id,
+                    approved_by,
                 ),
             )
+            if cur.rowcount != 1:
+                raise RequestStateConflict("request is not open for a decision by this principal")
+
+    def direct_reports(self, manager_coded_id: str) -> List[str]:
+        with self.session() as conn:
+            rows = conn.execute(
+                "SELECT report_coded_id FROM org_edges WHERE manager_coded_id = ? ORDER BY 1",
+                (manager_coded_id,),
+            ).fetchall()
+        return [r["report_coded_id"] for r in rows]
 
     def add_contest(
         self, contest_id: str, coded_identity: str, skill_id: Optional[str], reason: str
@@ -545,6 +850,45 @@ class HermesDB:
                 """,
                 (contest_id, coded_identity, skill_id, reason),
             )
+
+    def has_coded_identity(self, coded_identity: str) -> bool:
+        with self.session() as conn:
+            row = conn.execute(
+                "SELECT 1 FROM identity_map WHERE coded_identity = ?",
+                (coded_identity,),
+            ).fetchone()
+        return row is not None
+
+    def list_open_contests(self, coded_identity: str) -> List[Dict[str, Any]]:
+        with self.session() as conn:
+            rows = conn.execute(
+                """
+                SELECT contest_id, coded_identity, skill_id, reason, status, created_at
+                FROM evidence_contests
+                WHERE coded_identity = ? AND status = 'open'
+                ORDER BY created_at
+                """,
+                (coded_identity,),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_contest(self, contest_id: str) -> Optional[Dict[str, Any]]:
+        with self.session() as conn:
+            row = conn.execute(
+                "SELECT contest_id, coded_identity, skill_id, reason, status, created_at "
+                "FROM evidence_contests WHERE contest_id = ?",
+                (contest_id,),
+            ).fetchone()
+        return dict(row) if row else None
+
+    def set_contest_status(self, contest_id: str, status: str) -> None:
+        with self.session() as conn:
+            cur = conn.execute(
+                "UPDATE evidence_contests SET status = ? WHERE contest_id = ? AND status = 'open'",
+                (status, contest_id),
+            )
+            if cur.rowcount != 1:
+                raise RequestStateConflict("contest is not open for this principal")
 
     def evidence_for_identity(self, coded_identity: str) -> List[Dict[str, Any]]:
         with self.session() as conn:
@@ -561,18 +905,14 @@ class HermesDB:
         familiarity_raw: Optional[float],
         source_sheet: str,
     ) -> None:
+        self.upsert_account_contexts([(coded_identity, account_label, familiarity_raw, source_sheet)])
+
+    def upsert_account_contexts(self, rows: Sequence[Tuple[str, str, Optional[float], str]]) -> None:
+        """Write many account-context rows in ONE transaction (all or nothing)."""
+        if not rows:
+            return
         with self.session() as conn:
-            conn.execute(
-                """
-                INSERT INTO account_context (coded_identity, account_label, familiarity_raw, source_sheet)
-                VALUES (?, ?, ?, ?)
-                ON CONFLICT(coded_identity, account_label) DO UPDATE SET
-                  familiarity_raw=excluded.familiarity_raw,
-                  source_sheet=excluded.source_sheet,
-                  ingested_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
-                """,
-                (coded_identity, account_label, familiarity_raw, source_sheet),
-            )
+            conn.executemany(_ACCOUNT_CONTEXT_UPSERT, list(rows))
 
     def insert_baseline(
         self,
@@ -586,30 +926,66 @@ class HermesDB:
         skill_id: Optional[str] = None,
         assessed_at: Optional[str] = None,
     ) -> None:
+        self.insert_baselines(
+            [(baseline_id, coded_identity, skill_id, raw_label, raw_value, normalised_level, source_sheet, source_scale, assessed_at)]
+        )
+
+    def insert_baselines(self, rows: Sequence[Tuple[Any, ...]]) -> None:
+        """Write many baseline rows in ONE transaction (all or nothing).
+
+        Row order: baseline_id, coded_identity, skill_id, raw_label, raw_value,
+        normalised_level, source_sheet, source_scale, assessed_at.
+        """
+        if not rows:
+            return
+        with self.session() as conn:
+            conn.executemany(_BASELINE_UPSERT, list(rows))
+
+    def insert_cert_stagings(self, rows: Sequence[Tuple[str, str, str, Optional[str]]]) -> None:
+        """Stage certificates in ONE transaction: (staging_id, coded_identity, cert_label, cert_code).
+
+        ``earned_at`` is always NULL here — dates are never invented at ingestion.
+        """
+        if not rows:
+            return
+        with self.session() as conn:
+            conn.executemany(
+                """
+                INSERT INTO cert_staging (
+                  staging_id, coded_identity, cert_label, cert_code, earned_at, source_sheet, promoted
+                ) VALUES (?, ?, ?, ?, NULL, 'Certificates', 0)
+                ON CONFLICT(staging_id) DO UPDATE SET
+                  cert_code = COALESCE(cert_staging.cert_code, excluded.cert_code)
+                """,
+                list(rows),
+            )
+
+    def record_ingest_run(self, run_id: str, source_name: str, source_sha256: str, summary: Mapping[str, Any]) -> None:
+        """Persist an aggregate-only ingestion summary (counts, codes; never names or raw rows)."""
         with self.session() as conn:
             conn.execute(
                 """
-                INSERT INTO baseline_assessments (
-                  baseline_id, coded_identity, skill_id, raw_label, raw_value,
-                  normalised_level, source_sheet, source_scale, assessed_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(baseline_id) DO UPDATE SET
-                  skill_id=excluded.skill_id,
-                  raw_value=excluded.raw_value,
-                  normalised_level=excluded.normalised_level
+                INSERT INTO phase8_ingest_runs (run_id, source_name, source_sha256, summary_json)
+                VALUES (?, ?, ?, ?)
                 """,
-                (
-                    baseline_id,
-                    coded_identity,
-                    skill_id,
-                    raw_label,
-                    raw_value,
-                    normalised_level,
-                    source_sheet,
-                    source_scale,
-                    assessed_at,
-                ),
+                (run_id, source_name, source_sha256, json.dumps(summary, sort_keys=True)),
             )
+
+    def latest_ingest_run(self) -> Optional[Dict[str, Any]]:
+        with self.session() as conn:
+            row = conn.execute(
+                "SELECT run_id, source_name, source_sha256, ingested_at, summary_json "
+                "FROM phase8_ingest_runs ORDER BY ingested_at DESC, rowid DESC LIMIT 1"
+            ).fetchone()
+        if row is None:
+            return None
+        return {
+            "run_id": row["run_id"],
+            "source_name": row["source_name"],
+            "source_sha256": row["source_sha256"],
+            "ingested_at": row["ingested_at"],
+            "summary": json.loads(row["summary_json"]),
+        }
 
     def count_baseline(self) -> int:
         with self.session() as conn:
@@ -662,4 +1038,69 @@ class HermesDB:
                   mapped_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
                 """,
                 (alias_name.strip().lower(), canonical_name, mapped_by),
+            )
+
+    def list_pending_aliases(self) -> List[Dict[str, str]]:
+        with self.session() as conn:
+            rows = conn.execute(
+                "SELECT alias_label, skill_id, mapped_by, mapped_at FROM skill_aliases "
+                "WHERE mapped_by = 'pending' ORDER BY alias_label"
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def bind_principal(self, sub: str, coded_identity: str, mapped_by: str) -> None:
+        with self.session() as conn:
+            conn.execute(
+                """
+                INSERT INTO principal_bindings (sub, coded_identity, mapped_by)
+                VALUES (?, ?, ?)
+                ON CONFLICT(sub) DO UPDATE SET
+                  coded_identity=excluded.coded_identity,
+                  mapped_by=excluded.mapped_by,
+                  mapped_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+                """,
+                (sub, coded_identity, mapped_by),
+            )
+
+    def coded_for_principal(self, sub: str) -> Optional[str]:
+        with self.session() as conn:
+            row = conn.execute(
+                "SELECT coded_identity FROM principal_bindings WHERE sub = ?", (sub,)
+            ).fetchone()
+        return row["coded_identity"] if row else None
+
+    def rebind_baseline_skill_ids(self, alias_label: str, skill_id: str) -> int:
+        """Point isolated baseline rows at a newly approved skill. Never touches skills_matrix."""
+        from phase8.workbook import normalize_label
+
+        key = normalize_label(alias_label)
+        with self.session() as conn:
+            rows = conn.execute(
+                "SELECT baseline_id, raw_label FROM baseline_assessments "
+                "WHERE skill_id IS NULL OR skill_id = ''"
+            ).fetchall()
+            n = 0
+            for row in rows:
+                if normalize_label(row["raw_label"]) == key:
+                    conn.execute(
+                        "UPDATE baseline_assessments SET skill_id=? WHERE baseline_id=?",
+                        (skill_id, row["baseline_id"]),
+                    )
+                    n += 1
+        return n
+
+    def get_cert_staging(self, staging_id: str) -> Optional[Dict[str, Any]]:
+        with self.session() as conn:
+            row = conn.execute("SELECT * FROM cert_staging WHERE staging_id=?", (staging_id,)).fetchone()
+        return dict(row) if row else None
+
+    def set_cert_earned_at(self, staging_id: str, earned_at: str) -> None:
+        with self.session() as conn:
+            conn.execute("UPDATE cert_staging SET earned_at=? WHERE staging_id=?", (earned_at, staging_id))
+
+    def mark_cert_promoted(self, staging_id: str, cert_code: Optional[str] = None) -> None:
+        with self.session() as conn:
+            conn.execute(
+                "UPDATE cert_staging SET promoted=1, cert_code=COALESCE(?, cert_code) WHERE staging_id=?",
+                (cert_code, staging_id),
             )

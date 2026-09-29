@@ -1,0 +1,27 @@
+# Keep secrets, real data, caches and dev artefacts out of the image build context.
+.git
+.venv
+**/node_modules
+web/dist
+secrets/
+config/client_names.txt
+data/real/
+data/source/
+data/quarantine/
+data/phase8/
+data/reports/
+data/*.db
+data/*.db-*
+data/*.xlsx
+data/*.audit-anchor.json
+*.xlsx
+.env
+.env.*
+!.env.example
+**/__pycache__
+.pytest_cache
+.ruff_cache
+.coverage
+docs/
+tests/
+hermes_design/

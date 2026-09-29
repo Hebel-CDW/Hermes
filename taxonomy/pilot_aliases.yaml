@@ -1,0 +1,67 @@
+# Proposed mappings from workbook labels onto the governed pilot ontology.
+# These do not score anyone. A human must approve each row via the taxonomy inbox
+# (mapped_by=human). Client / account labels are deliberately absent.
+proposals:
+  - {alias: Kubernetes, skill_id: container_orchestration}
+  - {alias: K8s, skill_id: container_orchestration}
+  - {alias: K8s Admin, skill_id: container_orchestration}
+  - {alias: Docker, skill_id: container_runtime}
+  - {alias: Terraform, skill_id: infrastructure_as_code}
+  - {alias: Terraform Modules, skill_id: infrastructure_as_code}
+  - {alias: Bicep, skill_id: infrastructure_as_code}
+  - {alias: Azure Compute, skill_id: azure_compute}
+  - {alias: Azure, skill_id: azure_compute}
+  - {alias: Azure Networking, skill_id: azure_networking}
+  - {alias: AWS, skill_id: aws_compute}
+  - {alias: AWS Basics, skill_id: aws_compute}
+  - {alias: AWS basics, skill_id: aws_compute}
+  - {alias: GCP, skill_id: gcp_compute}
+  - {alias: IBM cloud fundamentals and concepts, skill_id: ibm_cloud}
+  - {alias: Oracle Cloud Fundamentals, skill_id: oracle_cloud}
+  - {alias: Vmware, skill_id: vmware}
+  - {alias: VMWare, skill_id: vmware}
+  - {alias: VM-Ware, skill_id: vmware}
+  - {alias: Windows & VMware, skill_id: vmware}
+  - {alias: Nutanix, skill_id: nutanix}
+  - {alias: Citrix NetScaler, skill_id: citrix_adc}
+  - {alias: Citrix NetScaler (ADC), skill_id: citrix_adc}
+  - {alias: ServiceNow, skill_id: servicenow}
+  - {alias: Service Now, skill_id: servicenow}
+  - {alias: Servicenow, skill_id: servicenow}
+  - {alias: Servicenow/ BMC Remedy, skill_id: servicenow}
+  - {alias: ITIL, skill_id: itil}
+  - {alias: ITIL Process, skill_id: itil}
+  - {alias: ITIL processes, skill_id: itil}
+  - {alias: Python, skill_id: python}
+  - {alias: PYTHON, skill_id: python}
+  - {alias: Ansible, skill_id: ansible}
+  - {alias: BASH Scripting, skill_id: bash_scripting}
+  - {alias: Bash scripting, skill_id: bash_scripting}
+  - {alias: SQL commands, skill_id: sql}
+  - {alias: Java, skill_id: java}
+  - {alias: Disaster recovery, skill_id: disaster_recovery}
+  - {alias: Diaster Recovery, skill_id: disaster_recovery}
+  - {alias: Disaster Recovery, skill_id: disaster_recovery}
+  - {alias: Backup handling, skill_id: backup_restore}
+  - {alias: ScienceLogic, skill_id: monitoring}
+  - {alias: SL1, skill_id: monitoring}
+  - {alias: Halcyon (Monitoring Tool), skill_id: monitoring}
+  - {alias: Thycotic, skill_id: identity_access_management}
+  - {alias: Cisco ACI, skill_id: cisco_networking}
+  - {alias: ACI Fabric, skill_id: cisco_networking}
+  - {alias: FortiGate Firewall, skill_id: firewall_administration}
+  - {alias: Cisco Firewall, skill_id: firewall_administration}
+  - {alias: HMC, skill_id: hmc}
+  - {alias: RPGLE, skill_id: rpgle}
+  - {alias: CLP programming, skill_id: clp_programming}
+  - {alias: CL Programming, skill_id: clp_programming}
+  - {alias: Mimix, skill_id: high_availability}
+  - {alias: iTera, skill_id: high_availability}
+  - {alias: FTP, skill_id: ftp_sftp}
+  - {alias: SFTP, skill_id: ftp_sftp}
+  - {alias: Tivoli Work Load Scheduler, skill_id: job_scheduling}
+  - {alias: Robot Scheduler, skill_id: job_scheduling}
+  - {alias: Migration activities, skill_id: workload_migration}
+  - {alias: OS upgradation, skill_id: os_patching}
+  - {alias: Decommissioning server, skill_id: server_lifecycle}
+  - {alias: Incident Management, skill_id: incident_management}

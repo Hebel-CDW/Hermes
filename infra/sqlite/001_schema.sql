@@ -4,6 +4,13 @@
 
 PRAGMA foreign_keys = ON;
 
+-- Database trust + integrity metadata (data_classification, identity secret
+-- fingerprint, audit anchor adoption). Never holds secrets or personal data.
+CREATE TABLE IF NOT EXISTS hermes_meta (
+    key              TEXT NOT NULL PRIMARY KEY,
+    value            TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS identity_map (
     coded_identity   TEXT NOT NULL PRIMARY KEY,
     source_hash      TEXT NOT NULL UNIQUE,
@@ -98,7 +105,11 @@ CREATE TABLE IF NOT EXISTS audit_ledger (
     payload_json     TEXT NOT NULL,
     prev_hash        TEXT NOT NULL DEFAULT '',
     row_hash         TEXT NOT NULL DEFAULT '',
-    created_at       TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+    created_at       TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+    -- Monotonic chain position; the only ordering verify_audit_chain trusts.
+    -- Unique index UX_audit_seq is created in HermesDB._migrate_audit_seq so that
+    -- pre-existing databases can be migrated before the index is applied.
+    seq              INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS staffing_requests (
@@ -113,6 +124,12 @@ CREATE TABLE IF NOT EXISTS staffing_requests (
     override_note    TEXT,
     engine_rank_of_choice INTEGER,
     computation_run_id TEXT,
+    -- Machine-readable exclusion reasons captured at ranking time; used to reject
+    -- decisions that pick an excluded candidate.
+    excluded_json    TEXT NOT NULL DEFAULT '[]',
+    -- Verbatim ranking response and its inputs (UI read model; never recomputed).
+    result_json      TEXT NOT NULL DEFAULT '{}',
+    requirements_json TEXT NOT NULL DEFAULT '{}',
     created_at       TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
 
@@ -186,3 +203,22 @@ CREATE TABLE IF NOT EXISTS cert_staging (
 
 CREATE INDEX IF NOT EXISTS IX_baseline_identity ON baseline_assessments(coded_identity);
 CREATE INDEX IF NOT EXISTS IX_baseline_skill ON baseline_assessments(skill_id);
+
+-- Phase 8: one row per governed real-workbook ingestion. Aggregate counts ONLY
+-- (no names, no raw rows, no client labels) so the data-quality view can be
+-- served from the database rather than from files or hardcoded numbers.
+CREATE TABLE IF NOT EXISTS phase8_ingest_runs (
+    run_id           TEXT NOT NULL PRIMARY KEY,
+    source_name      TEXT NOT NULL,
+    source_sha256    TEXT NOT NULL,
+    ingested_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+    summary_json     TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS principal_bindings (
+    sub              TEXT NOT NULL PRIMARY KEY,
+    coded_identity   TEXT NOT NULL,
+    mapped_by        TEXT NOT NULL,
+    mapped_at        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+    FOREIGN KEY (coded_identity) REFERENCES identity_map(coded_identity)
+);

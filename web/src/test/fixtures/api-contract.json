@@ -1,0 +1,2385 @@
+{
+  "baseline_matrix": {
+    "cells": [],
+    "kind": "survey_2025",
+    "label": "2025 manager survey \u2014 not used for Find people",
+    "used_for_fitness": false
+  },
+  "dashboard": {
+    "actor": "demo-manager",
+    "avg_freshness_by_skill": {
+      "active_directory": 0.877,
+      "azure_compute": 0.5958,
+      "azure_networking": 0.2618,
+      "container_orchestration": 0.4193,
+      "incident_management": 0.9058,
+      "infrastructure_as_code": 0.7885,
+      "network_security": 0.8067,
+      "workload_migration": 0.854
+    },
+    "coverage": {
+      "coverage_pct": 80.0,
+      "pilot_size": 5,
+      "with_demonstrated": 4
+    },
+    "skill_distribution": [
+      {
+        "coded_identity": "EMP-fd8efec3",
+        "confidence": 1.0,
+        "freshness": 0.4193,
+        "proficiency": 4,
+        "skill_id": "container_orchestration",
+        "volume_score": 0.5034
+      },
+      {
+        "coded_identity": "EMP-fd8efec3",
+        "confidence": 0.35,
+        "freshness": 0.854,
+        "proficiency": 4,
+        "skill_id": "workload_migration",
+        "volume_score": 0.2953
+      },
+      {
+        "coded_identity": "EMP-fd8efec3",
+        "confidence": 0.35,
+        "freshness": 0.877,
+        "proficiency": 3,
+        "skill_id": "active_directory",
+        "volume_score": 0.2953
+      },
+      {
+        "coded_identity": "EMP-c775791c",
+        "confidence": 0.9,
+        "freshness": 0.2618,
+        "proficiency": 3,
+        "skill_id": "azure_networking",
+        "volume_score": 0.2953
+      },
+      {
+        "coded_identity": "EMP-c775791c",
+        "confidence": 0.35,
+        "freshness": 0.8067,
+        "proficiency": 2,
+        "skill_id": "network_security",
+        "volume_score": 0.2953
+      },
+      {
+        "coded_identity": "EMP-f232ab6e",
+        "confidence": 0.35,
+        "freshness": 0.7885,
+        "proficiency": 3,
+        "skill_id": "azure_compute",
+        "volume_score": 0.2953
+      },
+      {
+        "coded_identity": "EMP-f232ab6e",
+        "confidence": 0.35,
+        "freshness": 0.7885,
+        "proficiency": 2,
+        "skill_id": "infrastructure_as_code",
+        "volume_score": 0.2953
+      },
+      {
+        "coded_identity": "EMP-666c8943",
+        "confidence": 0.35,
+        "freshness": 0.9058,
+        "proficiency": 4,
+        "skill_id": "incident_management",
+        "volume_score": 0.2953
+      },
+      {
+        "coded_identity": "EMP-9a4bf2f6",
+        "confidence": 0.35,
+        "freshness": 0.403,
+        "proficiency": 2,
+        "skill_id": "azure_compute",
+        "volume_score": 0.0
+      }
+    ]
+  },
+  "data_quality": {
+    "baseline_level_distribution": {},
+    "canonical_skills": 49,
+    "certificates": {
+      "exact_mapped": 0,
+      "pending": 0,
+      "promoted": 0,
+      "staged": 0,
+      "with_earned_at": 0
+    },
+    "data_classification": "synthetic",
+    "database": {
+      "account_context_rows": 0,
+      "approved_aliases": 0,
+      "baseline_not_assessed": 0,
+      "baseline_rows": 0,
+      "baseline_rows_mapped": 0,
+      "certificates_exact_mapped": 0,
+      "certificates_promoted": 0,
+      "certificates_staged": 0,
+      "certificates_with_earned_at": 0,
+      "evidence_records": 13,
+      "pending_aliases": 0,
+      "people_imported": 5,
+      "people_with_baseline": 0,
+      "scored_people": 5,
+      "skill_records": 9
+    },
+    "ingestion": null,
+    "pipeline": {
+      "imported": 5,
+      "mapped": null,
+      "pending": null,
+      "scored": 5,
+      "validated": null
+    }
+  },
+  "excel_sunset": {
+    "criteria": {
+      "baseline_agreement_met": false,
+      "baseline_agreement_overlaps": 0,
+      "pilot_coverage_met": true,
+      "pilot_coverage_pct": 80.0,
+      "staffing_decision_met": false,
+      "staffing_decisions": 0,
+      "survey_frozen": true
+    },
+    "next_workbook_allowed": false,
+    "next_workbook_year_forbidden": 2026,
+    "ready_to_retire_excel": false,
+    "survey_year_frozen": 2025
+  },
+  "me_employee": {
+    "coded_identity": "EMP-f232ab6e",
+    "evidence": [
+      {
+        "evidence_id": "INC004:azure_compute",
+        "evidence_type": "demonstrated",
+        "occurred_at": "2026-05-20T12:00:00+00:00",
+        "payload": {
+          "matched_keywords": [
+            "app service"
+          ],
+          "source_ref": "INC004"
+        },
+        "skill_id": "azure_compute",
+        "source_ref": "INC004"
+      },
+      {
+        "evidence_id": "INC004:infrastructure_as_code",
+        "evidence_type": "demonstrated",
+        "occurred_at": "2026-05-20T12:00:00+00:00",
+        "payload": {
+          "matched_keywords": [
+            "terraform"
+          ],
+          "source_ref": "INC004"
+        },
+        "skill_id": "infrastructure_as_code",
+        "source_ref": "INC004"
+      }
+    ],
+    "skills": [
+      {
+        "coded_identity": "EMP-f232ab6e",
+        "computation_run_id": "3f5effcd-d7b5-4b7f-9ebd-8e1b1a85576d",
+        "computed_at": "2026-09-22T14:28:22.562721Z",
+        "confidence": 0.35,
+        "evidence_ids": [
+          "INC004:azure_compute"
+        ],
+        "freshness": 0.7885,
+        "proficiency": 3,
+        "scoring_config_version": "9220dcfdfcf3",
+        "skill_id": "azure_compute",
+        "volume_score": 0.2953
+      },
+      {
+        "coded_identity": "EMP-f232ab6e",
+        "computation_run_id": "3f5effcd-d7b5-4b7f-9ebd-8e1b1a85576d",
+        "computed_at": "2026-09-22T14:28:22.562751Z",
+        "confidence": 0.35,
+        "evidence_ids": [
+          "INC004:infrastructure_as_code"
+        ],
+        "freshness": 0.7885,
+        "proficiency": 2,
+        "scoring_config_version": "9220dcfdfcf3",
+        "skill_id": "infrastructure_as_code",
+        "volume_score": 0.2953
+      }
+    ]
+  },
+  "overview": {
+    "audit_chain_verified": true,
+    "data_classification": "synthetic",
+    "demonstrated_coverage": {
+      "coverage_pct": 80.0,
+      "pilot_size": 5,
+      "with_demonstrated": 4
+    },
+    "domains": [
+      {
+        "coverage_ratio": 0.8,
+        "domain_id": "cloud_platform",
+        "identities_with_evidence": 4,
+        "mean_confidence": 0.65,
+        "mean_freshness": 0.4682,
+        "mean_level": 3.0,
+        "name": "Cloud Platform",
+        "skill_count": 7,
+        "skill_records": 4
+      },
+      {
+        "coverage_ratio": 0.4,
+        "domain_id": "platform_ops",
+        "identities_with_evidence": 2,
+        "mean_confidence": 0.35,
+        "mean_freshness": 0.8472,
+        "mean_level": 3.0,
+        "name": "Platform Operations",
+        "skill_count": 10,
+        "skill_records": 2
+      },
+      {
+        "coverage_ratio": 0.2,
+        "domain_id": "network_security",
+        "identities_with_evidence": 1,
+        "mean_confidence": 0.35,
+        "mean_freshness": 0.8067,
+        "mean_level": 2.0,
+        "name": "Network Security",
+        "skill_count": 5,
+        "skill_records": 1
+      },
+      {
+        "coverage_ratio": 0.0,
+        "domain_id": "service_management",
+        "identities_with_evidence": 0,
+        "mean_confidence": null,
+        "mean_freshness": null,
+        "mean_level": null,
+        "name": "Service Management",
+        "skill_count": 5,
+        "skill_records": 0
+      },
+      {
+        "coverage_ratio": 0.0,
+        "domain_id": "data_operations",
+        "identities_with_evidence": 0,
+        "mean_confidence": null,
+        "mean_freshness": null,
+        "mean_level": null,
+        "name": "Data Operations",
+        "skill_count": 5,
+        "skill_records": 0
+      },
+      {
+        "coverage_ratio": 0.2,
+        "domain_id": "automation",
+        "identities_with_evidence": 1,
+        "mean_confidence": 0.35,
+        "mean_freshness": 0.877,
+        "mean_level": 3.0,
+        "name": "Automation",
+        "skill_count": 5,
+        "skill_records": 1
+      },
+      {
+        "coverage_ratio": 0.2,
+        "domain_id": "systems",
+        "identities_with_evidence": 1,
+        "mean_confidence": 0.35,
+        "mean_freshness": 0.854,
+        "mean_level": 4.0,
+        "name": "Systems",
+        "skill_count": 7,
+        "skill_records": 1
+      },
+      {
+        "coverage_ratio": 0.0,
+        "domain_id": "ibm_i",
+        "identities_with_evidence": 0,
+        "mean_confidence": null,
+        "mean_freshness": null,
+        "mean_level": null,
+        "name": "IBM i",
+        "skill_count": 5,
+        "skill_records": 0
+      }
+    ],
+    "governed_skills": 49,
+    "identities_with_evidence": 5,
+    "latest_computation_run_id": "3f5effcd-d7b5-4b7f-9ebd-8e1b1a85576d",
+    "people": 5,
+    "recent_activity": [
+      {
+        "created_at": "2026-09-22T14:28:22.756326+00:00",
+        "event_type": "fitness_ranking",
+        "seq": 16
+      },
+      {
+        "created_at": "2026-09-22T14:28:22.563488+00:00",
+        "event_type": "inference_computation",
+        "seq": 15
+      },
+      {
+        "created_at": "2026-09-22T14:28:22.550745+00:00",
+        "event_type": "evidence_ingestion",
+        "seq": 14
+      },
+      {
+        "created_at": "2026-09-22T14:28:22.548099+00:00",
+        "event_type": "evidence_ingestion",
+        "seq": 13
+      },
+      {
+        "created_at": "2026-09-22T14:28:22.545528+00:00",
+        "event_type": "evidence_ingestion",
+        "seq": 12
+      },
+      {
+        "created_at": "2026-09-22T14:28:22.543012+00:00",
+        "event_type": "evidence_ingestion",
+        "seq": 11
+      },
+      {
+        "created_at": "2026-09-22T14:28:22.540288+00:00",
+        "event_type": "evidence_ingestion",
+        "seq": 10
+      },
+      {
+        "created_at": "2026-09-22T14:28:22.537741+00:00",
+        "event_type": "evidence_ingestion",
+        "seq": 9
+      }
+    ],
+    "requests_by_status": {
+      "open": 1
+    },
+    "role_profiles": 1,
+    "scoring_config_version": "9220dcfdfcf3",
+    "skill_coverage_ratio": 1.0,
+    "skill_records": 9
+  },
+  "rank_body": {
+    "min_coverage_ratio": 0.5,
+    "request_id": "ui-contract-1",
+    "required_skills": {
+      "azure_networking": 2,
+      "container_orchestration": 3
+    },
+    "shortlist_size": 3
+  },
+  "rank_response": {
+    "candidates": [
+      {
+        "calculation": {
+          "allocation": 1.0,
+          "allocation_multiplier": 1.0,
+          "allocation_weight": 0.15,
+          "computation_run_id": "3f5effcd-d7b5-4b7f-9ebd-8e1b1a85576d",
+          "contribution_sum": 0.211076,
+          "coverage_ratio": 0.5,
+          "excluded": false,
+          "exclusion_reason": null,
+          "fitness_score": 0.1055,
+          "formula": "fitness = mean(level_ratio * confidence * volume_score * freshness * adjacency_discount) * ((1 - allocation_weight) + allocation_weight * allocation)",
+          "matched_skill_count": 1,
+          "mean_contribution": 0.105538,
+          "min_coverage_ratio": 0.5,
+          "required_skill_count": 2,
+          "scoring_config_version": "9220dcfdfcf3"
+        },
+        "coded_identity": "EMP-fd8efec3",
+        "evidence_ids": [
+          "INC001:container_orchestration",
+          "INC002:container_orchestration",
+          "cert-CKA-E1001",
+          "decl-E1001-container_orchestration"
+        ],
+        "fitness_score": 0.1055,
+        "per_skill_reasoning": {
+          "azure_networking": "missing skill evidence",
+          "container_orchestration": "level=4/3 confidence=1.00 volume=0.50 freshness=0.42 adjacency=1.00 evidence=INC001:container_orchestration,INC002:container_orchestration,cert-CKA-E1001,decl-E1001-container_orchestration"
+        },
+        "rank": 1,
+        "reasoning_detail": {
+          "azure_networking": {
+            "actual_level": null,
+            "adjacency_discount": 0.0,
+            "adjacency_source_skill": null,
+            "confidence": null,
+            "contribution": 0.0,
+            "decay_class": null,
+            "evidence_ids": [],
+            "freshness": null,
+            "half_life_days": null,
+            "level": null,
+            "level_ratio": null,
+            "required": 2,
+            "required_level": 2,
+            "skill_id": "azure_networking",
+            "source_refs": [],
+            "status": "missing",
+            "volume_score": null
+          },
+          "container_orchestration": {
+            "actual_level": 4,
+            "adjacency_discount": 1.0,
+            "adjacency_source_skill": null,
+            "confidence": 1.0,
+            "contribution": 0.211076,
+            "decay_class": "fast",
+            "evidence_ids": [
+              "INC001:container_orchestration",
+              "INC002:container_orchestration",
+              "cert-CKA-E1001",
+              "decl-E1001-container_orchestration"
+            ],
+            "freshness": 0.4193,
+            "half_life_days": 120.0,
+            "level": 4,
+            "level_ratio": 1.0,
+            "required": 3,
+            "required_level": 3,
+            "skill_id": "container_orchestration",
+            "source_refs": [
+              "CKA",
+              "INC001",
+              "INC002",
+              "declared"
+            ],
+            "status": "matched",
+            "volume_score": 0.5034
+          }
+        }
+      },
+      {
+        "calculation": {
+          "allocation": 1.0,
+          "allocation_multiplier": 1.0,
+          "allocation_weight": 0.15,
+          "computation_run_id": "3f5effcd-d7b5-4b7f-9ebd-8e1b1a85576d",
+          "contribution_sum": 0.081495,
+          "coverage_ratio": 1.0,
+          "excluded": false,
+          "exclusion_reason": null,
+          "fitness_score": 0.0407,
+          "formula": "fitness = mean(level_ratio * confidence * volume_score * freshness * adjacency_discount) * ((1 - allocation_weight) + allocation_weight * allocation)",
+          "matched_skill_count": 2,
+          "mean_contribution": 0.040748,
+          "min_coverage_ratio": 0.5,
+          "required_skill_count": 2,
+          "scoring_config_version": "9220dcfdfcf3"
+        },
+        "coded_identity": "EMP-f232ab6e",
+        "evidence_ids": [
+          "INC004:azure_compute"
+        ],
+        "fitness_score": 0.0407,
+        "per_skill_reasoning": {
+          "azure_networking": "level=3/2 confidence=0.35 volume=0.30 freshness=0.79 adjacency=0.50 evidence=INC004:azure_compute",
+          "container_orchestration": "level=3/3 confidence=0.35 volume=0.30 freshness=0.79 adjacency=0.50 evidence=INC004:azure_compute"
+        },
+        "rank": 2,
+        "reasoning_detail": {
+          "azure_networking": {
+            "actual_level": 3,
+            "adjacency_discount": 0.5,
+            "adjacency_source_skill": "azure_compute",
+            "confidence": 0.35,
+            "contribution": 0.040748,
+            "decay_class": "medium",
+            "evidence_ids": [
+              "INC004:azure_compute"
+            ],
+            "freshness": 0.7885,
+            "half_life_days": 365.0,
+            "level": 3,
+            "level_ratio": 1.0,
+            "required": 2,
+            "required_level": 2,
+            "skill_id": "azure_networking",
+            "source_refs": [
+              "INC004"
+            ],
+            "status": "adjacent",
+            "volume_score": 0.2953
+          },
+          "container_orchestration": {
+            "actual_level": 3,
+            "adjacency_discount": 0.5,
+            "adjacency_source_skill": "azure_compute",
+            "confidence": 0.35,
+            "contribution": 0.040748,
+            "decay_class": "medium",
+            "evidence_ids": [
+              "INC004:azure_compute"
+            ],
+            "freshness": 0.7885,
+            "half_life_days": 365.0,
+            "level": 3,
+            "level_ratio": 1.0,
+            "required": 3,
+            "required_level": 3,
+            "skill_id": "container_orchestration",
+            "source_refs": [
+              "INC004"
+            ],
+            "status": "adjacent",
+            "volume_score": 0.2953
+          }
+        }
+      },
+      {
+        "calculation": {
+          "allocation": 1.0,
+          "allocation_multiplier": 1.0,
+          "allocation_weight": 0.15,
+          "computation_run_id": "3f5effcd-d7b5-4b7f-9ebd-8e1b1a85576d",
+          "contribution_sum": 0.069579,
+          "coverage_ratio": 0.5,
+          "excluded": false,
+          "exclusion_reason": null,
+          "fitness_score": 0.0348,
+          "formula": "fitness = mean(level_ratio * confidence * volume_score * freshness * adjacency_discount) * ((1 - allocation_weight) + allocation_weight * allocation)",
+          "matched_skill_count": 1,
+          "mean_contribution": 0.034789,
+          "min_coverage_ratio": 0.5,
+          "required_skill_count": 2,
+          "scoring_config_version": "9220dcfdfcf3"
+        },
+        "coded_identity": "EMP-c775791c",
+        "evidence_ids": [
+          "INC003:azure_networking",
+          "cert-AZ-700-E1002"
+        ],
+        "fitness_score": 0.0348,
+        "per_skill_reasoning": {
+          "azure_networking": "level=3/2 confidence=0.90 volume=0.30 freshness=0.26 adjacency=1.00 evidence=INC003:azure_networking,cert-AZ-700-E1002",
+          "container_orchestration": "missing skill evidence"
+        },
+        "rank": 3,
+        "reasoning_detail": {
+          "azure_networking": {
+            "actual_level": 3,
+            "adjacency_discount": 1.0,
+            "adjacency_source_skill": null,
+            "confidence": 0.9,
+            "contribution": 0.069579,
+            "decay_class": "medium",
+            "evidence_ids": [
+              "INC003:azure_networking",
+              "cert-AZ-700-E1002"
+            ],
+            "freshness": 0.2618,
+            "half_life_days": 120.0,
+            "level": 3,
+            "level_ratio": 1.0,
+            "required": 2,
+            "required_level": 2,
+            "skill_id": "azure_networking",
+            "source_refs": [
+              "AZ-700",
+              "INC003"
+            ],
+            "status": "matched",
+            "volume_score": 0.2953
+          },
+          "container_orchestration": {
+            "actual_level": null,
+            "adjacency_discount": 0.0,
+            "adjacency_source_skill": null,
+            "confidence": null,
+            "contribution": 0.0,
+            "decay_class": null,
+            "evidence_ids": [],
+            "freshness": null,
+            "half_life_days": null,
+            "level": null,
+            "level_ratio": null,
+            "required": 3,
+            "required_level": 3,
+            "skill_id": "container_orchestration",
+            "source_refs": [],
+            "status": "missing",
+            "volume_score": null
+          }
+        }
+      }
+    ],
+    "computation_run_id": "3f5effcd-d7b5-4b7f-9ebd-8e1b1a85576d",
+    "computed_at": "2026-09-22T14:28:22.756277Z",
+    "excluded_candidates": [
+      {
+        "coded_identity": "EMP-666c8943",
+        "reason": "no_evidence_on_any_required_skill"
+      }
+    ],
+    "request_id": "ui-contract-1",
+    "scoring_config_version": "9220dcfdfcf3"
+  },
+  "real_baseline_matrix": {
+    "cells": [
+      {
+        "coded_identity": "EMP-06ebedbd",
+        "level": 2,
+        "raw_label": "Terraform Modules",
+        "skill_id": "infrastructure_as_code",
+        "source_sheet": "Azure"
+      },
+      {
+        "coded_identity": "EMP-9a166655",
+        "level": 4,
+        "raw_label": "Azure Compute",
+        "skill_id": "azure_compute",
+        "source_sheet": "Azure"
+      },
+      {
+        "coded_identity": "EMP-9a166655",
+        "level": 3,
+        "raw_label": "Terraform Modules",
+        "skill_id": "infrastructure_as_code",
+        "source_sheet": "Azure"
+      }
+    ],
+    "kind": "survey_2025",
+    "label": "2025 manager survey \u2014 not used for Find people",
+    "used_for_fitness": false
+  },
+  "real_dashboard": {
+    "actor": "demo-manager",
+    "avg_freshness_by_skill": {},
+    "coverage": {
+      "coverage_pct": 0.0,
+      "pilot_size": 4,
+      "with_demonstrated": 0
+    },
+    "skill_distribution": []
+  },
+  "real_data_quality": {
+    "baseline_level_distribution": {
+      "level_2": 1,
+      "level_3": 1,
+      "level_4": 1,
+      "not_assessed": 1
+    },
+    "canonical_skills": 49,
+    "certificates": {
+      "exact_mapped": 2,
+      "pending": 1,
+      "promoted": 0,
+      "staged": 3,
+      "with_earned_at": 0
+    },
+    "data_classification": "real",
+    "database": {
+      "account_context_rows": 2,
+      "approved_aliases": 0,
+      "baseline_not_assessed": 1,
+      "baseline_rows": 4,
+      "baseline_rows_mapped": 2,
+      "certificates_exact_mapped": 2,
+      "certificates_promoted": 0,
+      "certificates_staged": 3,
+      "certificates_with_earned_at": 0,
+      "evidence_records": 0,
+      "pending_aliases": 1,
+      "people_imported": 4,
+      "people_with_baseline": 3,
+      "scored_people": 0,
+      "skill_records": 0
+    },
+    "ingestion": {
+      "accepted_account_cells": 2,
+      "accepted_skill_cells": 4,
+      "cells_accepted": 6,
+      "cells_processed": 11,
+      "cells_rejected": 5,
+      "certificates": {
+        "cells": 3,
+        "classification": {
+          "ambiguous_label": 0,
+          "exact_cert_code": 2,
+          "human_alias": 0,
+          "unmapped_label": 1
+        },
+        "distinct_labels": 3,
+        "people": 2
+      },
+      "excluded_field_occurrences": {
+        "client_account_context": 1,
+        "culture_fit_forbidden_column": 1,
+        "soft_skill_excluded": 1
+      },
+      "ingested_at": "2026-09-22T14:28:23.259Z",
+      "labels": {
+        "mapped": 1,
+        "mapped_trace": [
+          {
+            "label": "azure compute",
+            "mapped_by": "auto",
+            "match_confidence": 1.0,
+            "skill_id": "azure_compute"
+          }
+        ],
+        "pending": 1,
+        "rejected": {
+          "client_account": 1,
+          "culture_fit": 1,
+          "soft_skill": 1
+        },
+        "skill_labels": 2
+      },
+      "people_detected": 4,
+      "rejections_by_reason": {
+        "fractional_average": 1,
+        "group_or_section_header": 1,
+        "missing_name": 1,
+        "non_numeric_cell": 1,
+        "out_of_range_value": 1
+      },
+      "run_id": "phase8-f29bad82a339-0001",
+      "sheets": 2,
+      "source_name": "Fake_Skill_Matrix.xlsx"
+    },
+    "pipeline": {
+      "imported": 4,
+      "mapped": 1,
+      "pending": 1,
+      "scored": 0,
+      "validated": 6
+    }
+  },
+  "real_excel_sunset": {
+    "criteria": {
+      "baseline_agreement_met": false,
+      "baseline_agreement_overlaps": 0,
+      "pilot_coverage_met": false,
+      "pilot_coverage_pct": 0.0,
+      "staffing_decision_met": false,
+      "staffing_decisions": 0,
+      "survey_frozen": true
+    },
+    "next_workbook_allowed": false,
+    "next_workbook_year_forbidden": 2026,
+    "ready_to_retire_excel": false,
+    "survey_year_frozen": 2025
+  },
+  "real_overview": {
+    "audit_chain_verified": true,
+    "data_classification": "real",
+    "demonstrated_coverage": {
+      "coverage_pct": 0.0,
+      "pilot_size": 4,
+      "with_demonstrated": 0
+    },
+    "domains": [
+      {
+        "coverage_ratio": 0.0,
+        "domain_id": "cloud_platform",
+        "identities_with_evidence": 0,
+        "mean_confidence": null,
+        "mean_freshness": null,
+        "mean_level": null,
+        "name": "Cloud Platform",
+        "skill_count": 7,
+        "skill_records": 0
+      },
+      {
+        "coverage_ratio": 0.0,
+        "domain_id": "platform_ops",
+        "identities_with_evidence": 0,
+        "mean_confidence": null,
+        "mean_freshness": null,
+        "mean_level": null,
+        "name": "Platform Operations",
+        "skill_count": 10,
+        "skill_records": 0
+      },
+      {
+        "coverage_ratio": 0.0,
+        "domain_id": "network_security",
+        "identities_with_evidence": 0,
+        "mean_confidence": null,
+        "mean_freshness": null,
+        "mean_level": null,
+        "name": "Network Security",
+        "skill_count": 5,
+        "skill_records": 0
+      },
+      {
+        "coverage_ratio": 0.0,
+        "domain_id": "service_management",
+        "identities_with_evidence": 0,
+        "mean_confidence": null,
+        "mean_freshness": null,
+        "mean_level": null,
+        "name": "Service Management",
+        "skill_count": 5,
+        "skill_records": 0
+      },
+      {
+        "coverage_ratio": 0.0,
+        "domain_id": "data_operations",
+        "identities_with_evidence": 0,
+        "mean_confidence": null,
+        "mean_freshness": null,
+        "mean_level": null,
+        "name": "Data Operations",
+        "skill_count": 5,
+        "skill_records": 0
+      },
+      {
+        "coverage_ratio": 0.0,
+        "domain_id": "automation",
+        "identities_with_evidence": 0,
+        "mean_confidence": null,
+        "mean_freshness": null,
+        "mean_level": null,
+        "name": "Automation",
+        "skill_count": 5,
+        "skill_records": 0
+      },
+      {
+        "coverage_ratio": 0.0,
+        "domain_id": "systems",
+        "identities_with_evidence": 0,
+        "mean_confidence": null,
+        "mean_freshness": null,
+        "mean_level": null,
+        "name": "Systems",
+        "skill_count": 7,
+        "skill_records": 0
+      },
+      {
+        "coverage_ratio": 0.0,
+        "domain_id": "ibm_i",
+        "identities_with_evidence": 0,
+        "mean_confidence": null,
+        "mean_freshness": null,
+        "mean_level": null,
+        "name": "IBM i",
+        "skill_count": 5,
+        "skill_records": 0
+      }
+    ],
+    "governed_skills": 49,
+    "identities_with_evidence": 0,
+    "latest_computation_run_id": null,
+    "people": 4,
+    "recent_activity": [
+      {
+        "created_at": "2026-09-22T14:28:23.260120+00:00",
+        "event_type": "phase8_workbook_ingest",
+        "seq": 5
+      },
+      {
+        "created_at": "2026-09-22T14:28:23.220139+00:00",
+        "event_type": "evidence_ingestion",
+        "seq": 4
+      },
+      {
+        "created_at": "2026-09-22T14:28:23.215044+00:00",
+        "event_type": "evidence_ingestion",
+        "seq": 3
+      },
+      {
+        "created_at": "2026-09-22T14:28:23.210957+00:00",
+        "event_type": "evidence_ingestion",
+        "seq": 2
+      },
+      {
+        "created_at": "2026-09-22T14:28:23.206865+00:00",
+        "event_type": "evidence_ingestion",
+        "seq": 1
+      }
+    ],
+    "requests_by_status": {},
+    "role_profiles": 0,
+    "scoring_config_version": "9220dcfdfcf3",
+    "skill_coverage_ratio": 0.0,
+    "skill_records": 0
+  },
+  "real_session_manager": {
+    "coded_identity": null,
+    "data_classification": "real",
+    "roles": [
+      "manager"
+    ],
+    "sub": "demo-manager"
+  },
+  "real_skills": {
+    "skills": [
+      {
+        "description": "Kubernetes and related container orchestration platforms.",
+        "domain_id": "cloud_platform",
+        "domain_name": "Cloud Platform",
+        "name": "Container Orchestration",
+        "relations": [
+          "azure_compute"
+        ],
+        "skill_id": "container_orchestration"
+      },
+      {
+        "description": "Azure VNets, NSGs, load balancers, private endpoints, and hybrid connectivity.",
+        "domain_id": "cloud_platform",
+        "domain_name": "Cloud Platform",
+        "name": "Azure Networking",
+        "relations": [
+          "azure_compute"
+        ],
+        "skill_id": "azure_networking"
+      },
+      {
+        "description": "Azure VMs, scale sets, App Service, and related compute services.",
+        "domain_id": "cloud_platform",
+        "domain_name": "Cloud Platform",
+        "name": "Azure Compute",
+        "relations": [],
+        "skill_id": "azure_compute"
+      },
+      {
+        "description": "EC2, autoscaling, and core AWS compute operations.",
+        "domain_id": "cloud_platform",
+        "domain_name": "Cloud Platform",
+        "name": "AWS Compute",
+        "relations": [],
+        "skill_id": "aws_compute"
+      },
+      {
+        "description": "Google Cloud compute, GCE, and related operations.",
+        "domain_id": "cloud_platform",
+        "domain_name": "Cloud Platform",
+        "name": "GCP Compute",
+        "relations": [],
+        "skill_id": "gcp_compute"
+      },
+      {
+        "description": "IBM Cloud fundamentals and IaaS operations.",
+        "domain_id": "cloud_platform",
+        "domain_name": "Cloud Platform",
+        "name": "IBM Cloud",
+        "relations": [],
+        "skill_id": "ibm_cloud"
+      },
+      {
+        "description": "Oracle Cloud infrastructure fundamentals.",
+        "domain_id": "cloud_platform",
+        "domain_name": "Cloud Platform",
+        "name": "Oracle Cloud",
+        "relations": [],
+        "skill_id": "oracle_cloud"
+      },
+      {
+        "description": "Triage, resolve, and communicate during production incidents.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Incident Management",
+        "relations": [],
+        "skill_id": "incident_management"
+      },
+      {
+        "description": "Bicep, Terraform, and declarative infrastructure delivery.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Infrastructure as Code",
+        "relations": [],
+        "skill_id": "infrastructure_as_code"
+      },
+      {
+        "description": "vSphere, ESXi, and VMware virtualization.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "VMware",
+        "relations": [],
+        "skill_id": "vmware"
+      },
+      {
+        "description": "Nutanix hyperconverged infrastructure.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Nutanix",
+        "relations": [],
+        "skill_id": "nutanix"
+      },
+      {
+        "description": "Citrix NetScaler / ADC load balancing and access.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Citrix ADC",
+        "relations": [],
+        "skill_id": "citrix_adc"
+      },
+      {
+        "description": "Windows Server administration and operations.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Windows Server",
+        "relations": [],
+        "skill_id": "windows_server"
+      },
+      {
+        "description": "Linux OS administration for production hosts.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Linux Administration",
+        "relations": [],
+        "skill_id": "linux_administration"
+      },
+      {
+        "description": "IBM AIX UNIX administration.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "AIX",
+        "relations": [],
+        "skill_id": "aix"
+      },
+      {
+        "description": "Hypervisor and VM lifecycle operations.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Virtualization",
+        "relations": [],
+        "skill_id": "virtualization"
+      },
+      {
+        "description": "Docker and container runtime operations.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Container Runtime",
+        "relations": [],
+        "skill_id": "container_runtime"
+      },
+      {
+        "description": "Cisco ACI, switching, and fabric.",
+        "domain_id": "network_security",
+        "domain_name": "Network Security",
+        "name": "Cisco Networking",
+        "relations": [],
+        "skill_id": "cisco_networking"
+      },
+      {
+        "description": "FortiGate, Cisco firewall, and perimeter controls.",
+        "domain_id": "network_security",
+        "domain_name": "Network Security",
+        "name": "Firewall Administration",
+        "relations": [],
+        "skill_id": "firewall_administration"
+      },
+      {
+        "description": "PAM, Thycotic, and privileged access.",
+        "domain_id": "network_security",
+        "domain_name": "Network Security",
+        "name": "Identity and Access Management",
+        "relations": [],
+        "skill_id": "identity_access_management"
+      },
+      {
+        "description": "Network security operations and controls.",
+        "domain_id": "network_security",
+        "domain_name": "Network Security",
+        "name": "Network Security",
+        "relations": [],
+        "skill_id": "network_security"
+      },
+      {
+        "description": "ADC and load-balancer operations.",
+        "domain_id": "network_security",
+        "domain_name": "Network Security",
+        "name": "Load Balancing",
+        "relations": [],
+        "skill_id": "load_balancing"
+      },
+      {
+        "description": "ServiceNow ITSM, incident and change workflows.",
+        "domain_id": "service_management",
+        "domain_name": "Service Management",
+        "name": "ServiceNow",
+        "relations": [],
+        "skill_id": "servicenow"
+      },
+      {
+        "description": "ITIL process execution for incidents, problems, and changes.",
+        "domain_id": "service_management",
+        "domain_name": "Service Management",
+        "name": "ITIL",
+        "relations": [],
+        "skill_id": "itil"
+      },
+      {
+        "description": "ScienceLogic, SL1, Halcyon, and ops monitoring.",
+        "domain_id": "service_management",
+        "domain_name": "Service Management",
+        "name": "Monitoring",
+        "relations": [],
+        "skill_id": "monitoring"
+      },
+      {
+        "description": "Endpoint compliance and patch posture.",
+        "domain_id": "service_management",
+        "domain_name": "Service Management",
+        "name": "Endpoint Compliance",
+        "relations": [],
+        "skill_id": "endpoint_compliance"
+      },
+      {
+        "description": "OS and firmware patching.",
+        "domain_id": "service_management",
+        "domain_name": "Service Management",
+        "name": "Patch Management",
+        "relations": [],
+        "skill_id": "patch_management"
+      },
+      {
+        "description": "Backup handling, BRMS, and restore operations.",
+        "domain_id": "data_operations",
+        "domain_name": "Data Operations",
+        "name": "Backup and Restore",
+        "relations": [],
+        "skill_id": "backup_restore"
+      },
+      {
+        "description": "DR runbooks, replication, and recovery tests.",
+        "domain_id": "data_operations",
+        "domain_name": "Data Operations",
+        "name": "Disaster Recovery",
+        "relations": [],
+        "skill_id": "disaster_recovery"
+      },
+      {
+        "description": "SAN/NAS and storage operations.",
+        "domain_id": "data_operations",
+        "domain_name": "Data Operations",
+        "name": "Storage Administration",
+        "relations": [],
+        "skill_id": "storage_administration"
+      },
+      {
+        "description": "SQL commands and database operations.",
+        "domain_id": "data_operations",
+        "domain_name": "Data Operations",
+        "name": "SQL",
+        "relations": [],
+        "skill_id": "sql"
+      },
+      {
+        "description": "Java application support.",
+        "domain_id": "data_operations",
+        "domain_name": "Data Operations",
+        "name": "Java",
+        "relations": [],
+        "skill_id": "java"
+      },
+      {
+        "description": "Python scripting for operations and automation.",
+        "domain_id": "automation",
+        "domain_name": "Automation",
+        "name": "Python",
+        "relations": [],
+        "skill_id": "python"
+      },
+      {
+        "description": "Ansible automation and playbooks.",
+        "domain_id": "automation",
+        "domain_name": "Automation",
+        "name": "Ansible",
+        "relations": [],
+        "skill_id": "ansible"
+      },
+      {
+        "description": "Bash/shell scripting for operations.",
+        "domain_id": "automation",
+        "domain_name": "Automation",
+        "name": "Bash Scripting",
+        "relations": [],
+        "skill_id": "bash_scripting"
+      },
+      {
+        "description": "PowerShell automation on Windows estates.",
+        "domain_id": "automation",
+        "domain_name": "Automation",
+        "name": "PowerShell",
+        "relations": [],
+        "skill_id": "powershell"
+      },
+      {
+        "description": "AD and identity directory operations.",
+        "domain_id": "automation",
+        "domain_name": "Automation",
+        "name": "Active Directory",
+        "relations": [],
+        "skill_id": "active_directory"
+      },
+      {
+        "description": "Datacenter, power, and rack operations.",
+        "domain_id": "systems",
+        "domain_name": "Systems",
+        "name": "Datacenter Operations",
+        "relations": [],
+        "skill_id": "datacenter_operations"
+      },
+      {
+        "description": "Commissioning and decommissioning servers.",
+        "domain_id": "systems",
+        "domain_name": "Systems",
+        "name": "Server Lifecycle",
+        "relations": [],
+        "skill_id": "server_lifecycle"
+      },
+      {
+        "description": "Operating system upgrades and patch windows.",
+        "domain_id": "systems",
+        "domain_name": "Systems",
+        "name": "OS Patching",
+        "relations": [],
+        "skill_id": "os_patching"
+      },
+      {
+        "description": "Migration activities across platforms.",
+        "domain_id": "systems",
+        "domain_name": "Systems",
+        "name": "Workload Migration",
+        "relations": [],
+        "skill_id": "workload_migration"
+      },
+      {
+        "description": "M365 / collaboration administration.",
+        "domain_id": "systems",
+        "domain_name": "Systems",
+        "name": "Microsoft 365",
+        "relations": [],
+        "skill_id": "microsoft_365"
+      },
+      {
+        "description": "Secure file transfer operations.",
+        "domain_id": "systems",
+        "domain_name": "Systems",
+        "name": "FTP and SFTP",
+        "relations": [],
+        "skill_id": "ftp_sftp"
+      },
+      {
+        "description": "Tivoli, Robot Scheduler, and batch jobs.",
+        "domain_id": "systems",
+        "domain_name": "Systems",
+        "name": "Job Scheduling",
+        "relations": [],
+        "skill_id": "job_scheduling"
+      },
+      {
+        "description": "IBM i / iSeries operations.",
+        "domain_id": "ibm_i",
+        "domain_name": "IBM i",
+        "name": "IBM i",
+        "relations": [],
+        "skill_id": "ibm_i"
+      },
+      {
+        "description": "Hardware Management Console operations.",
+        "domain_id": "ibm_i",
+        "domain_name": "IBM i",
+        "name": "HMC",
+        "relations": [],
+        "skill_id": "hmc"
+      },
+      {
+        "description": "RPGLE development and support on IBM i.",
+        "domain_id": "ibm_i",
+        "domain_name": "IBM i",
+        "name": "RPGLE",
+        "relations": [],
+        "skill_id": "rpgle"
+      },
+      {
+        "description": "CL/CLP programming on IBM i.",
+        "domain_id": "ibm_i",
+        "domain_name": "IBM i",
+        "name": "CLP Programming",
+        "relations": [],
+        "skill_id": "clp_programming"
+      },
+      {
+        "description": "Mimix, iTera, and IBM i HA.",
+        "domain_id": "ibm_i",
+        "domain_name": "IBM i",
+        "name": "High Availability",
+        "relations": [],
+        "skill_id": "high_availability"
+      }
+    ]
+  },
+  "real_workforce": {
+    "domains": [
+      {
+        "domain_id": "cloud_platform",
+        "name": "Cloud Platform"
+      },
+      {
+        "domain_id": "platform_ops",
+        "name": "Platform Operations"
+      },
+      {
+        "domain_id": "network_security",
+        "name": "Network Security"
+      },
+      {
+        "domain_id": "service_management",
+        "name": "Service Management"
+      },
+      {
+        "domain_id": "data_operations",
+        "name": "Data Operations"
+      },
+      {
+        "domain_id": "automation",
+        "name": "Automation"
+      },
+      {
+        "domain_id": "systems",
+        "name": "Systems"
+      },
+      {
+        "domain_id": "ibm_i",
+        "name": "IBM i"
+      }
+    ],
+    "identities": [
+      {
+        "coded_identity": "EMP-06ebedbd",
+        "domains": [],
+        "max_level": null,
+        "mean_confidence": null,
+        "mean_freshness": null,
+        "primary_domain": null,
+        "skill_count": 0,
+        "skills": []
+      },
+      {
+        "coded_identity": "EMP-11419a81",
+        "domains": [],
+        "max_level": null,
+        "mean_confidence": null,
+        "mean_freshness": null,
+        "primary_domain": null,
+        "skill_count": 0,
+        "skills": []
+      },
+      {
+        "coded_identity": "EMP-9a166655",
+        "domains": [],
+        "max_level": null,
+        "mean_confidence": null,
+        "mean_freshness": null,
+        "primary_domain": null,
+        "skill_count": 0,
+        "skills": []
+      },
+      {
+        "coded_identity": "EMP-ef8b0f08",
+        "domains": [],
+        "max_level": null,
+        "mean_confidence": null,
+        "mean_freshness": null,
+        "primary_domain": null,
+        "skill_count": 0,
+        "skills": []
+      }
+    ]
+  },
+  "request_detail": {
+    "candidate_count": 3,
+    "computation_run_id": "3f5effcd-d7b5-4b7f-9ebd-8e1b1a85576d",
+    "created_at": "2026-09-22T14:28:22.759Z",
+    "decision": {
+      "approved_by": null,
+      "chosen_coded_identity": null,
+      "decided_at": null,
+      "engine_rank_of_choice": null,
+      "status": null
+    },
+    "excluded_count": 1,
+    "owner": "demo-manager",
+    "request_id": "ui-contract-1",
+    "requirements": {
+      "critical_skills": [],
+      "min_coverage_ratio": 0.5,
+      "required_skills": {
+        "azure_networking": 2,
+        "container_orchestration": 3
+      },
+      "shortlist_size": 3
+    },
+    "result": {
+      "candidates": [
+        {
+          "calculation": {
+            "allocation": 1.0,
+            "allocation_multiplier": 1.0,
+            "allocation_weight": 0.15,
+            "computation_run_id": "3f5effcd-d7b5-4b7f-9ebd-8e1b1a85576d",
+            "contribution_sum": 0.211076,
+            "coverage_ratio": 0.5,
+            "excluded": false,
+            "exclusion_reason": null,
+            "fitness_score": 0.1055,
+            "formula": "fitness = mean(level_ratio * confidence * volume_score * freshness * adjacency_discount) * ((1 - allocation_weight) + allocation_weight * allocation)",
+            "matched_skill_count": 1,
+            "mean_contribution": 0.105538,
+            "min_coverage_ratio": 0.5,
+            "required_skill_count": 2,
+            "scoring_config_version": "9220dcfdfcf3"
+          },
+          "coded_identity": "EMP-fd8efec3",
+          "evidence_ids": [
+            "INC001:container_orchestration",
+            "INC002:container_orchestration",
+            "cert-CKA-E1001",
+            "decl-E1001-container_orchestration"
+          ],
+          "fitness_score": 0.1055,
+          "per_skill_reasoning": {
+            "azure_networking": "missing skill evidence",
+            "container_orchestration": "level=4/3 confidence=1.00 volume=0.50 freshness=0.42 adjacency=1.00 evidence=INC001:container_orchestration,INC002:container_orchestration,cert-CKA-E1001,decl-E1001-container_orchestration"
+          },
+          "rank": 1,
+          "reasoning_detail": {
+            "azure_networking": {
+              "actual_level": null,
+              "adjacency_discount": 0.0,
+              "adjacency_source_skill": null,
+              "confidence": null,
+              "contribution": 0.0,
+              "decay_class": null,
+              "evidence_ids": [],
+              "freshness": null,
+              "half_life_days": null,
+              "level": null,
+              "level_ratio": null,
+              "required": 2,
+              "required_level": 2,
+              "skill_id": "azure_networking",
+              "source_refs": [],
+              "status": "missing",
+              "volume_score": null
+            },
+            "container_orchestration": {
+              "actual_level": 4,
+              "adjacency_discount": 1.0,
+              "adjacency_source_skill": null,
+              "confidence": 1.0,
+              "contribution": 0.211076,
+              "decay_class": "fast",
+              "evidence_ids": [
+                "INC001:container_orchestration",
+                "INC002:container_orchestration",
+                "cert-CKA-E1001",
+                "decl-E1001-container_orchestration"
+              ],
+              "freshness": 0.4193,
+              "half_life_days": 120.0,
+              "level": 4,
+              "level_ratio": 1.0,
+              "required": 3,
+              "required_level": 3,
+              "skill_id": "container_orchestration",
+              "source_refs": [
+                "CKA",
+                "INC001",
+                "INC002",
+                "declared"
+              ],
+              "status": "matched",
+              "volume_score": 0.5034
+            }
+          }
+        },
+        {
+          "calculation": {
+            "allocation": 1.0,
+            "allocation_multiplier": 1.0,
+            "allocation_weight": 0.15,
+            "computation_run_id": "3f5effcd-d7b5-4b7f-9ebd-8e1b1a85576d",
+            "contribution_sum": 0.081495,
+            "coverage_ratio": 1.0,
+            "excluded": false,
+            "exclusion_reason": null,
+            "fitness_score": 0.0407,
+            "formula": "fitness = mean(level_ratio * confidence * volume_score * freshness * adjacency_discount) * ((1 - allocation_weight) + allocation_weight * allocation)",
+            "matched_skill_count": 2,
+            "mean_contribution": 0.040748,
+            "min_coverage_ratio": 0.5,
+            "required_skill_count": 2,
+            "scoring_config_version": "9220dcfdfcf3"
+          },
+          "coded_identity": "EMP-f232ab6e",
+          "evidence_ids": [
+            "INC004:azure_compute"
+          ],
+          "fitness_score": 0.0407,
+          "per_skill_reasoning": {
+            "azure_networking": "level=3/2 confidence=0.35 volume=0.30 freshness=0.79 adjacency=0.50 evidence=INC004:azure_compute",
+            "container_orchestration": "level=3/3 confidence=0.35 volume=0.30 freshness=0.79 adjacency=0.50 evidence=INC004:azure_compute"
+          },
+          "rank": 2,
+          "reasoning_detail": {
+            "azure_networking": {
+              "actual_level": 3,
+              "adjacency_discount": 0.5,
+              "adjacency_source_skill": "azure_compute",
+              "confidence": 0.35,
+              "contribution": 0.040748,
+              "decay_class": "medium",
+              "evidence_ids": [
+                "INC004:azure_compute"
+              ],
+              "freshness": 0.7885,
+              "half_life_days": 365.0,
+              "level": 3,
+              "level_ratio": 1.0,
+              "required": 2,
+              "required_level": 2,
+              "skill_id": "azure_networking",
+              "source_refs": [
+                "INC004"
+              ],
+              "status": "adjacent",
+              "volume_score": 0.2953
+            },
+            "container_orchestration": {
+              "actual_level": 3,
+              "adjacency_discount": 0.5,
+              "adjacency_source_skill": "azure_compute",
+              "confidence": 0.35,
+              "contribution": 0.040748,
+              "decay_class": "medium",
+              "evidence_ids": [
+                "INC004:azure_compute"
+              ],
+              "freshness": 0.7885,
+              "half_life_days": 365.0,
+              "level": 3,
+              "level_ratio": 1.0,
+              "required": 3,
+              "required_level": 3,
+              "skill_id": "container_orchestration",
+              "source_refs": [
+                "INC004"
+              ],
+              "status": "adjacent",
+              "volume_score": 0.2953
+            }
+          }
+        },
+        {
+          "calculation": {
+            "allocation": 1.0,
+            "allocation_multiplier": 1.0,
+            "allocation_weight": 0.15,
+            "computation_run_id": "3f5effcd-d7b5-4b7f-9ebd-8e1b1a85576d",
+            "contribution_sum": 0.069579,
+            "coverage_ratio": 0.5,
+            "excluded": false,
+            "exclusion_reason": null,
+            "fitness_score": 0.0348,
+            "formula": "fitness = mean(level_ratio * confidence * volume_score * freshness * adjacency_discount) * ((1 - allocation_weight) + allocation_weight * allocation)",
+            "matched_skill_count": 1,
+            "mean_contribution": 0.034789,
+            "min_coverage_ratio": 0.5,
+            "required_skill_count": 2,
+            "scoring_config_version": "9220dcfdfcf3"
+          },
+          "coded_identity": "EMP-c775791c",
+          "evidence_ids": [
+            "INC003:azure_networking",
+            "cert-AZ-700-E1002"
+          ],
+          "fitness_score": 0.0348,
+          "per_skill_reasoning": {
+            "azure_networking": "level=3/2 confidence=0.90 volume=0.30 freshness=0.26 adjacency=1.00 evidence=INC003:azure_networking,cert-AZ-700-E1002",
+            "container_orchestration": "missing skill evidence"
+          },
+          "rank": 3,
+          "reasoning_detail": {
+            "azure_networking": {
+              "actual_level": 3,
+              "adjacency_discount": 1.0,
+              "adjacency_source_skill": null,
+              "confidence": 0.9,
+              "contribution": 0.069579,
+              "decay_class": "medium",
+              "evidence_ids": [
+                "INC003:azure_networking",
+                "cert-AZ-700-E1002"
+              ],
+              "freshness": 0.2618,
+              "half_life_days": 120.0,
+              "level": 3,
+              "level_ratio": 1.0,
+              "required": 2,
+              "required_level": 2,
+              "skill_id": "azure_networking",
+              "source_refs": [
+                "AZ-700",
+                "INC003"
+              ],
+              "status": "matched",
+              "volume_score": 0.2953
+            },
+            "container_orchestration": {
+              "actual_level": null,
+              "adjacency_discount": 0.0,
+              "adjacency_source_skill": null,
+              "confidence": null,
+              "contribution": 0.0,
+              "decay_class": null,
+              "evidence_ids": [],
+              "freshness": null,
+              "half_life_days": null,
+              "level": null,
+              "level_ratio": null,
+              "required": 3,
+              "required_level": 3,
+              "skill_id": "container_orchestration",
+              "source_refs": [],
+              "status": "missing",
+              "volume_score": null
+            }
+          }
+        }
+      ],
+      "computation_run_id": "3f5effcd-d7b5-4b7f-9ebd-8e1b1a85576d",
+      "computed_at": "2026-09-22T14:28:22.756277Z",
+      "excluded_candidates": [
+        {
+          "coded_identity": "EMP-666c8943",
+          "reason": "no_evidence_on_any_required_skill"
+        }
+      ],
+      "request_id": "ui-contract-1",
+      "scoring_config_version": "9220dcfdfcf3"
+    },
+    "scoring_config_version": "9220dcfdfcf3",
+    "status": "open"
+  },
+  "requests": {
+    "requests": [
+      {
+        "candidate_count": 3,
+        "computation_run_id": "3f5effcd-d7b5-4b7f-9ebd-8e1b1a85576d",
+        "created_at": "2026-09-22T14:28:22.759Z",
+        "decision": {
+          "approved_by": null,
+          "chosen_coded_identity": null,
+          "decided_at": null,
+          "engine_rank_of_choice": null,
+          "status": null
+        },
+        "excluded_count": 1,
+        "owner": "demo-manager",
+        "request_id": "ui-contract-1",
+        "requirements": {
+          "critical_skills": [],
+          "min_coverage_ratio": 0.5,
+          "required_skills": {
+            "azure_networking": 2,
+            "container_orchestration": 3
+          },
+          "shortlist_size": 3
+        },
+        "scoring_config_version": "9220dcfdfcf3",
+        "status": "open"
+      }
+    ]
+  },
+  "roles": {
+    "roles": [
+      {
+        "critical_skills": [
+          "container_orchestration"
+        ],
+        "min_coverage_ratio": 0.6,
+        "required_skills": {
+          "azure_networking": 4,
+          "container_orchestration": 4,
+          "infrastructure_as_code": 3
+        },
+        "role_id": "senior_cloud_engineer",
+        "role_name": "Senior Cloud Engineer"
+      }
+    ]
+  },
+  "session_employee": {
+    "coded_identity": "EMP-f232ab6e",
+    "data_classification": "synthetic",
+    "roles": [
+      "employee"
+    ],
+    "sub": "demo-employee"
+  },
+  "session_manager": {
+    "coded_identity": "EMP-fd8efec3",
+    "data_classification": "synthetic",
+    "roles": [
+      "manager"
+    ],
+    "sub": "demo-manager"
+  },
+  "skill_detail": {
+    "coverage_ratio": 0.2,
+    "decay_class": "fast",
+    "description": "Kubernetes and related container orchestration platforms.",
+    "domain_id": "cloud_platform",
+    "domain_name": "Cloud Platform",
+    "effective_half_life_days": 120.0,
+    "holders": [
+      {
+        "coded_identity": "EMP-fd8efec3",
+        "confidence": 1.0,
+        "freshness": 0.4193,
+        "proficiency": 4,
+        "volume_score": 0.5034
+      }
+    ],
+    "identities_with_evidence": 1,
+    "level_distribution": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 1,
+      "5": 0
+    },
+    "mean_confidence": 1.0,
+    "mean_freshness": 0.4193,
+    "mean_level": 4.0,
+    "name": "Container Orchestration",
+    "proficiency_levels": [
+      {
+        "definition": "Can describe core concepts and recognize when the skill applies.",
+        "label": "Awareness",
+        "level": 1
+      },
+      {
+        "definition": "Completes routine tasks with guidance; applies the skill in standard scenarios.",
+        "label": "Working",
+        "level": 2
+      },
+      {
+        "definition": "Independently delivers production work; troubleshoots common failures.",
+        "label": "Proficient",
+        "level": 3
+      },
+      {
+        "definition": "Designs solutions, mentors others, and handles non-standard incidents.",
+        "label": "Advanced",
+        "level": 4
+      },
+      {
+        "definition": "Sets standards, leads complex programmes, and is a recognised organisational authority.",
+        "label": "Expert",
+        "level": 5
+      }
+    ],
+    "related_skills": [
+      {
+        "identities_with_evidence": 2,
+        "name": "Azure Compute",
+        "skill_id": "azure_compute"
+      }
+    ],
+    "skill_id": "container_orchestration",
+    "workforce_size": 5
+  },
+  "skills": {
+    "skills": [
+      {
+        "description": "Kubernetes and related container orchestration platforms.",
+        "domain_id": "cloud_platform",
+        "domain_name": "Cloud Platform",
+        "name": "Container Orchestration",
+        "relations": [
+          "azure_compute"
+        ],
+        "skill_id": "container_orchestration"
+      },
+      {
+        "description": "Azure VNets, NSGs, load balancers, private endpoints, and hybrid connectivity.",
+        "domain_id": "cloud_platform",
+        "domain_name": "Cloud Platform",
+        "name": "Azure Networking",
+        "relations": [
+          "azure_compute"
+        ],
+        "skill_id": "azure_networking"
+      },
+      {
+        "description": "Azure VMs, scale sets, App Service, and related compute services.",
+        "domain_id": "cloud_platform",
+        "domain_name": "Cloud Platform",
+        "name": "Azure Compute",
+        "relations": [],
+        "skill_id": "azure_compute"
+      },
+      {
+        "description": "EC2, autoscaling, and core AWS compute operations.",
+        "domain_id": "cloud_platform",
+        "domain_name": "Cloud Platform",
+        "name": "AWS Compute",
+        "relations": [],
+        "skill_id": "aws_compute"
+      },
+      {
+        "description": "Google Cloud compute, GCE, and related operations.",
+        "domain_id": "cloud_platform",
+        "domain_name": "Cloud Platform",
+        "name": "GCP Compute",
+        "relations": [],
+        "skill_id": "gcp_compute"
+      },
+      {
+        "description": "IBM Cloud fundamentals and IaaS operations.",
+        "domain_id": "cloud_platform",
+        "domain_name": "Cloud Platform",
+        "name": "IBM Cloud",
+        "relations": [],
+        "skill_id": "ibm_cloud"
+      },
+      {
+        "description": "Oracle Cloud infrastructure fundamentals.",
+        "domain_id": "cloud_platform",
+        "domain_name": "Cloud Platform",
+        "name": "Oracle Cloud",
+        "relations": [],
+        "skill_id": "oracle_cloud"
+      },
+      {
+        "description": "Triage, resolve, and communicate during production incidents.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Incident Management",
+        "relations": [],
+        "skill_id": "incident_management"
+      },
+      {
+        "description": "Bicep, Terraform, and declarative infrastructure delivery.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Infrastructure as Code",
+        "relations": [],
+        "skill_id": "infrastructure_as_code"
+      },
+      {
+        "description": "vSphere, ESXi, and VMware virtualization.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "VMware",
+        "relations": [],
+        "skill_id": "vmware"
+      },
+      {
+        "description": "Nutanix hyperconverged infrastructure.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Nutanix",
+        "relations": [],
+        "skill_id": "nutanix"
+      },
+      {
+        "description": "Citrix NetScaler / ADC load balancing and access.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Citrix ADC",
+        "relations": [],
+        "skill_id": "citrix_adc"
+      },
+      {
+        "description": "Windows Server administration and operations.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Windows Server",
+        "relations": [],
+        "skill_id": "windows_server"
+      },
+      {
+        "description": "Linux OS administration for production hosts.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Linux Administration",
+        "relations": [],
+        "skill_id": "linux_administration"
+      },
+      {
+        "description": "IBM AIX UNIX administration.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "AIX",
+        "relations": [],
+        "skill_id": "aix"
+      },
+      {
+        "description": "Hypervisor and VM lifecycle operations.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Virtualization",
+        "relations": [],
+        "skill_id": "virtualization"
+      },
+      {
+        "description": "Docker and container runtime operations.",
+        "domain_id": "platform_ops",
+        "domain_name": "Platform Operations",
+        "name": "Container Runtime",
+        "relations": [],
+        "skill_id": "container_runtime"
+      },
+      {
+        "description": "Cisco ACI, switching, and fabric.",
+        "domain_id": "network_security",
+        "domain_name": "Network Security",
+        "name": "Cisco Networking",
+        "relations": [],
+        "skill_id": "cisco_networking"
+      },
+      {
+        "description": "FortiGate, Cisco firewall, and perimeter controls.",
+        "domain_id": "network_security",
+        "domain_name": "Network Security",
+        "name": "Firewall Administration",
+        "relations": [],
+        "skill_id": "firewall_administration"
+      },
+      {
+        "description": "PAM, Thycotic, and privileged access.",
+        "domain_id": "network_security",
+        "domain_name": "Network Security",
+        "name": "Identity and Access Management",
+        "relations": [],
+        "skill_id": "identity_access_management"
+      },
+      {
+        "description": "Network security operations and controls.",
+        "domain_id": "network_security",
+        "domain_name": "Network Security",
+        "name": "Network Security",
+        "relations": [],
+        "skill_id": "network_security"
+      },
+      {
+        "description": "ADC and load-balancer operations.",
+        "domain_id": "network_security",
+        "domain_name": "Network Security",
+        "name": "Load Balancing",
+        "relations": [],
+        "skill_id": "load_balancing"
+      },
+      {
+        "description": "ServiceNow ITSM, incident and change workflows.",
+        "domain_id": "service_management",
+        "domain_name": "Service Management",
+        "name": "ServiceNow",
+        "relations": [],
+        "skill_id": "servicenow"
+      },
+      {
+        "description": "ITIL process execution for incidents, problems, and changes.",
+        "domain_id": "service_management",
+        "domain_name": "Service Management",
+        "name": "ITIL",
+        "relations": [],
+        "skill_id": "itil"
+      },
+      {
+        "description": "ScienceLogic, SL1, Halcyon, and ops monitoring.",
+        "domain_id": "service_management",
+        "domain_name": "Service Management",
+        "name": "Monitoring",
+        "relations": [],
+        "skill_id": "monitoring"
+      },
+      {
+        "description": "Endpoint compliance and patch posture.",
+        "domain_id": "service_management",
+        "domain_name": "Service Management",
+        "name": "Endpoint Compliance",
+        "relations": [],
+        "skill_id": "endpoint_compliance"
+      },
+      {
+        "description": "OS and firmware patching.",
+        "domain_id": "service_management",
+        "domain_name": "Service Management",
+        "name": "Patch Management",
+        "relations": [],
+        "skill_id": "patch_management"
+      },
+      {
+        "description": "Backup handling, BRMS, and restore operations.",
+        "domain_id": "data_operations",
+        "domain_name": "Data Operations",
+        "name": "Backup and Restore",
+        "relations": [],
+        "skill_id": "backup_restore"
+      },
+      {
+        "description": "DR runbooks, replication, and recovery tests.",
+        "domain_id": "data_operations",
+        "domain_name": "Data Operations",
+        "name": "Disaster Recovery",
+        "relations": [],
+        "skill_id": "disaster_recovery"
+      },
+      {
+        "description": "SAN/NAS and storage operations.",
+        "domain_id": "data_operations",
+        "domain_name": "Data Operations",
+        "name": "Storage Administration",
+        "relations": [],
+        "skill_id": "storage_administration"
+      },
+      {
+        "description": "SQL commands and database operations.",
+        "domain_id": "data_operations",
+        "domain_name": "Data Operations",
+        "name": "SQL",
+        "relations": [],
+        "skill_id": "sql"
+      },
+      {
+        "description": "Java application support.",
+        "domain_id": "data_operations",
+        "domain_name": "Data Operations",
+        "name": "Java",
+        "relations": [],
+        "skill_id": "java"
+      },
+      {
+        "description": "Python scripting for operations and automation.",
+        "domain_id": "automation",
+        "domain_name": "Automation",
+        "name": "Python",
+        "relations": [],
+        "skill_id": "python"
+      },
+      {
+        "description": "Ansible automation and playbooks.",
+        "domain_id": "automation",
+        "domain_name": "Automation",
+        "name": "Ansible",
+        "relations": [],
+        "skill_id": "ansible"
+      },
+      {
+        "description": "Bash/shell scripting for operations.",
+        "domain_id": "automation",
+        "domain_name": "Automation",
+        "name": "Bash Scripting",
+        "relations": [],
+        "skill_id": "bash_scripting"
+      },
+      {
+        "description": "PowerShell automation on Windows estates.",
+        "domain_id": "automation",
+        "domain_name": "Automation",
+        "name": "PowerShell",
+        "relations": [],
+        "skill_id": "powershell"
+      },
+      {
+        "description": "AD and identity directory operations.",
+        "domain_id": "automation",
+        "domain_name": "Automation",
+        "name": "Active Directory",
+        "relations": [],
+        "skill_id": "active_directory"
+      },
+      {
+        "description": "Datacenter, power, and rack operations.",
+        "domain_id": "systems",
+        "domain_name": "Systems",
+        "name": "Datacenter Operations",
+        "relations": [],
+        "skill_id": "datacenter_operations"
+      },
+      {
+        "description": "Commissioning and decommissioning servers.",
+        "domain_id": "systems",
+        "domain_name": "Systems",
+        "name": "Server Lifecycle",
+        "relations": [],
+        "skill_id": "server_lifecycle"
+      },
+      {
+        "description": "Operating system upgrades and patch windows.",
+        "domain_id": "systems",
+        "domain_name": "Systems",
+        "name": "OS Patching",
+        "relations": [],
+        "skill_id": "os_patching"
+      },
+      {
+        "description": "Migration activities across platforms.",
+        "domain_id": "systems",
+        "domain_name": "Systems",
+        "name": "Workload Migration",
+        "relations": [],
+        "skill_id": "workload_migration"
+      },
+      {
+        "description": "M365 / collaboration administration.",
+        "domain_id": "systems",
+        "domain_name": "Systems",
+        "name": "Microsoft 365",
+        "relations": [],
+        "skill_id": "microsoft_365"
+      },
+      {
+        "description": "Secure file transfer operations.",
+        "domain_id": "systems",
+        "domain_name": "Systems",
+        "name": "FTP and SFTP",
+        "relations": [],
+        "skill_id": "ftp_sftp"
+      },
+      {
+        "description": "Tivoli, Robot Scheduler, and batch jobs.",
+        "domain_id": "systems",
+        "domain_name": "Systems",
+        "name": "Job Scheduling",
+        "relations": [],
+        "skill_id": "job_scheduling"
+      },
+      {
+        "description": "IBM i / iSeries operations.",
+        "domain_id": "ibm_i",
+        "domain_name": "IBM i",
+        "name": "IBM i",
+        "relations": [],
+        "skill_id": "ibm_i"
+      },
+      {
+        "description": "Hardware Management Console operations.",
+        "domain_id": "ibm_i",
+        "domain_name": "IBM i",
+        "name": "HMC",
+        "relations": [],
+        "skill_id": "hmc"
+      },
+      {
+        "description": "RPGLE development and support on IBM i.",
+        "domain_id": "ibm_i",
+        "domain_name": "IBM i",
+        "name": "RPGLE",
+        "relations": [],
+        "skill_id": "rpgle"
+      },
+      {
+        "description": "CL/CLP programming on IBM i.",
+        "domain_id": "ibm_i",
+        "domain_name": "IBM i",
+        "name": "CLP Programming",
+        "relations": [],
+        "skill_id": "clp_programming"
+      },
+      {
+        "description": "Mimix, iTera, and IBM i HA.",
+        "domain_id": "ibm_i",
+        "domain_name": "IBM i",
+        "name": "High Availability",
+        "relations": [],
+        "skill_id": "high_availability"
+      }
+    ]
+  },
+  "taxonomy_pending": {
+    "pending": []
+  },
+  "workforce": {
+    "domains": [
+      {
+        "domain_id": "cloud_platform",
+        "name": "Cloud Platform"
+      },
+      {
+        "domain_id": "platform_ops",
+        "name": "Platform Operations"
+      },
+      {
+        "domain_id": "network_security",
+        "name": "Network Security"
+      },
+      {
+        "domain_id": "service_management",
+        "name": "Service Management"
+      },
+      {
+        "domain_id": "data_operations",
+        "name": "Data Operations"
+      },
+      {
+        "domain_id": "automation",
+        "name": "Automation"
+      },
+      {
+        "domain_id": "systems",
+        "name": "Systems"
+      },
+      {
+        "domain_id": "ibm_i",
+        "name": "IBM i"
+      }
+    ],
+    "identities": [
+      {
+        "coded_identity": "EMP-666c8943",
+        "domains": [
+          "platform_ops"
+        ],
+        "max_level": 4,
+        "mean_confidence": 0.35,
+        "mean_freshness": 0.9058,
+        "primary_domain": "platform_ops",
+        "skill_count": 1,
+        "skills": [
+          {
+            "confidence": 0.35,
+            "domain_id": "platform_ops",
+            "freshness": 0.9058,
+            "proficiency": 4,
+            "skill_id": "incident_management",
+            "skill_name": "Incident Management",
+            "volume_score": 0.2953
+          }
+        ]
+      },
+      {
+        "coded_identity": "EMP-9a4bf2f6",
+        "domains": [
+          "cloud_platform"
+        ],
+        "max_level": 2,
+        "mean_confidence": 0.35,
+        "mean_freshness": 0.403,
+        "primary_domain": "cloud_platform",
+        "skill_count": 1,
+        "skills": [
+          {
+            "confidence": 0.35,
+            "domain_id": "cloud_platform",
+            "freshness": 0.403,
+            "proficiency": 2,
+            "skill_id": "azure_compute",
+            "skill_name": "Azure Compute",
+            "volume_score": 0.0
+          }
+        ]
+      },
+      {
+        "coded_identity": "EMP-c775791c",
+        "domains": [
+          "cloud_platform",
+          "network_security"
+        ],
+        "max_level": 3,
+        "mean_confidence": 0.625,
+        "mean_freshness": 0.5343,
+        "primary_domain": "cloud_platform",
+        "skill_count": 2,
+        "skills": [
+          {
+            "confidence": 0.9,
+            "domain_id": "cloud_platform",
+            "freshness": 0.2618,
+            "proficiency": 3,
+            "skill_id": "azure_networking",
+            "skill_name": "Azure Networking",
+            "volume_score": 0.2953
+          },
+          {
+            "confidence": 0.35,
+            "domain_id": "network_security",
+            "freshness": 0.8067,
+            "proficiency": 2,
+            "skill_id": "network_security",
+            "skill_name": "Network Security",
+            "volume_score": 0.2953
+          }
+        ]
+      },
+      {
+        "coded_identity": "EMP-f232ab6e",
+        "domains": [
+          "cloud_platform",
+          "platform_ops"
+        ],
+        "max_level": 3,
+        "mean_confidence": 0.35,
+        "mean_freshness": 0.7885,
+        "primary_domain": "cloud_platform",
+        "skill_count": 2,
+        "skills": [
+          {
+            "confidence": 0.35,
+            "domain_id": "cloud_platform",
+            "freshness": 0.7885,
+            "proficiency": 3,
+            "skill_id": "azure_compute",
+            "skill_name": "Azure Compute",
+            "volume_score": 0.2953
+          },
+          {
+            "confidence": 0.35,
+            "domain_id": "platform_ops",
+            "freshness": 0.7885,
+            "proficiency": 2,
+            "skill_id": "infrastructure_as_code",
+            "skill_name": "Infrastructure as Code",
+            "volume_score": 0.2953
+          }
+        ]
+      },
+      {
+        "coded_identity": "EMP-fd8efec3",
+        "domains": [
+          "automation",
+          "cloud_platform",
+          "systems"
+        ],
+        "max_level": 4,
+        "mean_confidence": 0.5667,
+        "mean_freshness": 0.7168,
+        "primary_domain": "automation",
+        "skill_count": 3,
+        "skills": [
+          {
+            "confidence": 0.35,
+            "domain_id": "automation",
+            "freshness": 0.877,
+            "proficiency": 3,
+            "skill_id": "active_directory",
+            "skill_name": "Active Directory",
+            "volume_score": 0.2953
+          },
+          {
+            "confidence": 1.0,
+            "domain_id": "cloud_platform",
+            "freshness": 0.4193,
+            "proficiency": 4,
+            "skill_id": "container_orchestration",
+            "skill_name": "Container Orchestration",
+            "volume_score": 0.5034
+          },
+          {
+            "confidence": 0.35,
+            "domain_id": "systems",
+            "freshness": 0.854,
+            "proficiency": 4,
+            "skill_id": "workload_migration",
+            "skill_name": "Workload Migration",
+            "volume_score": 0.2953
+          }
+        ]
+      }
+    ]
+  }
+}

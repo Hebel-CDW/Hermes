@@ -41,7 +41,14 @@ infra/.terraform/
 # Local-first data
 data/hermes.db
 data/hermes.db-*
+data/hermes.db.audit-anchor.json
+data/hermes_demo.db
+data/hermes_demo.db-*
+data/hermes_demo.db.audit-anchor.json
 data/reports/
+
+# Frontend build artefacts
+web/tsconfig.tsbuildinfo
 
 # Frontend
 web/node_modules/
@@ -58,3 +65,13 @@ data/phase8/manager_variants.csv
 data/hermes_phase8.db
 data/hermes_phase8.db-*
 data/phase8/label_extraction_report.json
+
+# Quarantined untrusted databases (real, reversible identities)
+data/quarantine/
+
+# Governed REAL workforce database (confidential; never committed)
+data/real/
+
+# Real workbooks must never be committed, wherever a copy lands
+/*.xlsx
+data/*.xlsx

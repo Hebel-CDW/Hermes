@@ -73,6 +73,9 @@ class SkillRecord(BaseModel):
     evidence_ids: List[str]
     computed_at: datetime = Field(default_factory=utc_now)
     scoring_config_version: str
+    # Which inference run produced this row. Mirrors skills_matrix.computation_run_id.
+    # Empty string means "not recorded" (rows written before run ids were threaded).
+    computation_run_id: str = ""
 
 
 class StaffingRequest(BaseModel):
@@ -95,6 +98,72 @@ class TargetRoleProfile(BaseModel):
     min_coverage_ratio: float = 0.6
 
 
+class SkillContribution(BaseModel):
+    """Per-skill calculation trace — every operand of the contribution formula.
+
+    Serialised into ``RankedCandidate.reasoning_detail[skill_id]`` so a reviewer
+    can recompute the number by hand:
+
+        level_ratio  = min(1, actual_level / required_level)
+        contribution = level_ratio * confidence * volume_score
+                       * freshness * adjacency_discount
+
+    ``status='missing'`` means no record and no adjacent substitute was found;
+    every numeric operand is then None and the skill contributes 0.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    skill_id: str
+    status: str  # matched | adjacent | missing
+    required_level: Optional[int] = None
+    actual_level: Optional[int] = None
+    level_ratio: Optional[float] = None
+    confidence: Optional[float] = None
+    volume_score: Optional[float] = None
+    freshness: Optional[float] = None
+    decay_class: Optional[str] = None
+    half_life_days: Optional[float] = None
+    adjacency_discount: float = 0.0
+    adjacency_source_skill: Optional[str] = None
+    contribution: Optional[float] = None
+    evidence_ids: List[str] = Field(default_factory=list)
+    source_refs: List[str] = Field(default_factory=list)
+    # Backwards-compatible aliases retained for existing consumers/tests.
+    level: Optional[int] = None
+    required: Optional[int] = None
+
+
+class CalculationDetail(BaseModel):
+    """Candidate-level calculation envelope — how per-skill contributions combine.
+
+    Kept separate from ``reasoning_detail`` so that map stays purely skill-keyed
+    (previously it carried ``_allocation``/``_exclusion`` magic keys alongside
+    real skill ids, which forced consumers to type-guard every value).
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    required_skill_count: int = 0
+    matched_skill_count: int = 0
+    coverage_ratio: float = 0.0
+    min_coverage_ratio: float = 0.0
+    contribution_sum: float = 0.0
+    mean_contribution: float = 0.0
+    allocation: float = 1.0
+    allocation_weight: float = 0.0
+    allocation_multiplier: float = 1.0
+    fitness_score: float = 0.0
+    excluded: bool = False
+    exclusion_reason: Optional[str] = None
+    scoring_config_version: str = ""
+    computation_run_id: str = ""
+    formula: str = (
+        "fitness = mean(level_ratio * confidence * volume_score * freshness * "
+        "adjacency_discount) * ((1 - allocation_weight) + allocation_weight * allocation)"
+    )
+
+
 class RankedCandidate(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -103,6 +172,7 @@ class RankedCandidate(BaseModel):
     rank: int
     per_skill_reasoning: Dict[str, str]
     reasoning_detail: Dict[str, Any] = Field(default_factory=dict)
+    calculation: Optional[CalculationDetail] = None
     evidence_ids: List[str]
 
 
@@ -113,6 +183,12 @@ class FitnessResult(BaseModel):
     candidates: List[RankedCandidate]
     scoring_config_version: str
     computed_at: datetime = Field(default_factory=utc_now)
+    # Which matrix run the ranking read from — pairs with scoring_config_version
+    # to make a result reproducible.
+    computation_run_id: str = ""
+    # Machine-readable reasons for every candidate the engine dropped. Previously
+    # these were computed and discarded, so "why was X not shortlisted?" had no answer.
+    excluded_candidates: List[Dict[str, Any]] = Field(default_factory=list)
 
 
 class GapItem(BaseModel):
