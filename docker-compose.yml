@@ -1,0 +1,56 @@
+# Hermes — simple local/single-host deployment.
+#
+#   cp .env.example .env   # fill in IDENTITY_MAP_SECRET / HERMES_JWT_SECRET
+#   docker compose up -d
+#   curl http://localhost:8000/ready
+#
+# One service, not two: the Dockerfile already builds the React UI and bundles
+# it into the same FastAPI container (single port, see Dockerfile's own
+# comment) — this is the real, already-chosen architecture, not a simplification
+# made here. A separate "frontend" container would duplicate that, not add
+# anything (Phase 39: do not create unnecessary microservices).
+#
+# Ollama is optional at the compose level too: if OLLAMA_MODEL is left unset,
+# the Hermes API still starts and serves every route — POST /api/requests/parse
+# just answers {"available": false, ...} instead of crashing (see
+# docs/HERMES_V3_ARCHITECTURE.md, Phase 16's fail-safe contract).
+
+services:
+  api:
+    build: .
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      HERMES_ENV: ${HERMES_ENV:-local}
+      HERMES_DB_PATH: /data/hermes.db
+      IDENTITY_MAP_SECRET: ${IDENTITY_MAP_SECRET:?set this in .env — see .env.example}
+      HERMES_JWT_SECRET: ${HERMES_JWT_SECRET:?set this in .env — see .env.example}
+      HERMES_DEMO_SEED: ${HERMES_DEMO_SEED:-1}
+      HERMES_CORS_ORIGINS: ${HERMES_CORS_ORIGINS:-}
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-}
+    volumes:
+      - hermes-data:/data
+    depends_on:
+      - ollama
+    restart: unless-stopped
+    # Health check already lives in the Dockerfile (GET /ready) — inherited, not redefined.
+
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama-data:/root/.ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    # No host port published: the API reaches it over the compose network only
+    # (OLLAMA_BASE_URL=http://ollama:11434 above). Publish 11434 yourself if you
+    # want to pull/manage models from the host instead of `docker compose exec`.
+
+volumes:
+  hermes-data:
+  ollama-data:

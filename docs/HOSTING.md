@@ -11,10 +11,25 @@
 | Refuses to start without strong secrets | Verified (exit code 3, clear message) |
 | `HERMES_ENV=production` closes the demo sign-in, sends HSTS, honours `HERMES_CORS_ORIGINS` | Verified and covered by automated tests |
 | Security headers, `/health`, `/ready` probes | Verified and covered by automated tests |
-| **`docker build` of the Dockerfile** | **NOT verified.** Docker Desktop was not running on the machine used. The file set was proven by the simulation above, but build the image once and run `docker run` before relying on it. |
+| `docker compose build` + `docker compose up` (api + ollama) | **Verified 2026-10-02**: real build, both containers healthy, `GET /ready` 200, full `scripts.live_smoke` (62/62) passed against the running container, `docker compose down -v` left no residue. |
 | Behaviour under multiple users or replicas | Not tested |
 
-## Option A: container (recommended)
+## Option A: Docker Compose (simplest)
+
+```bash
+cp .env.example .env   # fill in IDENTITY_MAP_SECRET / HERMES_JWT_SECRET; OLLAMA_MODEL optional
+docker compose up -d
+curl http://localhost:8000/ready        # {"status":"ready"}
+python -m scripts.live_smoke --base http://localhost:8000
+```
+
+Brings up the API (which already bundles the built React UI in the same
+container — one port, not two) plus a local Ollama for `/api/requests/parse`.
+Leaving `OLLAMA_MODEL` unset in `.env` is fine: that one endpoint answers
+`{"available": false, ...}` and every other route is unaffected (see
+`docs/HERMES_V3_ARCHITECTURE.md`).
+
+## Option B: plain container
 
 ```bash
 docker build -t hermes .
@@ -29,7 +44,7 @@ python -m scripts.live_smoke --base http://localhost:8000
 
 Keep the two secrets in your platform's secret store; the same values must be used on every restart, or the database's identity fingerprint will no longer match and `/ready` will return 503.
 
-## Option B: a VM
+## Option C: a VM
 
 ```bash
 python3 -m venv .venv && . .venv/bin/activate && pip install .
@@ -53,6 +68,7 @@ See `.env.example` for the full annotated list. The ones that matter:
 | `HERMES_CORS_ORIGINS` | Only needed if the UI is served from a different origin than the API. Default setup needs nothing. |
 | `HERMES_DEMO_SEED=1` | Container only: seed the synthetic demo database on first start of an empty volume. |
 | `PORT` | Container listen port (default 8000). |
+| `OLLAMA_BASE_URL`, `OLLAMA_MODEL` | Optional. Power only `POST /api/requests/parse`. Unset means that one endpoint answers "unavailable" — nothing else is affected, by design. |
 
 **Traps found while preparing this:**
 
@@ -71,6 +87,7 @@ See `.env.example` for the full annotated list. The ones that matter:
 4. **Real employee data.** Do not load it into a hosted demo. Real-data mode has its own guardrails (strong secrets, coded identities, no test mode) and its own runbook: `docs/HERMES_REAL_DATA_INTEGRATION.md`. The Docker image intentionally excludes `secrets/`, `data/real/`, `data/source/`, all `*.xlsx`, and `config/client_names.txt`.
 5. **Observability.** Only uvicorn access logs exist. Add log shipping and an alert on `/ready` returning non-200 (it also fails if the audit chain no longer verifies).
 6. **Session storage.** The sign-in token lives in the browser's `sessionStorage` with a one-hour lifetime. Acceptable for a demo; revisit when real sign-in is added.
+7. **LLM assist privacy.** `POST /api/requests/parse` sends only the manager's own typed free-text description to Ollama — no employee PII, no coded identities, no evidence. If Ollama is later moved to a hosted/enterprise endpoint, confirm that endpoint's own data-handling terms before pointing production at it; the `LLMProvider` boundary (`src/ai/provider.py`) makes that swap a config change, not a code change.
 
 ## Health checks
 
