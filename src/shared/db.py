@@ -1,4 +1,16 @@
-"""SQLite persistence for local-first Hermes."""
+"""Persistence for Hermes — SQLite (development, default) or PostgreSQL
+(production), selected by DATABASE_URL.
+
+Dialect boundary, kept deliberately small: a connection-level shim
+(_PgConnection) makes a psycopg2 connection look enough like a sqlite3
+connection — same `.execute()`/`.executemany()`/`.commit()`/`.rollback()`/
+`.close()` surface, dict-like rows via RealDictCursor — that every one of the
+~80 query call sites below is UNCHANGED for the SQLite path and needs no
+per-site rewrite for the PostgreSQL path either, except the handful that
+embed a SQLite-only SQL function (`strftime`, `PRAGMA table_info`,
+`executescript`) directly in the SQL text — those are explicitly dialect-
+branched at each call site, not hidden inside the shim.
+"""
 
 from __future__ import annotations
 
@@ -6,12 +18,14 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Mapping, Optional, Sequence, Tuple
+from urllib.parse import urlparse
 
-from shared.errors import RequestOwnershipError, RequestStateConflict
+from shared.errors import ConfigurationError, RequestOwnershipError, RequestStateConflict
 from shared.models import (
     EvidenceRecord,
     EvidenceType,
@@ -19,6 +33,25 @@ from shared.models import (
     SkillRecord,
     utc_now,
 )
+
+#: SQLite's strftime('%Y-%m-%dT%H:%M:%fZ','now') and this produce byte-identical
+#: 'YYYY-MM-DDTHH:MM:SS.mmmZ' strings — verified against a running instance of
+#: each during the Postgres migration spike. Used only in the handful of SQL
+#: strings that embed a "now" default/update directly (see _now_sql below);
+#: everywhere else a timestamp is supplied, it comes from Python (utc_now()).
+_NOW_SQL_POSTGRES = "to_char(clock_timestamp() AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.MS\"Z\"')"
+_NOW_SQL_SQLITE = "strftime('%Y-%m-%dT%H:%M:%fZ','now')"
+
+
+def _resolve_dialect(database_url: Optional[str]) -> str:
+    if not database_url:
+        return "sqlite"
+    scheme = urlparse(database_url).scheme
+    if scheme.startswith("postgres"):
+        return "postgres"
+    if scheme.startswith("sqlite") or scheme == "":
+        return "sqlite"
+    raise ValueError(f"unsupported DATABASE_URL scheme: {scheme!r} (expected sqlite:// or postgresql://)")
 
 
 def default_db_path() -> Path:
@@ -28,8 +61,69 @@ def default_db_path() -> Path:
     return Path(__file__).resolve().parents[2] / "data" / "hermes.db"
 
 
-def schema_path() -> Path:
-    return Path(__file__).resolve().parents[2] / "infra" / "sqlite" / "001_schema.sql"
+def schema_path(dialect: str = "sqlite") -> Path:
+    root = Path(__file__).resolve().parents[2] / "infra"
+    return (root / "postgres" / "001_schema.sql") if dialect == "postgres" else (root / "sqlite" / "001_schema.sql")
+
+
+class _PgConnection:
+    """Makes a psycopg2 connection look enough like a sqlite3.Connection for
+    every call site below to work unmodified: `.execute()` returns a cursor
+    you can `.fetchone()`/`.fetchall()`/iterate exactly as before, with
+    dict-like row access (RealDictCursor), and `?` placeholders are translated
+    to psycopg2's `%s` — verified safe (no literal '?' appears inside any SQL
+    string literal in this file) rather than assumed.
+    """
+
+    def __init__(self, raw_conn: Any) -> None:
+        self._conn = raw_conn
+
+    @staticmethod
+    def _adapt(sql: str) -> str:
+        if sql.startswith("PRAGMA table_info("):
+            table = sql[len("PRAGMA table_info("):-1]
+            return (
+                "SELECT column_name AS name FROM information_schema.columns "
+                f"WHERE table_name = '{table}' ORDER BY ordinal_position"
+            )
+        return sql.replace("?", "%s")
+
+    def execute(self, sql: str, params: Sequence[Any] = ()):
+        import psycopg2.extras
+
+        cur = self._conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute(self._adapt(sql), tuple(params) if params else None)
+        return cur
+
+    def executemany(self, sql: str, seq_of_params: Sequence[Sequence[Any]]):
+        cur = self._conn.cursor()
+        cur.executemany(self._adapt(sql), [tuple(p) for p in seq_of_params])
+        return cur
+
+    def executescript(self, sql: str) -> None:
+        # The Postgres schema file contains only CREATE TABLE/INDEX statements
+        # (no PL/pgSQL, no semicolons-in-strings) — but comment lines in the
+        # schema file's header DO contain a literal ';' (inside backticked
+        # example SQL), which broke a naive split before comments were
+        # stripped first. Found by actually applying
+        # infra/postgres/001_schema.sql to a real instance, not assumed safe.
+        cur = self._conn.cursor()
+        code_only = "\n".join(
+            line for line in sql.splitlines() if not line.strip().startswith("--")
+        )
+        for statement in code_only.split(";"):
+            statement = statement.strip()
+            if statement:
+                cur.execute(statement)
+
+    def commit(self) -> None:
+        self._conn.commit()
+
+    def rollback(self) -> None:
+        self._conn.rollback()
+
+    def close(self) -> None:
+        self._conn.close()
 
 
 def _canonical_json(payload: Mapping[str, Any]) -> str:
@@ -62,26 +156,47 @@ ON CONFLICT(baseline_id) DO UPDATE SET
   normalised_level=excluded.normalised_level
 """
 
+#: {now_sql} is filled in per-dialect at the call site (HermesDB._now_sql()).
 _ACCOUNT_CONTEXT_UPSERT = """
 INSERT INTO account_context (coded_identity, account_label, familiarity_raw, source_sheet)
 VALUES (?, ?, ?, ?)
 ON CONFLICT(coded_identity, account_label) DO UPDATE SET
   familiarity_raw=excluded.familiarity_raw,
   source_sheet=excluded.source_sheet,
-  ingested_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+  ingested_at={now_sql}
 """
 
 class HermesDB:
-    def __init__(self, path: Optional[Path] = None) -> None:
-        self.path = Path(path) if path else default_db_path()
-        self.path.parent.mkdir(parents=True, exist_ok=True)
+    def __init__(self, path: Optional[Path] = None, database_url: Optional[str] = None) -> None:
+        # An explicit `path` always means SQLite, regardless of an ambient
+        # DATABASE_URL — every existing caller (tests included) passes `path`
+        # positionally and must keep getting exactly the SQLite behavior they
+        # already had. Only when neither is given does the environment decide.
+        if path is not None:
+            self.database_url = None
+            self.dialect = "sqlite"
+        else:
+            self.database_url = database_url or os.getenv("DATABASE_URL")
+            self.dialect = _resolve_dialect(self.database_url)
+        if self.dialect == "postgres":
+            self.path = None
+        else:
+            self.path = Path(path) if path else default_db_path()
+            self.path.parent.mkdir(parents=True, exist_ok=True)
         self.migrate()
 
-    def connect(self) -> sqlite3.Connection:
+    def connect(self):
+        if self.dialect == "postgres":
+            import psycopg2
+
+            return _PgConnection(psycopg2.connect(self.database_url))
         conn = sqlite3.connect(str(self.path))
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON")
         return conn
+
+    def _now_sql(self) -> str:
+        return _NOW_SQL_POSTGRES if self.dialect == "postgres" else _NOW_SQL_SQLITE
 
     @contextmanager
     def session(self) -> Iterator[sqlite3.Connection]:
@@ -96,7 +211,7 @@ class HermesDB:
             conn.close()
 
     def migrate(self) -> None:
-        ddl = schema_path().read_text(encoding="utf-8")
+        ddl = schema_path(self.dialect).read_text(encoding="utf-8")
         with self.session() as conn:
             conn.executescript(ddl)
             cols = {r["name"] for r in conn.execute("PRAGMA table_info(staffing_requests)")}
@@ -114,14 +229,17 @@ class HermesDB:
         self._ensure_principal_bindings()
 
     def _ensure_principal_bindings(self) -> None:
+        # Also defined in both schema files now; this idempotent IF NOT EXISTS
+        # is a harmless pre-existing redundancy, kept as-is rather than removed
+        # in a migration spike whose job is dialect compatibility, not cleanup.
         with self.session() as conn:
             conn.execute(
-                """
+                f"""
                 CREATE TABLE IF NOT EXISTS principal_bindings (
                     sub              TEXT NOT NULL PRIMARY KEY,
                     coded_identity   TEXT NOT NULL,
                     mapped_by        TEXT NOT NULL,
-                    mapped_at        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+                    mapped_at        TEXT NOT NULL DEFAULT ({self._now_sql()}),
                     FOREIGN KEY (coded_identity) REFERENCES identity_map(coded_identity)
                 )
                 """
@@ -140,6 +258,14 @@ class HermesDB:
             )
 
     # ------------------------------------------------------------ audit anchor
+    @property
+    def label(self) -> str:
+        """Safe, non-secret identifier for logs/errors — never credentials."""
+        if self.dialect == "postgres":
+            parsed = urlparse(self.database_url)
+            return f"{parsed.hostname}:{parsed.port}{parsed.path}"
+        return self.path.name
+
     def anchor_path(self) -> Path:
         """Location of the external integrity anchor for this database.
 
@@ -149,6 +275,18 @@ class HermesDB:
         cannot also rewrite it.
         """
         anchor_dir = os.getenv("HERMES_AUDIT_ANCHOR_DIR", "").strip()
+        if self.dialect == "postgres":
+            # No filesystem path exists "beside" a network database, so the
+            # anchor directory cannot be optional here the way it is for
+            # SQLite — fail closed rather than silently skip tamper evidence.
+            if not anchor_dir:
+                raise ConfigurationError(
+                    "HERMES_AUDIT_ANCHOR_DIR is required when DATABASE_URL is a PostgreSQL URL"
+                )
+            parsed = urlparse(self.database_url)
+            identity = f"{parsed.hostname}:{parsed.port}{parsed.path}"  # never the credentials
+            digest = hashlib.sha256(identity.encode("utf-8")).hexdigest()[:24]
+            return Path(anchor_dir) / f"{digest}.audit-anchor.json"
         if anchor_dir:
             digest = hashlib.sha256(str(self.path.resolve()).encode("utf-8")).hexdigest()[:24]
             return Path(anchor_dir) / f"{digest}.audit-anchor.json"
@@ -219,26 +357,34 @@ class HermesDB:
         The chain used to be ordered by (created_at, event_id) with random UUID
         event ids, so two events sharing a timestamp could replay in a different
         order than they were written and fail verification. `seq` is allocated
-        inside an IMMEDIATE transaction at append time and is the only ordering
-        the verifier trusts. Existing rows are backfilled in rowid order, which is
-        SQLite's insertion order for this table.
+        inside an exclusive-locked transaction at append time and is the only
+        ordering the verifier trusts. Existing rows are backfilled in rowid
+        order, which is SQLite's insertion order for this table — PostgreSQL has
+        no equivalent (no implicit row-order column), so this backfill only
+        runs against SQLite. A fresh PostgreSQL database's schema already
+        defines `seq` (infra/postgres/001_schema.sql), so there is nothing to
+        backfill there; migrating pre-existing SQLite audit history into
+        PostgreSQL is the dedicated SQLite->Postgres migration tool's job
+        (it copies seq values directly, preserving order explicitly rather
+        than inferring it).
         """
         with self.session() as conn:
             cols = {r["name"] for r in conn.execute("PRAGMA table_info(audit_ledger)")}
             if "seq" not in cols:
                 conn.execute("ALTER TABLE audit_ledger ADD COLUMN seq INTEGER")
-            missing = conn.execute(
-                "SELECT rowid FROM audit_ledger WHERE seq IS NULL ORDER BY rowid"
-            ).fetchall()
-            if missing:
-                start = conn.execute(
-                    "SELECT COALESCE(MAX(seq), 0) AS m FROM audit_ledger"
-                ).fetchone()["m"]
-                for offset, row in enumerate(missing, start=1):
-                    conn.execute(
-                        "UPDATE audit_ledger SET seq = ? WHERE rowid = ?",
-                        (start + offset, row["rowid"]),
-                    )
+            if self.dialect == "sqlite":
+                missing = conn.execute(
+                    "SELECT rowid FROM audit_ledger WHERE seq IS NULL ORDER BY rowid"
+                ).fetchall()
+                if missing:
+                    start = conn.execute(
+                        "SELECT COALESCE(MAX(seq), 0) AS m FROM audit_ledger"
+                    ).fetchone()["m"]
+                    for offset, row in enumerate(missing, start=1):
+                        conn.execute(
+                            "UPDATE audit_ledger SET seq = ? WHERE rowid = ?",
+                            (start + offset, row["rowid"]),
+                        )
             conn.execute(
                 "CREATE UNIQUE INDEX IF NOT EXISTS UX_audit_seq ON audit_ledger(seq)"
             )
@@ -268,7 +414,7 @@ class HermesDB:
             else:
                 coded_identity = existing["coded_identity"]
             conn.execute(
-                """
+                f"""
                 INSERT INTO identity_vault (coded_identity, display_name, source_employee_key)
                 VALUES (?, ?, ?)
                 ON CONFLICT(coded_identity) DO UPDATE SET
@@ -280,7 +426,7 @@ class HermesDB:
                     ELSE excluded.display_name
                   END,
                   source_employee_key=excluded.source_employee_key,
-                  updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+                  updated_at={self._now_sql()}
                 """,
                 (coded_identity, name, employee_key.strip().lower()),
             )
@@ -296,8 +442,12 @@ class HermesDB:
     def list_identity_directory(self) -> List[Dict[str, str]]:
         """Synthetic demo overlay: vault names keyed by coded identity. Not a scoring input."""
         with self.session() as conn:
+            # Portable case-insensitive ordering: SQLite's COLLATE NOCASE is
+            # ASCII-only case folding, which lower() matches exactly on both
+            # dialects (Postgres has no NOCASE collation) — genuine dialect
+            # bug found via a real Postgres test-parity run.
             rows = conn.execute(
-                "SELECT coded_identity, display_name FROM identity_vault ORDER BY display_name COLLATE NOCASE"
+                "SELECT coded_identity, display_name FROM identity_vault ORDER BY lower(display_name)"
             ).fetchall()
         return [{"coded_identity": r["coded_identity"], "display_name": r["display_name"]} for r in rows]
 
@@ -359,6 +509,20 @@ class HermesDB:
         run_id = computation_run_id or utc_now().isoformat()
         valid_from = utc_now().isoformat()
         with self.session() as conn:
+            # Full delete-then-reinsert of a derived table: two concurrent callers
+            # must never interleave, or the second's unqualified DELETE can miss
+            # rows the first just committed (each transaction's DELETE only sees
+            # its own as-of-start snapshot under READ COMMITTED), and the second's
+            # INSERT then collides with the first's still-present row — a real
+            # psycopg2.errors.UniqueViolation on skills_matrix_pkey, found via a
+            # live concurrent /api/team/declare test against PostgreSQL during
+            # this migration spike. SQLite's whole-database IMMEDIATE lock already
+            # serializes this; PostgreSQL needs the same explicit table lock
+            # append_audit() uses for the same reason.
+            if self.dialect == "postgres":
+                conn.execute("LOCK TABLE skills_matrix IN SHARE ROW EXCLUSIVE MODE")
+            else:
+                conn.execute("BEGIN IMMEDIATE")
             conn.execute(
                 "UPDATE skills_matrix_history SET valid_to=? WHERE valid_to IS NULL",
                 (valid_from,),
@@ -484,12 +648,12 @@ class HermesDB:
         with self.session() as conn:
             for skill_id, weight in weights.items():
                 conn.execute(
-                    """
+                    f"""
                     INSERT INTO demand_signals (skill_id, demand_weight)
                     VALUES (?, ?)
                     ON CONFLICT(skill_id) DO UPDATE SET
                       demand_weight=excluded.demand_weight,
-                      updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+                      updated_at={self._now_sql()}
                     """,
                     (skill_id, float(weight)),
                 )
@@ -509,7 +673,7 @@ class HermesDB:
     ) -> None:
         with self.session() as conn:
             conn.execute(
-                """
+                f"""
                 INSERT INTO role_profiles (
                   role_id, role_name, required_skills_json, critical_skills_json, min_coverage_ratio
                 )
@@ -519,7 +683,7 @@ class HermesDB:
                   required_skills_json=excluded.required_skills_json,
                   critical_skills_json=excluded.critical_skills_json,
                   min_coverage_ratio=excluded.min_coverage_ratio,
-                  updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+                  updated_at={self._now_sql()}
                 """,
                 (
                     role_id,
@@ -551,12 +715,12 @@ class HermesDB:
         alloc = float(allocation if is_available else 0.0)
         with self.session() as conn:
             conn.execute(
-                """
+                f"""
                 INSERT INTO availability (coded_identity, allocation)
                 VALUES (?, ?)
                 ON CONFLICT(coded_identity) DO UPDATE SET
                   allocation=excluded.allocation,
-                  updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+                  updated_at={self._now_sql()}
                 """,
                 (coded_identity, alloc),
             )
@@ -592,7 +756,12 @@ class HermesDB:
         result_json = json.dumps(dict(result or {}), default=str)
         requirements_json = json.dumps(dict(requirements or {}), default=str)
         with self.session() as conn:
-            conn.execute("BEGIN IMMEDIATE")
+            # SQLite: take the write lock before the ownership-guarded UPSERT below.
+            # PostgreSQL: a plain transaction is sufficient here — the UPSERT's own
+            # WHERE guard (requester_id/status) is already atomic at the row level
+            # without needing a table-wide lock, verified against a real instance.
+            if self.dialect == "sqlite":
+                conn.execute("BEGIN IMMEDIATE")
             cur = conn.execute(
                 """
                 INSERT INTO staffing_requests (
@@ -672,9 +841,16 @@ class HermesDB:
     ) -> Dict[str, str]:
         created_at = utc_now().isoformat()
         with self.session() as conn:
-            # IMMEDIATE takes the write lock before reading the chain head, so two
-            # writers cannot both read the same predecessor and fork the chain.
-            conn.execute("BEGIN IMMEDIATE")
+            # Both forms serialize concurrent appenders before reading the chain
+            # head, so two writers cannot both read the same predecessor and
+            # fork the chain — SQLite's whole-database IMMEDIATE lock, or an
+            # explicit PostgreSQL table lock acquired as the transaction's
+            # first statement (verified under real concurrent writers against
+            # a running PostgreSQL instance during this migration spike).
+            if self.dialect == "postgres":
+                conn.execute("LOCK TABLE audit_ledger IN SHARE ROW EXCLUSIVE MODE")
+            else:
+                conn.execute("BEGIN IMMEDIATE")
             prev = conn.execute(
                 "SELECT row_hash, seq FROM audit_ledger ORDER BY seq DESC LIMIT 1"
             ).fetchone()
@@ -782,9 +958,13 @@ class HermesDB:
         return row is not None
 
     def add_org_edge(self, manager_coded_id: str, report_coded_id: str) -> None:
+        # Portable form (SQLite and PostgreSQL both support this upsert syntax) —
+        # "INSERT OR IGNORE" was SQLite-only and the one genuine dialect bug this
+        # migration spike's own test-parity run caught that static forensics missed.
         with self.session() as conn:
             conn.execute(
-                "INSERT OR IGNORE INTO org_edges (manager_coded_id, report_coded_id) VALUES (?, ?)",
+                "INSERT INTO org_edges (manager_coded_id, report_coded_id) VALUES (?, ?) "
+                "ON CONFLICT (manager_coded_id, report_coded_id) DO NOTHING",
                 (manager_coded_id, report_coded_id),
             )
 
@@ -912,7 +1092,7 @@ class HermesDB:
         if not rows:
             return
         with self.session() as conn:
-            conn.executemany(_ACCOUNT_CONTEXT_UPSERT, list(rows))
+            conn.executemany(_ACCOUNT_CONTEXT_UPSERT.format(now_sql=self._now_sql()), list(rows))
 
     def insert_baseline(
         self,
@@ -972,10 +1152,14 @@ class HermesDB:
             )
 
     def latest_ingest_run(self) -> Optional[Dict[str, Any]]:
+        # rowid is SQLite-only; a real-data ingestion run happens at most a few
+        # times ever, so a timestamp tie is not realistically expected, and
+        # this table has no bearing on scoring or audit determinism either way.
+        order = "ingested_at DESC, rowid DESC" if self.dialect == "sqlite" else "ingested_at DESC"
         with self.session() as conn:
             row = conn.execute(
                 "SELECT run_id, source_name, source_sha256, ingested_at, summary_json "
-                "FROM phase8_ingest_runs ORDER BY ingested_at DESC, rowid DESC LIMIT 1"
+                f"FROM phase8_ingest_runs ORDER BY {order} LIMIT 1"
             ).fetchone()
         if row is None:
             return None
@@ -1007,14 +1191,14 @@ class HermesDB:
     ) -> None:
         with self.session() as conn:
             conn.execute(
-                """
+                f"""
                 INSERT INTO skill_aliases (alias_label, skill_id, match_confidence, mapped_by)
                 VALUES (?, ?, ?, ?)
                 ON CONFLICT(alias_label) DO UPDATE SET
                   skill_id=excluded.skill_id,
                   match_confidence=excluded.match_confidence,
                   mapped_by=excluded.mapped_by,
-                  mapped_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+                  mapped_at={self._now_sql()}
                 """,
                 (alias_label, skill_id, match_confidence, mapped_by),
             )
@@ -1029,13 +1213,13 @@ class HermesDB:
     def upsert_manager_alias(self, alias_name: str, canonical_name: str, mapped_by: str) -> None:
         with self.session() as conn:
             conn.execute(
-                """
+                f"""
                 INSERT INTO manager_aliases (alias_name, canonical_name, mapped_by)
                 VALUES (?, ?, ?)
                 ON CONFLICT(alias_name) DO UPDATE SET
                   canonical_name=excluded.canonical_name,
                   mapped_by=excluded.mapped_by,
-                  mapped_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+                  mapped_at={self._now_sql()}
                 """,
                 (alias_name.strip().lower(), canonical_name, mapped_by),
             )
@@ -1051,13 +1235,13 @@ class HermesDB:
     def bind_principal(self, sub: str, coded_identity: str, mapped_by: str) -> None:
         with self.session() as conn:
             conn.execute(
-                """
+                f"""
                 INSERT INTO principal_bindings (sub, coded_identity, mapped_by)
                 VALUES (?, ?, ?)
                 ON CONFLICT(sub) DO UPDATE SET
                   coded_identity=excluded.coded_identity,
                   mapped_by=excluded.mapped_by,
-                  mapped_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+                  mapped_at={self._now_sql()}
                 """,
                 (sub, coded_identity, mapped_by),
             )

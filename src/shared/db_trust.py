@@ -121,6 +121,6 @@ def ensure_database_trusted(db: "HermesDB", secret: str) -> TrustAssessment:
     assessment = assess_database_trust(db, secret)
     if not assessment.trusted:
         raise UntrustedDatabaseError(
-            f"refusing to serve database {db.path.name}: {assessment.reason}", code=assessment.reason
+            f"refusing to serve database {db.label}: {assessment.reason}", code=assessment.reason
         )
     return assessment

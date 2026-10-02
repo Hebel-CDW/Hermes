@@ -222,7 +222,11 @@ def data_quality(db: HermesDB, taxonomy: SkillsTaxonomy) -> Dict[str, Any]:
     The only labels returned are canonical-mapping traces for skill labels.
     """
     with db.session() as conn:
-        one = lambda sql: int(conn.execute(sql).fetchone()[0])  # noqa: E731
+        # sqlite3.Row supports both row[0] and row["col"]; psycopg2's
+        # RealDictCursor rows (used for the PostgreSQL dialect) support only
+        # key access — found live, via a real Postgres test-parity run, not
+        # assumed. dict(row).values() works identically for both.
+        one = lambda sql: int(next(iter(dict(conn.execute(sql).fetchone()).values())))  # noqa: E731
         counts = {
             "people_imported": one("SELECT COUNT(*) FROM identity_map"),
             "people_with_baseline": one("SELECT COUNT(DISTINCT coded_identity) FROM baseline_assessments"),

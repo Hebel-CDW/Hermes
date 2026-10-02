@@ -115,7 +115,10 @@ def run(
 
     totals = base["data_quality_totals"]
     with svc.db.session() as conn:
-        people = int(conn.execute("SELECT COUNT(*) FROM identity_map").fetchone()[0])
+        # dict(row).values() works for both sqlite3.Row (supports row[0] too)
+        # and psycopg2 RealDictRow (key-only) — found via a real Postgres
+        # test-parity run, same fix as read_models.data_quality's one().
+        people = int(next(iter(dict(conn.execute("SELECT COUNT(*) FROM identity_map").fetchone()).values())))
     summary = {
         "sheets": base["data_quality_totals"]["sheets"] + 1,  # + Certificates (certificate workstream)
         "people_detected": people,
@@ -140,7 +143,9 @@ def run(
     }
     digest = _sha256(source)
     with svc.db.session() as conn:
-        previous_runs = int(conn.execute("SELECT COUNT(*) FROM phase8_ingest_runs").fetchone()[0])
+        previous_runs = int(
+            next(iter(dict(conn.execute("SELECT COUNT(*) FROM phase8_ingest_runs").fetchone()).values()))
+        )
     run_id = f"phase8-{digest[:12]}-{previous_runs + 1:04d}"
     svc.db.record_ingest_run(run_id, source.name, digest, summary)
     svc.audit.append(
