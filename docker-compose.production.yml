@@ -1,0 +1,84 @@
+# Hermes — production deployment on PostgreSQL.
+#
+#   cp .env.production.example .env.production   # fill in secrets — see below
+#   docker compose -f docker-compose.production.yml --env-file .env.production up -d
+#   curl http://localhost:8000/ready
+#
+# Two real services, not three: the existing Dockerfile already bundles the
+# built React UI into the same FastAPI container (single port) — this compose
+# file keeps that, the same already-chosen architecture docker-compose.yml
+# uses, rather than inventing a second, empty "hermes-web" container that
+# would just proxy to the first one and add nothing (no fake services).
+#
+# Ollama is deliberately NOT a service here. It stays optional/local per the
+# existing fail-safe contract (docs/HERMES_V3_ARCHITECTURE.md, Phase 16):
+# POST /api/requests/parse answers {"available": false, ...} instead of
+# crashing when OLLAMA_BASE_URL is unset. Point it at your own
+# local/already-running Ollama if you want LLM-assisted parsing in production;
+# this file does not stand one up.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-hermes}
+      POSTGRES_USER: ${POSTGRES_USER:-hermes}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set this in .env.production}
+    volumes:
+      - hermes-postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hermes} -d ${POSTGRES_DB:-hermes}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    # No host port published: the API reaches it over the compose network only.
+
+  api:
+    build: .
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      HERMES_ENV: production
+      # Empty, not unset: overrides the Dockerfile's HERMES_DB_PATH=/data/hermes.db
+      # image default. An explicit path= always means SQLite (shared.db's
+      # backward-compat guarantee for ~400 existing test call sites) — leaving
+      # the image default in place here would silently force SQLite even
+      # though DATABASE_URL below points at PostgreSQL.
+      HERMES_DB_PATH: ""
+      DATABASE_URL: postgresql://${POSTGRES_USER:-hermes}:${POSTGRES_PASSWORD:?set this in .env.production}@postgres:5432/${POSTGRES_DB:-hermes}
+      # Required for PostgreSQL: anchor_path() fails closed (ConfigurationError)
+      # without it — there is no filesystem path "beside" a network database.
+      HERMES_AUDIT_ANCHOR_DIR: /data/audit-anchors
+      IDENTITY_MAP_SECRET: ${IDENTITY_MAP_SECRET:?set this in .env.production}
+      HERMES_JWT_SECRET: ${HERMES_JWT_SECRET:?set this in .env.production}
+      HERMES_DEMO_SEED: "0"  # production never auto-seeds synthetic demo data
+      HERMES_CORS_ORIGINS: ${HERMES_CORS_ORIGINS:-}
+      AUTH_MODE: ${AUTH_MODE:-production}
+      OIDC_ISSUER: ${OIDC_ISSUER:-}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
+      OIDC_ROLE_CLAIM: ${OIDC_ROLE_CLAIM:-roles}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-}
+    volumes:
+      # Reuses the SAME /data volume the Dockerfile already creates and chowns
+      # to the non-root "hermes" user (VOLUME /data) — a separate named volume
+      # mounted directly at /data/audit-anchors initializes root-owned instead
+      # (nothing at that exact path in the image for Docker to copy ownership
+      # from), which a real container run caught: PermissionError writing the
+      # anchor file. A subdirectory of the already-correctly-owned /data
+      # volume has no such problem.
+      - hermes-data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    # Health check already lives in the Dockerfile (GET /ready) — inherited, not
+    # redefined. /ready itself verifies the database opens, passes the trust
+    # policy, and the audit chain verifies (api/routers/health.py) — unchanged.
+
+volumes:
+  hermes-postgres-data:
+  hermes-data:

@@ -25,6 +25,7 @@ COPY src ./src
 RUN pip install . && pip uninstall -y hermes
 
 COPY api ./api
+COPY integrations ./integrations
 COPY scripts ./scripts
 COPY taxonomy ./taxonomy
 COPY infra ./infra
