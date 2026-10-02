@@ -926,3 +926,43 @@ Change `as_of` to see the calendar drift (`2026-09-01` gives 0.1196, the pinned 
 | `docs/DEMO_RUNBOOK.md` (written earlier in this engagement) | "Managers see their own team and requests" | Managers see the whole population's skills and rankings; only edits and per-person gap views are limited to direct reports, and requests are owner-only |
 | `docs/DEMO_RUNBOOK.md` | "Self-declared skills carry the least weight… leaves the score at 0" | The declared weight (0.15) affects only the level vote. The score is 0 because *volume* counts demonstrated evidence only, which is also why a certificate alone scores 0 |
 | `docs/DEMO_RUNBOOK.md` step 5 | "…related to what he has done" | Pronoun not in the data; use "they" |
+
+## Addendum — 2026-10-02 (real-data governance additions)
+
+Everything above is the pinned 2026-09-24 snapshot; it is left as-is rather than silently
+rewritten, since its own basis line ties each number to a review done on that date. This
+addendum documents what changed on top of it, verified the same way (commands actually run,
+not assumed).
+
+**What was added**, all additive — no existing endpoint, schema, or test was changed or removed:
+
+- `src/shared/read_models._activation_status()` — derives `NOT_READY` / `INGESTED` /
+  `GOVERNANCE_PENDING` / `PARTIALLY_ACTIVE` / `ACTIVE` from stored counts alone (`skills_matrix`
+  row count is the hard gate; `scored_people == 0` can never report `ACTIVE`). `VALIDATED` is
+  reserved and intentionally never auto-derived. Surfaced as `data_quality().activation_status`,
+  i.e. the existing `GET /api/data-quality` route — no new route needed.
+- `src/shared/read_models.cert_governance_queue()` + `GET /api/certs/pending` — a read-only,
+  ADMIN-only triage view of every un-promoted certificate, classified `needs_date` /
+  `needs_mapping` / `needs_date_and_mapping` / `ready_to_promote`. Backs the cert-governance
+  admin workflow; performs no fuzzy matching or auto-approval itself.
+- `src/identity_abstraction/gate.scan_real_database_for_leakage()` +
+  `scripts/audit_real_db_leakage.py` — extends the identity-leakage audit (previously synthetic-
+  fixture-only, see `tests/audits/test_leakage_audit.py`) to the actual real database:
+  `skills_matrix`, `evidence_staging`, and every `audit_ledger` payload, with the name blocklist
+  pulled live from `identity_vault` (never a committed file). Intended as a pre-demo safety gate.
+
+**Verified 2026-10-02**, run directly, not assumed:
+
+| # | What | Result |
+|---|---|---|
+| V-10-02-a | `python -m pytest --no-cov` (full backend suite, after the additions) | **400 passed** (was 389) |
+| V-10-02-b | Same run, with coverage | coverage **92.36%** (was 92.28% — improved, not lowered; gate 85%) |
+| V-10-02-c | `npx vitest run` (web/) | **83 passed**, unchanged |
+| V-10-02-d | `python scripts/audit_real_db_leakage.py` against `data/real/hermes_real.db` | `{"status": "pass", "finding_count": 0}` |
+| V-10-02-e | `cert_governance_queue()` against `data/real/hermes_real.db` | `{"needs_date": 427, "needs_mapping": 422, "ready_to_promote": 0, "promoted": 0}` |
+| V-10-02-f | `data_quality().activation_status` against `data/real/hermes_real.db` | `{"state": "GOVERNANCE_PENDING", "scored_people": 0}` |
+
+**No data was fabricated.** `skills_matrix` is still 0 rows for the real database; this addendum
+adds visibility and an admin triage queue, not a score. The real-data blocker and its exact fix
+path are unchanged from the 2026-09-24 snapshot above — see the Data section and
+`docs/phase8/BLOCKED.md`.
