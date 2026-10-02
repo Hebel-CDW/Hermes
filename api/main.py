@@ -857,6 +857,21 @@ def ingest_tickets(
     return svc.ingest_tickets([item.model_dump() for item in body.tickets], principal.sub)
 
 
+@app.get("/api/certs/pending")
+def certs_pending(
+    _: None = Depends(require_api_key),
+    principal: AuthPrincipal = Depends(require_roles(ADMIN)),
+    svc: HermesService = Depends(get_service),
+) -> Dict[str, Any]:
+    """Triage queue: every un-promoted certificate and exactly what blocks it
+    (missing date, unmapped label, or both). Backs the admin cert-governance
+    workflow — no fuzzy mapping or auto-approval happens here, it is read-only."""
+    del principal
+    from shared import read_models
+
+    return read_models.cert_governance_queue(svc.db, svc.inference.taxonomy)
+
+
 @app.post("/api/certs/{staging_id}/date")
 def cert_date(
     staging_id: str = PathParam(..., min_length=1, max_length=128),

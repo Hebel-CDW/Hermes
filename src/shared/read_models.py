@@ -299,4 +299,113 @@ def data_quality(db: HermesDB, taxonomy: SkillsTaxonomy) -> Dict[str, Any]:
             "pending": labels.get("pending"),
             "scored": counts["scored_people"],
         },
+        "activation_status": _activation_status(counts, run),
     }
+
+
+#: Ordered so a UI can render progress without its own state machine.
+ACTIVATION_STATES = (
+    "NOT_READY",
+    "INGESTED",
+    "GOVERNANCE_PENDING",
+    "PARTIALLY_ACTIVE",
+    "ACTIVE",
+    "VALIDATED",
+)
+
+
+def _activation_status(counts: Dict[str, int], run: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    """Derive the real-data activation state from stored counts alone (Phase 5).
+
+    ``skills_matrix`` row count (``counts["scored_people"]``) is the hard technical
+    gate: nothing below ever reports ACTIVE or VALIDATED while it is zero, no
+    matter how much staging or governance work has happened. ``VALIDATED`` is
+    never auto-derived here — it requires an explicit human sign-off event (e.g. a
+    completed manager-agreement run) this function cannot observe from counts
+    alone, so the highest state it can return on its own is ACTIVE.
+    """
+    if run is None:
+        return {"state": "NOT_READY", "reason": "No workbook has been ingested yet.", "scored_people": 0}
+
+    certs_outstanding = counts["certificates_staged"] - counts["certificates_promoted"]
+    blockers = []
+    if counts["pending_aliases"] > 0:
+        blockers.append(f"{counts['pending_aliases']} skill label(s) awaiting taxonomy mapping")
+    if certs_outstanding > 0:
+        blockers.append(f"{certs_outstanding} certificate(s) not yet promoted")
+
+    scored = counts["scored_people"]
+    if scored == 0:
+        return {
+            "state": "GOVERNANCE_PENDING" if blockers else "INGESTED",
+            "reason": "; ".join(blockers) if blockers else "Workbook ingested; no governed evidence staged yet.",
+            "scored_people": 0,
+        }
+    if blockers:
+        return {
+            "state": "PARTIALLY_ACTIVE",
+            "reason": f"{scored} of {counts['people_imported']} people scoreable; " + "; ".join(blockers),
+            "scored_people": scored,
+        }
+    return {
+        "state": "ACTIVE",
+        "reason": f"{scored} of {counts['people_imported']} people have governed, scoreable evidence.",
+        "scored_people": scored,
+    }
+
+
+def cert_governance_queue(db: HermesDB, taxonomy: SkillsTaxonomy) -> Dict[str, Any]:
+    """Per-certificate triage queue: exactly what blocks each cert from promotion.
+
+    Read-only view backing the admin cert-governance workflow (Phase 2 Step A/B).
+    Never returns a person's real name — ``coded_identity`` only, same as every
+    other read model in this module. Already-promoted certs are counted but
+    omitted from ``items`` since there is nothing left to action on them.
+    """
+    from shared.excel_sunset import map_cert_label
+
+    code_to_skill = {
+        code: skill.skill_id for skill in taxonomy.all_skills() for code in skill.cert_codes
+    }
+    with db.session() as conn:
+        rows = [
+            dict(r)
+            for r in conn.execute(
+                "SELECT staging_id, coded_identity, cert_label, cert_code, earned_at, promoted "
+                "FROM cert_staging ORDER BY staging_id"
+            ).fetchall()
+        ]
+
+    counts = {"needs_date": 0, "needs_mapping": 0, "ready_to_promote": 0, "promoted": 0}
+    items: List[Dict[str, Any]] = []
+    for row in rows:
+        if int(row["promoted"] or 0) == 1:
+            counts["promoted"] += 1
+            continue
+        skill_id, cert_code = map_cert_label(db, row["cert_label"], code_to_skill)
+        has_date = bool((row["earned_at"] or "").strip())
+        has_mapping = bool(skill_id)
+        if has_date and has_mapping:
+            status = "ready_to_promote"
+            counts["ready_to_promote"] += 1
+        elif not has_date and not has_mapping:
+            status = "needs_date_and_mapping"
+            counts["needs_date"] += 1
+            counts["needs_mapping"] += 1
+        elif not has_date:
+            status = "needs_date"
+            counts["needs_date"] += 1
+        else:
+            status = "needs_mapping"
+            counts["needs_mapping"] += 1
+        items.append(
+            {
+                "staging_id": row["staging_id"],
+                "coded_identity": row["coded_identity"],
+                "cert_label": row["cert_label"],
+                "resolved_skill_id": skill_id or "",
+                "resolved_cert_code": cert_code or "",
+                "status": status,
+            }
+        )
+    return {"counts": counts, "items": items}

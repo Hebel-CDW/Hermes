@@ -185,3 +185,52 @@ def scan_for_identity_leakage(
         if coded and not CODED_ID_PATTERN.match(str(coded)):
             findings.append({"index": idx, "field": "coded_identity", "reason": "invalid_token"})
     return findings
+
+
+def scan_real_database_for_leakage(db: "HermesDB") -> List[Dict[str, Any]]:
+    """Scan the tables real scoring reads/writes for leaked real identity (Phase 6 gate).
+
+    Unlike :func:`scan_for_identity_leakage`'s other callers (which scan seeded
+    *synthetic* fixtures), this pulls its name blocklist from the database's own
+    ``identity_vault`` at call time — never from a committed file — and scans
+    ``skills_matrix``, ``evidence_staging`` and every ``audit_ledger`` payload.
+
+    Intended as an operational gate (``scripts/audit_real_db_leakage.py``) run
+    before any demo or UI mode that could surface real-backed data: a non-empty
+    result means real identity or client/account labels reached a table that
+    scoring or the audit trail exposes, and the run must not proceed.
+    """
+    import json as _json
+
+    with db.session() as conn:
+        names = {
+            (row["display_name"] or "").strip().lower()
+            for row in conn.execute("SELECT display_name FROM identity_vault").fetchall()
+        }
+        tables = {
+            "skills_matrix": [dict(row) for row in conn.execute("SELECT * FROM skills_matrix").fetchall()],
+            "evidence_staging": [dict(row) for row in conn.execute("SELECT * FROM evidence_staging").fetchall()],
+        }
+        audit_rows = [
+            dict(row)
+            for row in conn.execute("SELECT event_id, actor, payload_json FROM audit_ledger").fetchall()
+        ]
+
+    findings: List[Dict[str, Any]] = []
+    for table, rows in tables.items():
+        for finding in scan_for_identity_leakage(rows, blocklist=names):
+            findings.append({**finding, "table": table})
+
+    for row in audit_rows:
+        try:
+            payload = _json.loads(row["payload_json"] or "{}")
+        except ValueError:
+            payload = {"_unparseable_payload": True}
+        if not isinstance(payload, Mapping):
+            payload = {"_value": payload}
+        for finding in scan_for_identity_leakage([payload], blocklist=names):
+            findings.append(
+                {**finding, "table": "audit_ledger", "event_id": row["event_id"], "actor": row["actor"]}
+            )
+
+    return findings
