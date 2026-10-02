@@ -20,6 +20,7 @@ from shared.auth import AuthPrincipal, build_principal, verify_token
 from shared.db import HermesDB
 from shared.db_trust import ensure_database_trusted
 from shared.errors import AuthorizationError
+from shared.oidc_auth import build_oidc_principal, is_production_auth, load_oidc_config
 from shared.rate_limit import RateLimiter
 from shared.service import HermesService
 
@@ -84,6 +85,35 @@ def reset_llm_provider_for_tests(provider: Optional[LLMProvider]) -> None:
     _LLM_PROVIDER = provider
 
 
+_TEAMS_PROVIDER = None
+
+
+def get_teams_provider():
+    """TEAMS_MODE=production constructs MicrosoftTeamsProvider, which raises
+    NotImplementedError on construction (it is a documented stub, not a
+    working integration — see integrations/teams/microsoft_provider.py).
+    Anything else (the default) uses MockTeamsProvider. Never silently
+    substitutes one for the other — the caller finds out exactly which it got
+    via the provider's own ``is_mock`` attribute.
+    """
+    global _TEAMS_PROVIDER
+    if _TEAMS_PROVIDER is None:
+        if os.getenv("TEAMS_MODE", "development").strip().lower() == "production":
+            from integrations.teams.microsoft_provider import MicrosoftTeamsProvider
+
+            _TEAMS_PROVIDER = MicrosoftTeamsProvider()  # raises NotImplementedError today
+        else:
+            from integrations.teams.mock_provider import MockTeamsProvider
+
+            _TEAMS_PROVIDER = MockTeamsProvider()
+    return _TEAMS_PROVIDER
+
+
+def reset_teams_provider_for_tests(provider) -> None:
+    global _TEAMS_PROVIDER
+    _TEAMS_PROVIDER = provider
+
+
 def require_api_key(
     x_api_key: Optional[str] = Header(default=None),
     x_functions_key: Optional[str] = Header(default=None),
@@ -108,6 +138,15 @@ def get_principal(
         token = x_hermes_token.strip()
     if not token:
         raise HTTPException(status_code=401, detail="missing bearer token")
+
+    if is_production_auth():
+        # Real OIDC: signature/issuer/audience/expiry verified against the IdP's own
+        # published keys. No hardcoded registry — every claim comes from the token.
+        # ConfigurationError (missing OIDC_* env) -> 500; AuthenticationError -> 401.
+        # Both already route through api/main.py's global HermesError handler.
+        config = load_oidc_config()
+        return build_oidc_principal(token, config, resolve_coded=svc.db.coded_for_principal)
+
     sub = verify_token(token)  # AuthenticationError -> 401
 
     def resolve(employee_key: str) -> Optional[str]:

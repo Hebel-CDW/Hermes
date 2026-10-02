@@ -40,6 +40,7 @@ from api.routers import (
     team,
 )
 from shared.errors import HermesError
+from shared.oidc_auth import is_production_auth, load_oidc_config
 from shared.secrets import require_identity_map_secret, require_jwt_secret
 
 
@@ -48,6 +49,12 @@ async def _lifespan(_app: FastAPI):
     # Fail closed on secrets outside test mode.
     require_jwt_secret()
     require_identity_map_secret()
+    # AUTH_MODE=production: validate OIDC_ISSUER/OIDC_AUDIENCE/OIDC_CLIENT_ID now, at
+    # startup, not on the first request — a misconfigured deployment must never start
+    # and silently 500 every sign-in attempt. (ConfigurationError here crashes startup,
+    # same as the two require_*_secret() calls above.)
+    if is_production_auth():
+        load_oidc_config()
     yield
 
 

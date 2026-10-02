@@ -45,7 +45,19 @@ DEMO_PRINCIPALS: Dict[str, DemoPrincipal] = {
 
 
 def demo_auth_enabled() -> bool:
-    """Registry auth is permitted only in test mode or an explicit local environment."""
+    """Registry auth is permitted only in test mode or an explicit local environment.
+
+    AUTH_MODE=production hard-disables this regardless of HERMES_ENV — a
+    deployment that has opted into real OIDC auth can never fall back to the
+    passwordless demo registry, even via a HERMES_ENV misconfiguration.
+    Lazy import: shared.oidc_auth imports AuthPrincipal from shared.auth,
+    which this module is itself imported by, so this must resolve at call
+    time, not at module load time.
+    """
+    from shared.oidc_auth import is_production_auth
+
+    if is_production_auth():
+        return False
     return is_test_mode() or os.getenv("HERMES_ENV", "local").strip().lower() == "local"
 
 
