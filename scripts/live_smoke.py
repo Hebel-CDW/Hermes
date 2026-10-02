@@ -121,6 +121,15 @@ def run(base: str) -> int:
     s, b, _ = c.call("GET", "/api/session", token=mgr)
     r.check(s == 200 and "manager" in b.get("roles", []), "session shows manager role", str(b))
     r.check(b.get("data_classification") == "synthetic", "session labels data as synthetic", str(b))
+    if b.get("data_classification") != "synthetic":
+        # Hard stop, not a comment: this script writes a scratch staffing request,
+        # decision and contest into whatever database it's pointed at. A docstring
+        # warning is not a safety control - found during the V3 QA pass that nothing
+        # actually stopped someone from running this against a real deployment.
+        print("\nABORT: target database is not classified 'synthetic' - refusing to write "
+              "a scratch request/decision/contest into it. Point --base at a synthetic "
+              "demo instance only.")
+        return 1
     mgr_code = b.get("coded_identity")
     s, b, _ = c.call("GET", "/api/overview", token=mgr)
     r.check(s == 200 and b.get("people", 0) > 0, "overview has people", str(s))
@@ -258,6 +267,29 @@ def run(base: str) -> int:
     r.check(s == 200 and b.get("audit_chain_verified") is True, "audit chain still verified after every write")
     s, b, _ = c.call("GET", "/ready")
     r.check(s == 200, "service still ready")
+
+    r.section("10. LLM assist (requests/parse) - advisory only, never breaks core Hermes")
+    s, b, _ = c.call("POST", "/api/requests/parse", {"description": "need someone"}, token=emp)
+    r.check(s == 403, "employee cannot use the assist endpoint (manager-only)", str(s))
+    s, b, _ = c.call("POST", "/api/requests/parse", {"description": ""}, token=mgr)
+    r.check(s == 422, "empty description is rejected", str(s))
+    s, b, _ = c.call("POST", "/api/requests/parse", {"description": "need a python person"}, token=mgr)
+    r.check(
+        s == 200 and isinstance(b.get("available"), bool),
+        "assist answers with a well-shaped available/proposal/reason response either way",
+        f"{s} {b}",
+    )
+    if b.get("available") is False:
+        r.check(bool(b.get("reason")), "unavailable response explains why, so the manager can continue manually")
+        r.check(b.get("proposal") is None, "no partial/fabricated proposal when unavailable")
+    else:
+        r.check(isinstance(b.get("proposal", {}).get("skills"), list), "available response carries a skills list")
+
+    r.section("11. Real-data governance (this demo DB must never read as real/active)")
+    s, b, _ = c.call("GET", "/api/data-quality", token=mgr)
+    status = (b.get("activation_status") or {}) if s == 200 else {}
+    r.check(s == 200 and "state" in status, "activation_status is present", str(status))
+    r.check(b.get("data_classification") == "synthetic", "data-quality agrees this is synthetic data", str(s))
 
     total = len(r.results)
     print(f"\n{total - r.failed}/{total} checks passed")

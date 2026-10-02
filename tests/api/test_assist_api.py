@@ -99,6 +99,28 @@ def test_llm_unavailable_returns_clean_fallback_not_an_error(tmp_path):
         reset_llm_provider_for_tests(None)
 
 
+def test_rate_limit_caps_repeated_parse_calls(tmp_path):
+    """Found during the V3 QA pass: this was the one write-adjacent endpoint
+    with no rate limiter at all, despite calling a synchronous external LLM."""
+    db = HermesDB(tmp_path / "assist5.db")
+    svc = HermesService(db=db)
+    api_main.reset_service_for_tests(svc)
+    reset_llm_provider_for_tests(MockLLMProvider(fixed_response='{"skills": []}'))
+    try:
+        with TestClient(api_main.app) as client:
+            token = _token_for(client, "demo-manager")
+            headers = {"Authorization": f"Bearer {token}"}
+            statuses = [
+                client.post("/api/requests/parse", json={"description": "need someone"}, headers=headers).status_code
+                for _ in range(11)
+            ]
+            assert statuses.count(200) == 10
+            assert statuses[-1] == 429
+    finally:
+        api_main.reset_service_for_tests(None)
+        reset_llm_provider_for_tests(None)
+
+
 def test_empty_description_is_rejected_with_422(tmp_path):
     db = HermesDB(tmp_path / "assist4.db")
     svc = HermesService(db=db)

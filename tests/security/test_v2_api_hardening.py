@@ -274,6 +274,15 @@ def test_rbac_matrix(env):
         (("POST", "/api/org/bind-principal", {"sub": "demo-manager", "coded_identity": coded(db_path, "E1001")}), {
             "demo-employee": 403, "demo-manager": 403, "demo-admin": 200,
         }),
+        # Added when api/routers/assist.py and the cert-governance queue were built — this
+        # matrix is a hand-maintained list, and both were missing from it (found during the
+        # V3 QA pass). require_roles(MANAGER) / require_roles(ADMIN) respectively.
+        (("POST", "/api/requests/parse", {"description": "need someone"}), {
+            "demo-employee": 403, "demo-manager": 200, "demo-admin": 403,
+        }),
+        (("GET", "/api/certs/pending", None), {
+            "demo-employee": 403, "demo-manager": 403, "demo-admin": 200,
+        }),
     ]
     failures = []
     for (method, path, body), expected in matrix:
@@ -289,9 +298,15 @@ def test_every_protected_route_requires_a_token(env):
     for method, path in [
         ("GET", "/api/dashboard"), ("GET", "/api/skills"), ("GET", "/api/roles"), ("GET", "/api/identities"),
         ("GET", "/api/identity/directory"),
+        ("GET", "/api/session"),
         ("GET", "/api/matrix/runs"), ("GET", "/api/me"), ("POST", "/api/identity/abstract"),
         ("POST", "/api/inference/merge"), ("POST", "/api/fitness/rank"), ("POST", "/api/fitness/gaps"),
         ("POST", "/api/identity/resolve"), ("POST", "/api/staffing/x/decision"), ("POST", "/api/me/contest"),
+        # assist.py and the cert-governance queue were missing from this list for two
+        # commits (found during the V3 QA pass) - a regression on either would have gone
+        # uncaught by "every protected route requires a token".
+        ("POST", "/api/requests/parse"), ("GET", "/api/certs/pending"),
+        ("POST", "/api/certs/x/date"), ("POST", "/api/certs/x/promote"),
         ("GET", "/api/team/skill-review/EMP-00000000"), ("POST", "/api/team/declare"),
         ("POST", "/api/team/contests/xxxxxxxx/resolve"),
         ("GET", "/api/taxonomy/pending"), ("GET", "/api/baseline/matrix"), ("GET", "/api/excel-sunset"),

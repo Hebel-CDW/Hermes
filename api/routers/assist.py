@@ -12,11 +12,12 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
 from ai.provider import LLMUnavailableError
 from ai.services.work_requirement import LLMExtractionError, extract_work_requirement
+from api import dependencies
 from api.dependencies import get_llm_provider, require_api_key, require_roles
 from shared.auth import AuthPrincipal
 from shared.demo_identities import MANAGER
@@ -36,7 +37,8 @@ def parse_work_request(
     _: None = Depends(require_api_key),
     principal: AuthPrincipal = Depends(require_roles(MANAGER)),
 ) -> Dict[str, Any]:
-    del principal
+    if not dependencies.PARSE_LIMITER.allow(principal.sub):
+        raise HTTPException(status_code=429, detail="work-request parsing rate limit exceeded")
     try:
         provider = get_llm_provider()
         proposal = extract_work_requirement(provider, body.description)
