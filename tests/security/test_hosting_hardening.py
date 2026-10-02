@@ -77,7 +77,14 @@ def test_ready_ok_on_trusted_database(env):
     client, _ = env
     resp = client.get("/ready")
     assert resp.status_code == 200
-    assert resp.json() == {"status": "ready"}
+    body = resp.json()
+    assert body["status"] == "ready"
+    # auth_mode/teams_provider_is_mock are operational visibility added for the
+    # production smoke test (Phase 12) — additive, not a breaking change, but
+    # this test originally pinned an exact {"status": "ready"} body and needs
+    # updating to match rather than the feature being reverted to fit it.
+    assert body["auth_mode"] == "development"
+    assert body["teams_provider_is_mock"] is True
 
 
 def test_ready_fails_when_audit_chain_is_tampered(env):

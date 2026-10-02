@@ -8,14 +8,14 @@
   "dashboard": {
     "actor": "demo-manager",
     "avg_freshness_by_skill": {
-      "active_directory": 0.8611,
-      "azure_compute": 0.5849,
-      "azure_networking": 0.2475,
-      "container_orchestration": 0.3965,
-      "incident_management": 0.8893,
-      "infrastructure_as_code": 0.7742,
-      "network_security": 0.792,
-      "workload_migration": 0.8385
+      "active_directory": 0.8608,
+      "azure_compute": 0.5847,
+      "azure_networking": 0.2473,
+      "container_orchestration": 0.3961,
+      "incident_management": 0.889,
+      "infrastructure_as_code": 0.7739,
+      "network_security": 0.7918,
+      "workload_migration": 0.8382
     },
     "coverage": {
       "coverage_pct": 80.0,
@@ -26,7 +26,7 @@
       {
         "coded_identity": "EMP-fd8efec3",
         "confidence": 1.0,
-        "freshness": 0.3965,
+        "freshness": 0.3961,
         "proficiency": 4,
         "skill_id": "container_orchestration",
         "volume_score": 0.5034
@@ -34,7 +34,7 @@
       {
         "coded_identity": "EMP-fd8efec3",
         "confidence": 0.35,
-        "freshness": 0.8385,
+        "freshness": 0.8382,
         "proficiency": 4,
         "skill_id": "workload_migration",
         "volume_score": 0.2953
@@ -42,7 +42,7 @@
       {
         "coded_identity": "EMP-fd8efec3",
         "confidence": 0.35,
-        "freshness": 0.8611,
+        "freshness": 0.8608,
         "proficiency": 3,
         "skill_id": "active_directory",
         "volume_score": 0.2953
@@ -50,7 +50,7 @@
       {
         "coded_identity": "EMP-c775791c",
         "confidence": 0.9,
-        "freshness": 0.2475,
+        "freshness": 0.2473,
         "proficiency": 3,
         "skill_id": "azure_networking",
         "volume_score": 0.2953
@@ -58,7 +58,7 @@
       {
         "coded_identity": "EMP-c775791c",
         "confidence": 0.35,
-        "freshness": 0.792,
+        "freshness": 0.7918,
         "proficiency": 2,
         "skill_id": "network_security",
         "volume_score": 0.2953
@@ -66,7 +66,7 @@
       {
         "coded_identity": "EMP-f232ab6e",
         "confidence": 0.35,
-        "freshness": 0.7742,
+        "freshness": 0.7739,
         "proficiency": 3,
         "skill_id": "azure_compute",
         "volume_score": 0.2953
@@ -74,7 +74,7 @@
       {
         "coded_identity": "EMP-f232ab6e",
         "confidence": 0.35,
-        "freshness": 0.7742,
+        "freshness": 0.7739,
         "proficiency": 2,
         "skill_id": "infrastructure_as_code",
         "volume_score": 0.2953
@@ -82,7 +82,7 @@
       {
         "coded_identity": "EMP-666c8943",
         "confidence": 0.35,
-        "freshness": 0.8893,
+        "freshness": 0.889,
         "proficiency": 4,
         "skill_id": "incident_management",
         "volume_score": 0.2953
@@ -90,7 +90,7 @@
       {
         "coded_identity": "EMP-9a4bf2f6",
         "confidence": 0.35,
-        "freshness": 0.3956,
+        "freshness": 0.3955,
         "proficiency": 2,
         "skill_id": "azure_compute",
         "volume_score": 0.0
@@ -99,6 +99,7 @@
   },
   "data_quality": {
     "activation_status": {
+      "real_data_active": false,
       "reason": "No workbook has been ingested yet.",
       "scored_people": 0,
       "state": "NOT_READY"
@@ -187,13 +188,13 @@
     "skills": [
       {
         "coded_identity": "EMP-f232ab6e",
-        "computation_run_id": "b0018fe2-1a5d-47df-be6d-8feffa586f8a",
-        "computed_at": "2026-10-02T06:30:09.155049Z",
+        "computation_run_id": "bb70598f-bf0b-404f-baea-cf54e6e5272f",
+        "computed_at": "2026-10-02T10:43:07.787094Z",
         "confidence": 0.35,
         "evidence_ids": [
           "INC004:azure_compute"
         ],
-        "freshness": 0.7742,
+        "freshness": 0.7739,
         "proficiency": 3,
         "scoring_config_version": "9220dcfdfcf3",
         "skill_id": "azure_compute",
@@ -201,13 +202,13 @@
       },
       {
         "coded_identity": "EMP-f232ab6e",
-        "computation_run_id": "b0018fe2-1a5d-47df-be6d-8feffa586f8a",
-        "computed_at": "2026-10-02T06:30:09.155077Z",
+        "computation_run_id": "bb70598f-bf0b-404f-baea-cf54e6e5272f",
+        "computed_at": "2026-10-02T10:43:07.787125Z",
         "confidence": 0.35,
         "evidence_ids": [
           "INC004:infrastructure_as_code"
         ],
-        "freshness": 0.7742,
+        "freshness": 0.7739,
         "proficiency": 2,
         "scoring_config_version": "9220dcfdfcf3",
         "skill_id": "infrastructure_as_code",
@@ -229,7 +230,7 @@
         "domain_id": "cloud_platform",
         "identities_with_evidence": 4,
         "mean_confidence": 0.65,
-        "mean_freshness": 0.4535,
+        "mean_freshness": 0.4532,
         "mean_level": 3.0,
         "name": "Cloud Platform",
         "skill_count": 7,
@@ -240,7 +241,7 @@
         "domain_id": "platform_ops",
         "identities_with_evidence": 2,
         "mean_confidence": 0.35,
-        "mean_freshness": 0.8317,
+        "mean_freshness": 0.8315,
         "mean_level": 3.0,
         "name": "Platform Operations",
         "skill_count": 10,
@@ -251,7 +252,7 @@
         "domain_id": "network_security",
         "identities_with_evidence": 1,
         "mean_confidence": 0.35,
-        "mean_freshness": 0.792,
+        "mean_freshness": 0.7918,
         "mean_level": 2.0,
         "name": "Network Security",
         "skill_count": 5,
@@ -284,7 +285,7 @@
         "domain_id": "automation",
         "identities_with_evidence": 1,
         "mean_confidence": 0.35,
-        "mean_freshness": 0.8611,
+        "mean_freshness": 0.8608,
         "mean_level": 3.0,
         "name": "Automation",
         "skill_count": 5,
@@ -295,7 +296,7 @@
         "domain_id": "systems",
         "identities_with_evidence": 1,
         "mean_confidence": 0.35,
-        "mean_freshness": 0.8385,
+        "mean_freshness": 0.8382,
         "mean_level": 4.0,
         "name": "Systems",
         "skill_count": 7,
@@ -315,46 +316,46 @@
     ],
     "governed_skills": 49,
     "identities_with_evidence": 5,
-    "latest_computation_run_id": "b0018fe2-1a5d-47df-be6d-8feffa586f8a",
+    "latest_computation_run_id": "bb70598f-bf0b-404f-baea-cf54e6e5272f",
     "people": 5,
     "recent_activity": [
       {
-        "created_at": "2026-10-02T06:30:09.349935+00:00",
+        "created_at": "2026-10-02T10:43:07.986291+00:00",
         "event_type": "fitness_ranking",
         "seq": 16
       },
       {
-        "created_at": "2026-10-02T06:30:09.155907+00:00",
+        "created_at": "2026-10-02T10:43:07.787868+00:00",
         "event_type": "inference_computation",
         "seq": 15
       },
       {
-        "created_at": "2026-10-02T06:30:09.142958+00:00",
+        "created_at": "2026-10-02T10:43:07.774460+00:00",
         "event_type": "evidence_ingestion",
         "seq": 14
       },
       {
-        "created_at": "2026-10-02T06:30:09.140249+00:00",
+        "created_at": "2026-10-02T10:43:07.771446+00:00",
         "event_type": "evidence_ingestion",
         "seq": 13
       },
       {
-        "created_at": "2026-10-02T06:30:09.137379+00:00",
+        "created_at": "2026-10-02T10:43:07.768389+00:00",
         "event_type": "evidence_ingestion",
         "seq": 12
       },
       {
-        "created_at": "2026-10-02T06:30:09.134562+00:00",
+        "created_at": "2026-10-02T10:43:07.765536+00:00",
         "event_type": "evidence_ingestion",
         "seq": 11
       },
       {
-        "created_at": "2026-10-02T06:30:09.131705+00:00",
+        "created_at": "2026-10-02T10:43:07.762708+00:00",
         "event_type": "evidence_ingestion",
         "seq": 10
       },
       {
-        "created_at": "2026-10-02T06:30:09.128727+00:00",
+        "created_at": "2026-10-02T10:43:07.760087+00:00",
         "event_type": "evidence_ingestion",
         "seq": 9
       }
@@ -383,15 +384,15 @@
           "allocation": 1.0,
           "allocation_multiplier": 1.0,
           "allocation_weight": 0.15,
-          "computation_run_id": "b0018fe2-1a5d-47df-be6d-8feffa586f8a",
-          "contribution_sum": 0.199598,
+          "computation_run_id": "bb70598f-bf0b-404f-baea-cf54e6e5272f",
+          "contribution_sum": 0.199397,
           "coverage_ratio": 0.5,
           "excluded": false,
           "exclusion_reason": null,
-          "fitness_score": 0.0998,
+          "fitness_score": 0.0997,
           "formula": "fitness = mean(level_ratio * confidence * volume_score * freshness * adjacency_discount) * ((1 - allocation_weight) + allocation_weight * allocation)",
           "matched_skill_count": 1,
-          "mean_contribution": 0.099799,
+          "mean_contribution": 0.099698,
           "min_coverage_ratio": 0.5,
           "required_skill_count": 2,
           "scoring_config_version": "9220dcfdfcf3"
@@ -403,7 +404,7 @@
           "cert-CKA-E1001",
           "decl-E1001-container_orchestration"
         ],
-        "fitness_score": 0.0998,
+        "fitness_score": 0.0997,
         "per_skill_reasoning": {
           "azure_networking": "missing skill evidence",
           "container_orchestration": "level=4/3 confidence=1.00 volume=0.50 freshness=0.40 adjacency=1.00 evidence=INC001:container_orchestration,INC002:container_orchestration,cert-CKA-E1001,decl-E1001-container_orchestration"
@@ -434,7 +435,7 @@
             "adjacency_discount": 1.0,
             "adjacency_source_skill": null,
             "confidence": 1.0,
-            "contribution": 0.199598,
+            "contribution": 0.199397,
             "decay_class": "fast",
             "evidence_ids": [
               "INC001:container_orchestration",
@@ -442,7 +443,7 @@
               "cert-CKA-E1001",
               "decl-E1001-container_orchestration"
             ],
-            "freshness": 0.3965,
+            "freshness": 0.3961,
             "half_life_days": 120.0,
             "level": 4,
             "level_ratio": 1.0,
@@ -465,15 +466,15 @@
           "allocation": 1.0,
           "allocation_multiplier": 1.0,
           "allocation_weight": 0.15,
-          "computation_run_id": "b0018fe2-1a5d-47df-be6d-8feffa586f8a",
-          "contribution_sum": 0.080017,
+          "computation_run_id": "bb70598f-bf0b-404f-baea-cf54e6e5272f",
+          "contribution_sum": 0.079986,
           "coverage_ratio": 1.0,
           "excluded": false,
           "exclusion_reason": null,
           "fitness_score": 0.04,
           "formula": "fitness = mean(level_ratio * confidence * volume_score * freshness * adjacency_discount) * ((1 - allocation_weight) + allocation_weight * allocation)",
           "matched_skill_count": 2,
-          "mean_contribution": 0.040009,
+          "mean_contribution": 0.039993,
           "min_coverage_ratio": 0.5,
           "required_skill_count": 2,
           "scoring_config_version": "9220dcfdfcf3"
@@ -494,12 +495,12 @@
             "adjacency_discount": 0.5,
             "adjacency_source_skill": "azure_compute",
             "confidence": 0.35,
-            "contribution": 0.040009,
+            "contribution": 0.039993,
             "decay_class": "medium",
             "evidence_ids": [
               "INC004:azure_compute"
             ],
-            "freshness": 0.7742,
+            "freshness": 0.7739,
             "half_life_days": 365.0,
             "level": 3,
             "level_ratio": 1.0,
@@ -517,12 +518,12 @@
             "adjacency_discount": 0.5,
             "adjacency_source_skill": "azure_compute",
             "confidence": 0.35,
-            "contribution": 0.040009,
+            "contribution": 0.039993,
             "decay_class": "medium",
             "evidence_ids": [
               "INC004:azure_compute"
             ],
-            "freshness": 0.7742,
+            "freshness": 0.7739,
             "half_life_days": 365.0,
             "level": 3,
             "level_ratio": 1.0,
@@ -542,15 +543,15 @@
           "allocation": 1.0,
           "allocation_multiplier": 1.0,
           "allocation_weight": 0.15,
-          "computation_run_id": "b0018fe2-1a5d-47df-be6d-8feffa586f8a",
-          "contribution_sum": 0.065778,
+          "computation_run_id": "bb70598f-bf0b-404f-baea-cf54e6e5272f",
+          "contribution_sum": 0.065725,
           "coverage_ratio": 0.5,
           "excluded": false,
           "exclusion_reason": null,
           "fitness_score": 0.0329,
           "formula": "fitness = mean(level_ratio * confidence * volume_score * freshness * adjacency_discount) * ((1 - allocation_weight) + allocation_weight * allocation)",
           "matched_skill_count": 1,
-          "mean_contribution": 0.032889,
+          "mean_contribution": 0.032862,
           "min_coverage_ratio": 0.5,
           "required_skill_count": 2,
           "scoring_config_version": "9220dcfdfcf3"
@@ -572,13 +573,13 @@
             "adjacency_discount": 1.0,
             "adjacency_source_skill": null,
             "confidence": 0.9,
-            "contribution": 0.065778,
+            "contribution": 0.065725,
             "decay_class": "medium",
             "evidence_ids": [
               "INC003:azure_networking",
               "cert-AZ-700-E1002"
             ],
-            "freshness": 0.2475,
+            "freshness": 0.2473,
             "half_life_days": 120.0,
             "level": 3,
             "level_ratio": 1.0,
@@ -614,8 +615,8 @@
         }
       }
     ],
-    "computation_run_id": "b0018fe2-1a5d-47df-be6d-8feffa586f8a",
-    "computed_at": "2026-10-02T06:30:09.349870Z",
+    "computation_run_id": "bb70598f-bf0b-404f-baea-cf54e6e5272f",
+    "computed_at": "2026-10-02T10:43:07.986250Z",
     "excluded_candidates": [
       {
         "coded_identity": "EMP-666c8943",
@@ -628,22 +629,22 @@
   "real_baseline_matrix": {
     "cells": [
       {
-        "coded_identity": "EMP-8d98ce0a",
-        "level": 2,
-        "raw_label": "Terraform Modules",
-        "skill_id": "infrastructure_as_code",
-        "source_sheet": "Azure"
-      },
-      {
-        "coded_identity": "EMP-c0039f4d",
+        "coded_identity": "EMP-0d77915d",
         "level": 4,
         "raw_label": "Azure Compute",
         "skill_id": "azure_compute",
         "source_sheet": "Azure"
       },
       {
-        "coded_identity": "EMP-c0039f4d",
+        "coded_identity": "EMP-0d77915d",
         "level": 3,
+        "raw_label": "Terraform Modules",
+        "skill_id": "infrastructure_as_code",
+        "source_sheet": "Azure"
+      },
+      {
+        "coded_identity": "EMP-3efc4592",
+        "level": 2,
         "raw_label": "Terraform Modules",
         "skill_id": "infrastructure_as_code",
         "source_sheet": "Azure"
@@ -665,6 +666,7 @@
   },
   "real_data_quality": {
     "activation_status": {
+      "real_data_active": false,
       "reason": "1 skill label(s) awaiting taxonomy mapping; 3 certificate(s) not yet promoted",
       "scored_people": 0,
       "state": "GOVERNANCE_PENDING"
@@ -723,7 +725,7 @@
         "culture_fit_forbidden_column": 1,
         "soft_skill_excluded": 1
       },
-      "ingested_at": "2026-10-02T06:30:09.828Z",
+      "ingested_at": "2026-10-02T10:43:08.391Z",
       "labels": {
         "mapped": 1,
         "mapped_trace": [
@@ -750,7 +752,7 @@
         "non_numeric_cell": 1,
         "out_of_range_value": 1
       },
-      "run_id": "phase8-2f7d71ab515e-0001",
+      "run_id": "phase8-76d0e9d492c5-0001",
       "sheets": 2,
       "source_name": "Fake_Skill_Matrix.xlsx"
     },
@@ -881,27 +883,27 @@
     "people": 4,
     "recent_activity": [
       {
-        "created_at": "2026-10-02T06:30:09.828649+00:00",
+        "created_at": "2026-10-02T10:43:08.391886+00:00",
         "event_type": "phase8_workbook_ingest",
         "seq": 5
       },
       {
-        "created_at": "2026-10-02T06:30:09.789278+00:00",
+        "created_at": "2026-10-02T10:43:08.353031+00:00",
         "event_type": "evidence_ingestion",
         "seq": 4
       },
       {
-        "created_at": "2026-10-02T06:30:09.783864+00:00",
+        "created_at": "2026-10-02T10:43:08.348089+00:00",
         "event_type": "evidence_ingestion",
         "seq": 3
       },
       {
-        "created_at": "2026-10-02T06:30:09.780909+00:00",
+        "created_at": "2026-10-02T10:43:08.344478+00:00",
         "event_type": "evidence_ingestion",
         "seq": 2
       },
       {
-        "created_at": "2026-10-02T06:30:09.776460+00:00",
+        "created_at": "2026-10-02T10:43:08.340828+00:00",
         "event_type": "evidence_ingestion",
         "seq": 1
       }
@@ -1357,7 +1359,7 @@
     ],
     "identities": [
       {
-        "coded_identity": "EMP-5d8454f6",
+        "coded_identity": "EMP-0d77915d",
         "domains": [],
         "max_level": null,
         "mean_confidence": null,
@@ -1367,7 +1369,7 @@
         "skills": []
       },
       {
-        "coded_identity": "EMP-6178052a",
+        "coded_identity": "EMP-3efc4592",
         "domains": [],
         "max_level": null,
         "mean_confidence": null,
@@ -1377,7 +1379,7 @@
         "skills": []
       },
       {
-        "coded_identity": "EMP-8d98ce0a",
+        "coded_identity": "EMP-91c9b935",
         "domains": [],
         "max_level": null,
         "mean_confidence": null,
@@ -1387,7 +1389,7 @@
         "skills": []
       },
       {
-        "coded_identity": "EMP-c0039f4d",
+        "coded_identity": "EMP-f60de02a",
         "domains": [],
         "max_level": null,
         "mean_confidence": null,
@@ -1400,8 +1402,8 @@
   },
   "request_detail": {
     "candidate_count": 3,
-    "computation_run_id": "b0018fe2-1a5d-47df-be6d-8feffa586f8a",
-    "created_at": "2026-10-02T06:30:09.353Z",
+    "computation_run_id": "bb70598f-bf0b-404f-baea-cf54e6e5272f",
+    "created_at": "2026-10-02T10:43:07.988Z",
     "decision": {
       "approved_by": null,
       "chosen_coded_identity": null,
@@ -1428,15 +1430,15 @@
             "allocation": 1.0,
             "allocation_multiplier": 1.0,
             "allocation_weight": 0.15,
-            "computation_run_id": "b0018fe2-1a5d-47df-be6d-8feffa586f8a",
-            "contribution_sum": 0.199598,
+            "computation_run_id": "bb70598f-bf0b-404f-baea-cf54e6e5272f",
+            "contribution_sum": 0.199397,
             "coverage_ratio": 0.5,
             "excluded": false,
             "exclusion_reason": null,
-            "fitness_score": 0.0998,
+            "fitness_score": 0.0997,
             "formula": "fitness = mean(level_ratio * confidence * volume_score * freshness * adjacency_discount) * ((1 - allocation_weight) + allocation_weight * allocation)",
             "matched_skill_count": 1,
-            "mean_contribution": 0.099799,
+            "mean_contribution": 0.099698,
             "min_coverage_ratio": 0.5,
             "required_skill_count": 2,
             "scoring_config_version": "9220dcfdfcf3"
@@ -1448,7 +1450,7 @@
             "cert-CKA-E1001",
             "decl-E1001-container_orchestration"
           ],
-          "fitness_score": 0.0998,
+          "fitness_score": 0.0997,
           "per_skill_reasoning": {
             "azure_networking": "missing skill evidence",
             "container_orchestration": "level=4/3 confidence=1.00 volume=0.50 freshness=0.40 adjacency=1.00 evidence=INC001:container_orchestration,INC002:container_orchestration,cert-CKA-E1001,decl-E1001-container_orchestration"
@@ -1479,7 +1481,7 @@
               "adjacency_discount": 1.0,
               "adjacency_source_skill": null,
               "confidence": 1.0,
-              "contribution": 0.199598,
+              "contribution": 0.199397,
               "decay_class": "fast",
               "evidence_ids": [
                 "INC001:container_orchestration",
@@ -1487,7 +1489,7 @@
                 "cert-CKA-E1001",
                 "decl-E1001-container_orchestration"
               ],
-              "freshness": 0.3965,
+              "freshness": 0.3961,
               "half_life_days": 120.0,
               "level": 4,
               "level_ratio": 1.0,
@@ -1510,15 +1512,15 @@
             "allocation": 1.0,
             "allocation_multiplier": 1.0,
             "allocation_weight": 0.15,
-            "computation_run_id": "b0018fe2-1a5d-47df-be6d-8feffa586f8a",
-            "contribution_sum": 0.080017,
+            "computation_run_id": "bb70598f-bf0b-404f-baea-cf54e6e5272f",
+            "contribution_sum": 0.079986,
             "coverage_ratio": 1.0,
             "excluded": false,
             "exclusion_reason": null,
             "fitness_score": 0.04,
             "formula": "fitness = mean(level_ratio * confidence * volume_score * freshness * adjacency_discount) * ((1 - allocation_weight) + allocation_weight * allocation)",
             "matched_skill_count": 2,
-            "mean_contribution": 0.040009,
+            "mean_contribution": 0.039993,
             "min_coverage_ratio": 0.5,
             "required_skill_count": 2,
             "scoring_config_version": "9220dcfdfcf3"
@@ -1539,12 +1541,12 @@
               "adjacency_discount": 0.5,
               "adjacency_source_skill": "azure_compute",
               "confidence": 0.35,
-              "contribution": 0.040009,
+              "contribution": 0.039993,
               "decay_class": "medium",
               "evidence_ids": [
                 "INC004:azure_compute"
               ],
-              "freshness": 0.7742,
+              "freshness": 0.7739,
               "half_life_days": 365.0,
               "level": 3,
               "level_ratio": 1.0,
@@ -1562,12 +1564,12 @@
               "adjacency_discount": 0.5,
               "adjacency_source_skill": "azure_compute",
               "confidence": 0.35,
-              "contribution": 0.040009,
+              "contribution": 0.039993,
               "decay_class": "medium",
               "evidence_ids": [
                 "INC004:azure_compute"
               ],
-              "freshness": 0.7742,
+              "freshness": 0.7739,
               "half_life_days": 365.0,
               "level": 3,
               "level_ratio": 1.0,
@@ -1587,15 +1589,15 @@
             "allocation": 1.0,
             "allocation_multiplier": 1.0,
             "allocation_weight": 0.15,
-            "computation_run_id": "b0018fe2-1a5d-47df-be6d-8feffa586f8a",
-            "contribution_sum": 0.065778,
+            "computation_run_id": "bb70598f-bf0b-404f-baea-cf54e6e5272f",
+            "contribution_sum": 0.065725,
             "coverage_ratio": 0.5,
             "excluded": false,
             "exclusion_reason": null,
             "fitness_score": 0.0329,
             "formula": "fitness = mean(level_ratio * confidence * volume_score * freshness * adjacency_discount) * ((1 - allocation_weight) + allocation_weight * allocation)",
             "matched_skill_count": 1,
-            "mean_contribution": 0.032889,
+            "mean_contribution": 0.032862,
             "min_coverage_ratio": 0.5,
             "required_skill_count": 2,
             "scoring_config_version": "9220dcfdfcf3"
@@ -1617,13 +1619,13 @@
               "adjacency_discount": 1.0,
               "adjacency_source_skill": null,
               "confidence": 0.9,
-              "contribution": 0.065778,
+              "contribution": 0.065725,
               "decay_class": "medium",
               "evidence_ids": [
                 "INC003:azure_networking",
                 "cert-AZ-700-E1002"
               ],
-              "freshness": 0.2475,
+              "freshness": 0.2473,
               "half_life_days": 120.0,
               "level": 3,
               "level_ratio": 1.0,
@@ -1659,8 +1661,8 @@
           }
         }
       ],
-      "computation_run_id": "b0018fe2-1a5d-47df-be6d-8feffa586f8a",
-      "computed_at": "2026-10-02T06:30:09.349870Z",
+      "computation_run_id": "bb70598f-bf0b-404f-baea-cf54e6e5272f",
+      "computed_at": "2026-10-02T10:43:07.986250Z",
       "excluded_candidates": [
         {
           "coded_identity": "EMP-666c8943",
@@ -1677,8 +1679,8 @@
     "requests": [
       {
         "candidate_count": 3,
-        "computation_run_id": "b0018fe2-1a5d-47df-be6d-8feffa586f8a",
-        "created_at": "2026-10-02T06:30:09.353Z",
+        "computation_run_id": "bb70598f-bf0b-404f-baea-cf54e6e5272f",
+        "created_at": "2026-10-02T10:43:07.988Z",
         "decision": {
           "approved_by": null,
           "chosen_coded_identity": null,
@@ -1747,7 +1749,7 @@
       {
         "coded_identity": "EMP-fd8efec3",
         "confidence": 1.0,
-        "freshness": 0.3965,
+        "freshness": 0.3961,
         "proficiency": 4,
         "volume_score": 0.5034
       }
@@ -1761,7 +1763,7 @@
       "5": 0
     },
     "mean_confidence": 1.0,
-    "mean_freshness": 0.3965,
+    "mean_freshness": 0.3961,
     "mean_level": 4.0,
     "name": "Container Orchestration",
     "proficiency_levels": [
@@ -2247,14 +2249,14 @@
         ],
         "max_level": 4,
         "mean_confidence": 0.35,
-        "mean_freshness": 0.8893,
+        "mean_freshness": 0.889,
         "primary_domain": "platform_ops",
         "skill_count": 1,
         "skills": [
           {
             "confidence": 0.35,
             "domain_id": "platform_ops",
-            "freshness": 0.8893,
+            "freshness": 0.889,
             "proficiency": 4,
             "skill_id": "incident_management",
             "skill_name": "Incident Management",
@@ -2269,14 +2271,14 @@
         ],
         "max_level": 2,
         "mean_confidence": 0.35,
-        "mean_freshness": 0.3956,
+        "mean_freshness": 0.3955,
         "primary_domain": "cloud_platform",
         "skill_count": 1,
         "skills": [
           {
             "confidence": 0.35,
             "domain_id": "cloud_platform",
-            "freshness": 0.3956,
+            "freshness": 0.3955,
             "proficiency": 2,
             "skill_id": "azure_compute",
             "skill_name": "Azure Compute",
@@ -2292,14 +2294,14 @@
         ],
         "max_level": 3,
         "mean_confidence": 0.625,
-        "mean_freshness": 0.5198,
+        "mean_freshness": 0.5195,
         "primary_domain": "cloud_platform",
         "skill_count": 2,
         "skills": [
           {
             "confidence": 0.9,
             "domain_id": "cloud_platform",
-            "freshness": 0.2475,
+            "freshness": 0.2473,
             "proficiency": 3,
             "skill_id": "azure_networking",
             "skill_name": "Azure Networking",
@@ -2308,7 +2310,7 @@
           {
             "confidence": 0.35,
             "domain_id": "network_security",
-            "freshness": 0.792,
+            "freshness": 0.7918,
             "proficiency": 2,
             "skill_id": "network_security",
             "skill_name": "Network Security",
@@ -2324,14 +2326,14 @@
         ],
         "max_level": 3,
         "mean_confidence": 0.35,
-        "mean_freshness": 0.7742,
+        "mean_freshness": 0.7739,
         "primary_domain": "cloud_platform",
         "skill_count": 2,
         "skills": [
           {
             "confidence": 0.35,
             "domain_id": "cloud_platform",
-            "freshness": 0.7742,
+            "freshness": 0.7739,
             "proficiency": 3,
             "skill_id": "azure_compute",
             "skill_name": "Azure Compute",
@@ -2340,7 +2342,7 @@
           {
             "confidence": 0.35,
             "domain_id": "platform_ops",
-            "freshness": 0.7742,
+            "freshness": 0.7739,
             "proficiency": 2,
             "skill_id": "infrastructure_as_code",
             "skill_name": "Infrastructure as Code",
@@ -2357,14 +2359,14 @@
         ],
         "max_level": 4,
         "mean_confidence": 0.5667,
-        "mean_freshness": 0.6987,
+        "mean_freshness": 0.6984,
         "primary_domain": "automation",
         "skill_count": 3,
         "skills": [
           {
             "confidence": 0.35,
             "domain_id": "automation",
-            "freshness": 0.8611,
+            "freshness": 0.8608,
             "proficiency": 3,
             "skill_id": "active_directory",
             "skill_name": "Active Directory",
@@ -2373,7 +2375,7 @@
           {
             "confidence": 1.0,
             "domain_id": "cloud_platform",
-            "freshness": 0.3965,
+            "freshness": 0.3961,
             "proficiency": 4,
             "skill_id": "container_orchestration",
             "skill_name": "Container Orchestration",
@@ -2382,7 +2384,7 @@
           {
             "confidence": 0.35,
             "domain_id": "systems",
-            "freshness": 0.8385,
+            "freshness": 0.8382,
             "proficiency": 4,
             "skill_id": "workload_migration",
             "skill_name": "Workload Migration",

@@ -93,6 +93,12 @@ def run(base: str) -> int:
     r.check(s == 200 and b.get("status") == "ok", "GET /health is ok", f"{s} {b}")
     s, b, _ = c.call("GET", "/ready")
     r.check(s == 200 and b.get("status") == "ready", "GET /ready (DB trusted, audit chain intact)", f"{s} {b}")
+    r.check(b.get("auth_mode") in ("development", "production"), "auth_mode reported", str(b.get("auth_mode")))
+    r.check(
+        "teams_provider_is_mock" in b,
+        "Teams provider configuration reported (mock vs real)",
+        str(b.get("teams_provider_is_mock")),
+    )
     s, b, h = c.call("GET", "/")
     r.check(s == 200 and isinstance(b, str) and 'id="root"' in b, "SPA shell is served at /", f"{s}")
     r.check("fonts.googleapis.com" not in str(b), "no third-party font/CDN calls in index.html")
@@ -289,6 +295,7 @@ def run(base: str) -> int:
     s, b, _ = c.call("GET", "/api/data-quality", token=mgr)
     status = (b.get("activation_status") or {}) if s == 200 else {}
     r.check(s == 200 and "state" in status, "activation_status is present", str(status))
+    r.check("real_data_active" in status, "REAL_DATA_ACTIVE is reported", str(status))
     r.check(b.get("data_classification") == "synthetic", "data-quality agrees this is synthetic data", str(s))
 
     total = len(r.results)

@@ -325,7 +325,10 @@ def _activation_status(counts: Dict[str, int], run: Optional[Dict[str, Any]]) ->
     alone, so the highest state it can return on its own is ACTIVE.
     """
     if run is None:
-        return {"state": "NOT_READY", "reason": "No workbook has been ingested yet.", "scored_people": 0}
+        return {
+            "state": "NOT_READY", "reason": "No workbook has been ingested yet.",
+            "scored_people": 0, "real_data_active": False,
+        }
 
     certs_outstanding = counts["certificates_staged"] - counts["certificates_promoted"]
     blockers = []
@@ -336,21 +339,28 @@ def _activation_status(counts: Dict[str, int], run: Optional[Dict[str, Any]]) ->
 
     scored = counts["scored_people"]
     if scored == 0:
+        # REAL_DATA_ACTIVE is hard-wired to False on this branch — not computed from
+        # `state` — so a future new state value can never accidentally flip it true
+        # while skills_matrix is still empty. This is the exact property the V3
+        # directive calls out by name as a required production check.
         return {
             "state": "GOVERNANCE_PENDING" if blockers else "INGESTED",
             "reason": "; ".join(blockers) if blockers else "Workbook ingested; no governed evidence staged yet.",
             "scored_people": 0,
+            "real_data_active": False,
         }
     if blockers:
         return {
             "state": "PARTIALLY_ACTIVE",
             "reason": f"{scored} of {counts['people_imported']} people scoreable; " + "; ".join(blockers),
             "scored_people": scored,
+            "real_data_active": True,
         }
     return {
         "state": "ACTIVE",
         "reason": f"{scored} of {counts['people_imported']} people have governed, scoreable evidence.",
         "scored_people": scored,
+        "real_data_active": True,
     }
 
 

@@ -84,3 +84,20 @@ def test_zero_scored_is_never_active_or_validated_regardless_of_other_counts():
                 run={"run_id": "r1"},
             )
             assert status["state"] in {"INGESTED", "GOVERNANCE_PENDING"}
+            assert status["real_data_active"] is False, (
+                "REAL_DATA_ACTIVE must never be true while skills_matrix == 0"
+            )
+
+
+def test_real_data_active_is_true_once_anyone_is_scored():
+    for state_counts in (
+        _counts(scored_people=3, pending_aliases=50, certificates_staged=427, certificates_promoted=5),
+        _counts(scored_people=10, certificates_staged=427, certificates_promoted=427),
+    ):
+        status = _activation_status(state_counts, run={"run_id": "r1"})
+        assert status["real_data_active"] is True
+
+
+def test_real_data_active_is_false_when_not_ready_or_ingested():
+    assert _activation_status(_counts(), run=None)["real_data_active"] is False
+    assert _activation_status(_counts(), run={"run_id": "r1"})["real_data_active"] is False
