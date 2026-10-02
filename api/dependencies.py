@@ -15,6 +15,7 @@ from typing import Optional
 
 from fastapi import Depends, Header, HTTPException
 
+from ai.provider import LLMProvider
 from shared.auth import AuthPrincipal, build_principal, verify_token
 from shared.db import HermesDB
 from shared.db_trust import ensure_database_trusted
@@ -23,6 +24,7 @@ from shared.rate_limit import RateLimiter
 from shared.service import HermesService
 
 _SERVICE: Optional[HermesService] = None
+_LLM_PROVIDER: Optional[LLMProvider] = None
 
 #: Shared across routers that rate-limit a specific action (identity/resolve, team/declare).
 #: Reset alongside the service singleton so tests get a clean window per request/service swap.
@@ -48,6 +50,31 @@ def reset_service_for_tests(service: Optional[HermesService]) -> None:
     _SERVICE = service
     RESOLVE_LIMITER = RateLimiter(max_calls=10, window_seconds=60.0)
     DECLARE_LIMITER = RateLimiter(max_calls=10, window_seconds=60.0)
+
+
+def get_llm_provider() -> LLMProvider:
+    """Lazily construct the configured LLM provider (Ollama by default).
+
+    Deliberately lazy and fail-at-call-time, not at import time: a repo clone
+    with no Ollama configured must still import, start, and serve every other
+    route. Only the assist router (api/routers/assist.py) ever calls this, and
+    it catches ConfigurationError/LLMUnavailableError and answers with a clean
+    "assist unavailable, continue manually" response (Phase 16).
+    """
+    global _LLM_PROVIDER
+    if _LLM_PROVIDER is None:
+        from ai.ollama_provider import OllamaProvider
+
+        _LLM_PROVIDER = OllamaProvider()  # raises ConfigurationError if OLLAMA_MODEL unset
+    return _LLM_PROVIDER
+
+
+def reset_llm_provider_for_tests(provider: Optional[LLMProvider]) -> None:
+    """Swap the LLM provider (tests only) — e.g. inject a MockLLMProvider so no
+    test depends on a running Ollama. Passing None forces the next call to
+    reconstruct the real OllamaProvider from the current environment."""
+    global _LLM_PROVIDER
+    _LLM_PROVIDER = provider
 
 
 def require_api_key(

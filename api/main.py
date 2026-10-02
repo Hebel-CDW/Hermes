@@ -27,6 +27,7 @@ from fastapi.staticfiles import StaticFiles
 
 from api.dependencies import get_service, reset_service_for_tests  # noqa: F401  (re-exported)
 from api.routers import (
+    assist,
     auth,
     candidates,
     certificates,
@@ -103,7 +104,19 @@ def _hermes_error_handler(_request: Request, exc: HermesError) -> JSONResponse:
 
 WEB_DIST = Path(__file__).resolve().parents[1] / "web" / "dist"
 
-for _router_module in (health, auth, skills, people, requests, candidates, evidence, data_quality, certificates, team):
+for _router_module in (
+    health,
+    auth,
+    skills,
+    people,
+    requests,
+    candidates,
+    evidence,
+    data_quality,
+    certificates,
+    team,
+    assist,
+):
     app.include_router(_router_module.router)
 
 
