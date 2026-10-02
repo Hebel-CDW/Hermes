@@ -14,11 +14,13 @@ from fastapi import APIRouter, Depends, HTTPException, Path as PathParam
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from api import dependencies
-from api.dependencies import get_service, require_api_key, require_roles
+from api.dependencies import get_service, get_teams_provider, require_api_key, require_roles
 from api.validation import CODED_ID_PATTERN, SKILL_IDS
+from integrations.teams.provider import TeamsUnavailableError
+from integrations.teams.service import record_assessment_response, send_capability_check
 from shared.auth import AuthPrincipal
 from shared.demo_identities import ADMIN, EMPLOYEE, MANAGER
-from shared.errors import AuthorizationError, RequestNotFound
+from shared.errors import AuthorizationError, RequestNotFound, UnknownSkillError
 from shared.org import SubjectAccessDenied, require_gap_access
 from shared.service import HermesService
 
@@ -118,6 +120,73 @@ class ContestBody(BaseModel):
         if v is not None and v not in SKILL_IDS:
             raise ValueError(f"unknown skill id: {v}")
         return v
+
+
+class CapabilityCheckBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    skill_ids: list = Field(..., min_length=1, max_length=10)
+
+    @field_validator("skill_ids")
+    @classmethod
+    def check_skills(cls, v: list) -> list:
+        unknown = sorted(s for s in v if s not in SKILL_IDS)
+        if unknown:
+            raise ValueError(f"unknown skill ids: {unknown}")
+        return v
+
+
+@router.post("/api/team/{coded_identity}/capability-check")
+def send_team_capability_check(
+    coded_identity: str = PathParam(..., pattern=CODED_ID_PATTERN),
+    body: CapabilityCheckBody = ...,
+    _: None = Depends(require_api_key),
+    principal: AuthPrincipal = Depends(require_roles(MANAGER, ADMIN)),
+    svc: HermesService = Depends(get_service),
+) -> Dict[str, Any]:
+    """Manager -> employee, over Teams (or the dev mock — see
+    integrations/teams/mock_provider.py). Creates no evidence by itself;
+    that only happens once the employee actually answers, via the response
+    endpoint below."""
+    _require_team_subject(principal, coded_identity, svc)
+    try:
+        provider = get_teams_provider()
+        assessment_id = send_capability_check(provider, svc.inference.taxonomy, coded_identity, body.skill_ids)
+    except NotImplementedError as exc:
+        raise HTTPException(status_code=501, detail=str(exc)) from exc
+    except TeamsUnavailableError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return {"assessment_id": assessment_id, "sent_to": coded_identity, "mock": getattr(provider, "is_mock", True)}
+
+
+class CapabilityCheckResponseBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    answers: list
+
+
+@router.post("/api/me/capability-check/respond")
+def respond_to_capability_check(
+    body: CapabilityCheckResponseBody,
+    _: None = Depends(require_api_key),
+    principal: AuthPrincipal = Depends(require_roles(EMPLOYEE)),
+    svc: HermesService = Depends(get_service),
+) -> Dict[str, Any]:
+    """The employee's own response. ``coded_identity`` is never taken from the
+    request body — it is always the caller's own server-derived identity, the
+    same rule every other evidence-writing route in this app follows. In
+    production this endpoint is superseded by the Teams webhook handler
+    (not built — see integrations/teams/microsoft_provider.py), which would
+    resolve identity from the Bot Framework's own channel binding instead."""
+    coded = principal.coded_identity
+    if not coded:
+        raise HTTPException(status_code=400, detail="principal has no coded identity in this database")
+    from pydantic import ValidationError
+
+    raw_response = {"coded_identity": coded, "answers": body.answers}
+    try:
+        merged = record_assessment_response(svc, raw_response, source_ref=f"teams-self-{principal.sub}")
+    except (UnknownSkillError, ValidationError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {"declared_skill_count": len(merged), "skill_ids": [m.skill_id for m in merged]}
 
 
 @router.post("/api/me/contest")

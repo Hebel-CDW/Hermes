@@ -283,6 +283,12 @@ def test_rbac_matrix(env):
         (("GET", "/api/certs/pending", None), {
             "demo-employee": 403, "demo-manager": 403, "demo-admin": 200,
         }),
+        (("POST", f"/api/team/{coded(db_path, 'E1002')}/capability-check", {"skill_ids": ["container_orchestration"]}), {
+            "demo-employee": 403, "demo-manager": 200, "demo-admin": 200,
+        }),
+        (("POST", "/api/me/capability-check/respond", {"answers": []}), {
+            "demo-employee": 200, "demo-manager": 403, "demo-admin": 403,
+        }),
     ]
     failures = []
     for (method, path, body), expected in matrix:
@@ -307,6 +313,7 @@ def test_every_protected_route_requires_a_token(env):
         # uncaught by "every protected route requires a token".
         ("POST", "/api/requests/parse"), ("GET", "/api/certs/pending"),
         ("POST", "/api/certs/x/date"), ("POST", "/api/certs/x/promote"),
+        ("POST", "/api/team/EMP-00000000/capability-check"), ("POST", "/api/me/capability-check/respond"),
         ("GET", "/api/team/skill-review/EMP-00000000"), ("POST", "/api/team/declare"),
         ("POST", "/api/team/contests/xxxxxxxx/resolve"),
         ("GET", "/api/taxonomy/pending"), ("GET", "/api/baseline/matrix"), ("GET", "/api/excel-sunset"),
