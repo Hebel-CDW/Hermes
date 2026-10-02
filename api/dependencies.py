@@ -21,7 +21,7 @@ from shared.db import HermesDB
 from shared.db_trust import ensure_database_trusted
 from shared.errors import AuthorizationError
 from shared.oidc_auth import build_oidc_principal, is_production_auth, load_oidc_config
-from shared.rate_limit import RateLimiter
+from shared.rate_limit import PersistentRateLimiter
 from shared.service import HermesService
 
 _SERVICE: Optional[HermesService] = None
@@ -29,14 +29,16 @@ _LLM_PROVIDER: Optional[LLMProvider] = None
 
 #: Shared across routers that rate-limit a specific action (identity/resolve, team/declare,
 #: requests/parse). Reset alongside the service singleton so tests get a clean window per
-#: request/service swap.
-RESOLVE_LIMITER = RateLimiter(max_calls=10, window_seconds=60.0)
-DECLARE_LIMITER = RateLimiter(max_calls=10, window_seconds=60.0)
+#: request/service swap. PersistentRateLimiter.allow(key, db) checks db.dialect itself:
+#: in-memory (unchanged) for SQLite, a shared `rate_limit_hits` table for PostgreSQL — a real
+#: replica-bypass gap found via a two-instance test during the PostgreSQL migration spike.
+RESOLVE_LIMITER = PersistentRateLimiter(max_calls=10, window_seconds=60.0, name="resolve")
+DECLARE_LIMITER = PersistentRateLimiter(max_calls=10, window_seconds=60.0, name="declare")
 #: requests/parse calls a synchronous, potentially-slow external LLM — found during the V3
 #: QA pass to be the one write-adjacent endpoint with no limiter at all (every comparable
 #: endpoint has one). A single-process local Ollama is cheap to hammer into unresponsiveness
 #: otherwise, and a future hosted LLM provider would make that an unbounded cost, not just latency.
-PARSE_LIMITER = RateLimiter(max_calls=10, window_seconds=60.0)
+PARSE_LIMITER = PersistentRateLimiter(max_calls=10, window_seconds=60.0, name="parse")
 
 
 def get_service() -> HermesService:
@@ -55,9 +57,9 @@ def reset_service_for_tests(service: Optional[HermesService]) -> None:
     """Swap the service and start fresh rate-limit windows (tests / demo only)."""
     global _SERVICE, RESOLVE_LIMITER, DECLARE_LIMITER, PARSE_LIMITER
     _SERVICE = service
-    RESOLVE_LIMITER = RateLimiter(max_calls=10, window_seconds=60.0)
-    DECLARE_LIMITER = RateLimiter(max_calls=10, window_seconds=60.0)
-    PARSE_LIMITER = RateLimiter(max_calls=10, window_seconds=60.0)
+    RESOLVE_LIMITER = PersistentRateLimiter(max_calls=10, window_seconds=60.0, name="resolve")
+    DECLARE_LIMITER = PersistentRateLimiter(max_calls=10, window_seconds=60.0, name="declare")
+    PARSE_LIMITER = PersistentRateLimiter(max_calls=10, window_seconds=60.0, name="parse")
 
 
 def get_llm_provider() -> LLMProvider:

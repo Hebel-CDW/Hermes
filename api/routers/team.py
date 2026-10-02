@@ -78,7 +78,7 @@ def team_declare(
     principal: AuthPrincipal = Depends(require_roles(MANAGER, ADMIN)),
     svc: HermesService = Depends(get_service),
 ) -> Dict[str, Any]:
-    if not dependencies.DECLARE_LIMITER.allow(principal.sub):
+    if not dependencies.DECLARE_LIMITER.allow(principal.sub, svc.db):
         raise HTTPException(status_code=429, detail="too many skill updates")
     _require_team_subject(principal, body.coded_identity, svc)
     return svc.declare_skill(

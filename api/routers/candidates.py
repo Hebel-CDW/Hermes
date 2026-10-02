@@ -155,7 +155,7 @@ def identity_resolve(
 ) -> Dict[str, Any]:
     from identity_resolution.gateway import ResolutionDenied
 
-    if not dependencies.RESOLVE_LIMITER.allow(principal.sub):
+    if not dependencies.RESOLVE_LIMITER.allow(principal.sub, svc.db):
         raise HTTPException(status_code=429, detail="resolve rate limit exceeded")
     try:
         resolved = svc.resolve(body.request_id, principal.sub)
