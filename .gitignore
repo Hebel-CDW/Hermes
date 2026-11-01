@@ -75,3 +75,6 @@ data/real/
 # Real workbooks must never be committed, wherever a copy lands
 /*.xlsx
 data/*.xlsx
+
+# HOI encrypted document store (default location) — never commit
+data/hoi_storage/

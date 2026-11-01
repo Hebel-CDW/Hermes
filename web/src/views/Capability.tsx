@@ -26,7 +26,7 @@ export default function Capability() {
   );
   return (
     <>
-      <PageHead trail={["Find people"]} title="Find people" lede="Pick a role. Hermes ranks who fits from skills they have already shown." />
+      <PageHead trail={["Staffing & Fitment"]} title="Staffing & Fitment" lede="Pick a role. Hermes ranks who fits from skills they have already shown." />
       {q.status === "loading" && <Loading label="Loading roles" />}
       {q.status === "error" && <ErrorState error={q.error} onRetry={q.reload} />}
       {q.status === "success" && <CapabilityForm skills={q.data.skills} roles={q.data.roles} />}

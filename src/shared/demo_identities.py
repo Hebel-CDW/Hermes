@@ -22,6 +22,9 @@ from shared.secrets import is_test_mode
 EMPLOYEE = "employee"
 MANAGER = "manager"
 ADMIN = "admin"
+SALES = "sales"
+FINANCE = "finance"
+HR = "hr"
 
 
 @dataclass(frozen=True)
@@ -40,6 +43,11 @@ DEMO_PRINCIPALS: Dict[str, DemoPrincipal] = {
         DemoPrincipal("demo-employee", (EMPLOYEE,), "E1003", "Employee viewing their own evidence"),
         DemoPrincipal("demo-employee-2", (EMPLOYEE,), "E1005", "Second employee, used to prove isolation"),
         DemoPrincipal("demo-admin", (ADMIN,), None, "Administrator for diagnostics and identity admin"),
+        # HOI principals: not employees, so no coded identity and no skills of their own.
+        DemoPrincipal("demo-sales", (SALES,), None, "Sales / presales; creates opportunities, never sees pay"),
+        DemoPrincipal("demo-sales-2", (SALES,), None, "Second sales user, used to prove opportunity isolation"),
+        DemoPrincipal("demo-finance", (FINANCE,), None, "Finance approver; only principal that can read loaded-cost data"),
+        DemoPrincipal("demo-hr", (HR,), None, "HR / compensation controller; authorises individual-cost scenarios"),
     )
 }
 

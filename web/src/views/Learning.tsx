@@ -24,8 +24,8 @@ export default function Learning() {
   return (
     <>
       <PageHead
-        trail={["Learning"]}
-        title="Learning"
+        trail={["Learning & Gaps"]}
+        title="Learning & Gaps"
         lede="What should this person learn next, against a role they are aiming for."
       />
       {q.status === "loading" && <Loading label="Loading learning" />}

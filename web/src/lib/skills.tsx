@@ -11,7 +11,8 @@ export function SkillProvider({ children }: { children: ReactNode }) {
   const [map, setMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (!session) {
+    // Deal-team-only roles (sales/finance/hr) may not read /api/skills; skip the call instead of logging a 403.
+    if (!session || session.roles.every((r) => r === "sales" || r === "finance" || r === "hr")) {
       setMap({});
       return;
     }

@@ -35,6 +35,7 @@ from api.routers import (
     data_quality,
     evidence,
     health,
+    hoi,
     people,
     requests,
     skills,
@@ -106,6 +107,9 @@ async def _security_headers(request: Request, call_next):
     return response
 
 
+app.middleware("http")(hoi.body_limit)
+
+
 @app.exception_handler(HermesError)
 def _hermes_error_handler(_request: Request, exc: HermesError) -> JSONResponse:
     return JSONResponse(status_code=exc.http_status, content={"detail": str(exc), "error": exc.code})
@@ -127,6 +131,7 @@ for _router_module in (
     assist,
     copilot,
     workflow,
+    hoi,
 ):
     app.include_router(_router_module.router)
 

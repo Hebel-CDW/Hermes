@@ -17,8 +17,8 @@ export default function Skills() {
   return (
     <>
       <PageHead
-        trail={["Skills", "Approved list"]}
-        title="Skills atlas"
+        trail={["Skills Intelligence", "Approved list"]}
+        title="Skills Intelligence"
         lede="Every skill Hermes knows about and how they relate. Pick one to see who has it."
       />
       {list.status === "loading" && <Loading label="Loading skills" />}

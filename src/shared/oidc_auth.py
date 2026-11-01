@@ -33,7 +33,7 @@ from jwt import PyJWKClient
 from shared.auth import AuthPrincipal
 from shared.errors import AuthenticationError, ConfigurationError
 
-_KNOWN_ROLES: FrozenSet[str] = frozenset({"employee", "manager", "admin"})
+_KNOWN_ROLES: FrozenSet[str] = frozenset({"employee", "manager", "admin", "sales", "finance", "hr"})
 _DISCOVERY_TIMEOUT_S = 10.0
 
 

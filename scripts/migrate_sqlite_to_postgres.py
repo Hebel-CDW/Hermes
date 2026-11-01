@@ -48,6 +48,22 @@ TABLES: List[str] = [
     "cert_staging",
     "phase8_ingest_runs",
     "principal_bindings",
+    # HOI (migration 002), parents before children.
+    "opportunities",
+    "opportunity_members",
+    "opportunity_documents",
+    "requirement_versions",
+    "resource_requirements",
+    "candidate_shortlists",
+    "capacity_snapshots",
+    "cost_parameters",
+    "fin_loaded_costs",
+    "market_benchmarks",
+    "commercial_scenarios",
+    "scenario_assignments",
+    "approval_events",
+    "opportunity_audit",
+    "fin_access_log",
 ]
 
 

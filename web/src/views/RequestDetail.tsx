@@ -56,7 +56,7 @@ function DetailBody({ data, reload }: { data: Detail; reload: () => void }) {
   return (
     <>
       <PageHead
-        trail={["Find people", "Who fits"]}
+        trail={["Staffing & Fitment", "Who fits"]}
         title="Who fits"
         lede="Ranked from skills they have already shown. You still choose."
         aside={

@@ -31,6 +31,8 @@ say() { printf '\n\033[1m%s\033[0m\n' "$*"; }
 # sample files under data/fixtures, so seeding is repeatable and leaves tracked files alone.
 seed_db() {
     .venv/bin/python -m scripts.seed_demo_org --db "$1" >/dev/null
+    # Opportunity Intelligence: synthetic capacity, Finance inputs, benchmarks and one uploaded SOW.
+    .venv/bin/python -m scripts.seed_hoi_demo --db "$1" >/dev/null
 }
 
 SERVER=""
@@ -71,6 +73,7 @@ say "2/4  Fresh synthetic demo database"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/hermes-demo.XXXXXX")"
 export HERMES_TEST_MODE=1
 export HERMES_DB_PATH="${WORK}/demo.db"
+export HOI_STORAGE_DIR="${WORK}/hoi_store"
 export PYTHONPATH="src:."
 # Copilot: local Ollama. If it is not running the copilot answers from the data directly instead.
 export OLLAMA_MODEL="${OLLAMA_MODEL:-qwen2.5:7b-instruct}"

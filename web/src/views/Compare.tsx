@@ -24,7 +24,7 @@ export default function Compare() {
       <Link className="back-link" to={`/requests/${encodeURIComponent(id)}`}>
         <IconArrowLeft /> Back to who fits
       </Link>
-      <PageHead trail={["Find people", "Compare"]} title="Compare" lede="Put the shortlist side by side: where each person is strong, and where they fall short." />
+      <PageHead trail={["Staffing & Fitment", "Compare"]} title="Compare" lede="Put the shortlist side by side: where each person is strong, and where they fall short." />
       {q.status === "loading" && <Loading label="Loading the shortlist" rows={4} />}
       {q.status === "error" && <ErrorState error={q.error} onRetry={q.reload} />}
       {q.status === "success" &&

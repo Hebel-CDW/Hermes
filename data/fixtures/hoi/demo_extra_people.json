@@ -1,0 +1,43 @@
+{
+  "_comment": "SYNTHETIC. One invented engineer added by scripts/seed_hoi_demo.py so the demo SOW has an eligible internal candidate. Evidence is moderate so existing demo rankings are not displaced. The certificate is a CERTIFIED evidence record (kind C), the same form as the other demo certificates; cert_staging is reserved for real-workbook data and is refused in a synthetic database.",
+  "pilot_population": [
+    {
+      "employee_id": "E2001",
+      "display_name": "Morgan Ellis"
+    }
+  ],
+  "evidence": [
+    {
+      "employee_id": "E2001",
+      "kind": "D",
+      "skill_id": "container_orchestration",
+      "proficiency": 4,
+      "days_ago": 75,
+      "detail": 2
+    },
+    {
+      "employee_id": "E2001",
+      "kind": "D",
+      "skill_id": "azure_networking",
+      "proficiency": 4,
+      "days_ago": 90,
+      "detail": 2
+    },
+    {
+      "employee_id": "E2001",
+      "kind": "D",
+      "skill_id": "infrastructure_as_code",
+      "proficiency": 3,
+      "days_ago": 60,
+      "detail": 2
+    },
+    {
+      "employee_id": "E2001",
+      "kind": "C",
+      "skill_id": "azure_compute",
+      "proficiency": 3,
+      "days_ago": 400,
+      "detail": "AZ-104"
+    }
+  ]
+}

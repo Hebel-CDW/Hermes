@@ -17,7 +17,15 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
+
+_FIX = Path(__file__).resolve().parents[1] / "data" / "fixtures"
+#: demo_org.json people, plus the synthetic extras the HOI demo seed adds (scripts/seed_hoi_demo.py), if that fixture exists.
+N_PEOPLE = len(json.loads((_FIX / "demo_org.json").read_text())["pilot_population"]) + (
+    len(json.loads((_FIX / "hoi" / "demo_extra_people.json").read_text())["pilot_population"])
+    if (_FIX / "hoi" / "demo_extra_people.json").exists() else 0
+)
 
 PASS, FAIL = [], []
 
@@ -74,7 +82,7 @@ def main() -> int:
     t = int(time.time())
 
     print("\nSetup")
-    check(len(name_of) == 36, "36 people in the directory", str(len(name_of)))
+    check(len(name_of) == N_PEOPLE, f"{N_PEOPLE} people in the directory", str(len(name_of)))
     check(len(role) == 10, "10 role templates", str(len(role)))
 
     print("\n1 Clear winner (Senior Cloud Engineer)")
@@ -118,7 +126,7 @@ def main() -> int:
     print("\n8 Nobody fits (Multi-Cloud Architect)")
     d = rank("Multi-Cloud Architect", f"sc-8-{t}")
     check(order(d) == [], "empty shortlist", str(order(d)))
-    check(len(d["excluded_candidates"]) == 36, "all 36 people are accounted for as excluded", str(len(d["excluded_candidates"])))
+    check(len(d["excluded_candidates"]) == N_PEOPLE, f"all {N_PEOPLE} people are accounted for as excluded", str(len(d["excluded_candidates"])))
     s, _ = call(base, "POST", f"/api/staffing/sc-8-{t}/decision", mgr, {"status": "accepted", "chosen_coded_identity": code_of["Alex Rivera"]})
     check(s == 422, "cannot accept someone when there is no shortlist (422)", str(s))
 

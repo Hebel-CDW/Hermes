@@ -19,7 +19,8 @@ export function NameProvider({ children }: { children: ReactNode }) {
   const [people, setPeople] = useState<DirectoryPerson[]>([]);
 
   useEffect(() => {
-    if (!session || session.data_classification !== "synthetic") {
+    // Deal-team-only roles never see names (the server refuses the directory); do not even ask.
+    if (!session || session.data_classification !== "synthetic" || session.roles.every((r) => r === "sales" || r === "finance" || r === "hr")) {
       setPeople([]);
       return;
     }

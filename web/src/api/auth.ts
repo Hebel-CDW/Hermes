@@ -11,6 +11,10 @@ export const DEMO_PRINCIPALS: { sub: string; label: string }[] = [
   { sub: "demo-employee", label: "Employee" },
   { sub: "demo-employee-2", label: "Second employee" },
   { sub: "demo-admin", label: "Administrator" },
+  { sub: "demo-sales", label: "Sales / presales" },
+  { sub: "demo-sales-2", label: "Second sales user" },
+  { sub: "demo-finance", label: "Finance approver" },
+  { sub: "demo-hr", label: "HR / compensation" },
 ];
 
 function clearDemoGuide(): void {

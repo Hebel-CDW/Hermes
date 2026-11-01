@@ -100,3 +100,22 @@ export const IconGrowth = (p: P) => (
 export const IconLab = (p: P) => (
   <svg {...base(p)}><path d="M9.5 3.5h5M10.5 3.5v5.2L5.2 17.6a2 2 0 0 0 1.7 3h10.2a2 2 0 0 0 1.7-3l-5.3-8.9V3.5" /><path d="M7.8 14.5h8.4" /></svg>
 );
+
+export const IconRfp = (p: P) => (
+  <svg {...base(p)}><path d="M6 3.5h8l4 4V20.5H6z" /><path d="M14 3.5v4h4M9 12h6M9 15.5h6" /></svg>
+);
+export const IconCommercial = (p: P) => (
+  <svg {...base(p)}><rect x="3.5" y="5" width="17" height="14" rx="2" /><path d="M3.5 10h17M8 15h3" /></svg>
+);
+export const IconMarket = (p: P) => (
+  <svg {...base(p)}><path d="M4 19.5V10M10 19.5V5M16 19.5v-7M21 19.5H3" /></svg>
+);
+export const IconScenario = (p: P) => (
+  <svg {...base(p)}><path d="M12 4v16M5 8h14M7 8l-3 6h6zM17 8l-3 6h6z" /></svg>
+);
+export const IconArchitecture = (p: P) => (
+  <svg {...base(p)}><rect x="9" y="3.5" width="6" height="4.5" rx="1" /><rect x="3.5" y="15.5" width="6" height="4.5" rx="1" /><rect x="14.5" y="15.5" width="6" height="4.5" rx="1" /><path d="M12 8v3.5M6.5 15.5v-4h11v4" /></svg>
+);
+export const IconAudit = (p: P) => (
+  <svg {...base(p)}><path d="M12 3.5l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9v-5z" /><path d="M9 12l2.2 2.2L15.5 10" /></svg>
+);

@@ -1,0 +1,5 @@
+role,geography,seniority,engagement_type,basis,currency,unit,p25,p50,p75,sample_count,source,as_of,time_to_fill_weeks,synthetic
+Senior Cloud Engineer,Remote (EU time zones),senior,contractor,contractor_cost,USD,month,9800,11200,12900,3,SYNTHETIC demo dataset (not a vendor quote),2026-09-30,6,true
+Senior Cloud Engineer,Remote (EU time zones),senior,permanent,salary,USD,year,98000,112000,126000,3,SYNTHETIC demo dataset (not a salary survey),2026-09-30,10,true
+Senior Cloud Engineer,Remote (EU time zones),senior,vendor,bill_rate,USD,month,12500,14000,15800,3,SYNTHETIC demo dataset (not a rate card),2026-09-30,,true
+Platform SRE Lead,Hybrid,lead,contractor,contractor_cost,USD,month,10800,12400,14100,3,SYNTHETIC demo dataset (not a vendor quote),2026-09-30,8,true

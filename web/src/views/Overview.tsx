@@ -4,6 +4,7 @@ import type { ExcelSunset, Overview as OverviewData } from "../api/types";
 import { fixed, int, pct, shortTime } from "../lib/format";
 import { useApi } from "../lib/useApi";
 import { Bar, Kpi, PageHead, Ring, StatusChip } from "../ui/Bits";
+import { OpportunityPipeline } from "./hoi/common";
 import { InboxNudge } from "../ui/InboxNudge";
 import { PipelineStates } from "../ui/Pipeline";
 import { EmptyState, ErrorState, Loading } from "../ui/States";
@@ -21,7 +22,7 @@ export default function Overview() {
   }, []);
   return (
     <>
-      <PageHead trail={["Overview"]} title="Overview" lede="Where the team stands today: who has proof of which skills." />
+      <PageHead trail={["Executive Overview"]} title="Executive Overview" lede="Where the team stands today: who has proof of which skills." />
       <InboxNudge />
       {q.status === "loading" && <Loading label="Loading overview" rows={4} />}
       {q.status === "error" && <ErrorState error={q.error} onRetry={q.reload} />}
@@ -55,6 +56,8 @@ function OverviewBody({ data, dq, sunset }: { data: OverviewData; dq: import("..
         />
         <Kpi label="Open requests" value={int(openRequests)} note={`${int(data.role_profiles)} role profiles`} />
       </section>
+
+      <OpportunityPipeline />
 
       <details className="section tech-details">
       <summary className="muted" style={{ cursor: "pointer", fontSize: 13 }}>Technical details (data pipeline and Excel retirement)</summary>

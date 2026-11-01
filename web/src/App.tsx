@@ -29,11 +29,19 @@ import Requests from "./views/Requests";
 import Skills from "./views/Skills";
 import SkillUpdate from "./views/SkillUpdate";
 import Workforce from "./views/Workforce";
+import Architecture from "./views/hoi/Architecture";
+import Commercial from "./views/hoi/Commercial";
+import Decisions from "./views/hoi/Decisions";
+import Market from "./views/hoi/Market";
+import Rfp from "./views/hoi/Rfp";
+import Scenarios from "./views/hoi/Scenarios";
 
 const STAFF: Role[] = ["manager", "admin"];
 const MANAGER: Role[] = ["manager"];
 const ANY: Role[] = ["employee", "manager", "admin"];
 const EMPLOYEE: Role[] = ["employee"];
+const DEAL: Role[] = ["sales", "manager", "finance", "hr", "admin"];
+const EVERYONE: Role[] = ["employee", "manager", "admin", "sales", "finance", "hr"];
 
 function Guard({ roles, children }: { roles: Role[]; children: ReactNode }) {
   const { session } = useAuth();
@@ -96,6 +104,12 @@ export default function App() {
               <Route path="/data-quality" element={page(STAFF, <DataQuality />)} />
               <Route path="/insights" element={page(STAFF, <Insights />)} />
               <Route path="/profile" element={page(ANY, <Profile />)} />
+              <Route path="/rfp" element={page(DEAL, <Rfp />)} />
+              <Route path="/commercial" element={page(["manager", "finance", "hr", "admin"], <Commercial />)} />
+              <Route path="/market" element={page(DEAL, <Market />)} />
+              <Route path="/scenarios" element={page(DEAL, <Scenarios />)} />
+              <Route path="/architecture" element={page(EVERYONE, <Architecture />)} />
+              <Route path="/decisions" element={page(DEAL, <Decisions />)} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Shell>

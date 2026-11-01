@@ -31,6 +31,17 @@ import type {
   SurveyMatrix,
   TaxonomyPending,
   Workforce,
+  HoiAudit,
+  HoiBenchmark,
+  HoiDocument,
+  HoiMarketAnalysis,
+  HoiOpportunity,
+  HoiParam,
+  HoiRequirements,
+  HoiRole,
+  HoiScenario,
+  HoiShortlist,
+  HoiStatus,
 } from "./types";
 
 const json = (body: unknown): RequestInit => ({ method: "POST", body: JSON.stringify(body) });
@@ -136,4 +147,55 @@ export const managerToolsApi = {
   preview: (body: RankBody, s?: AbortSignal) => apiFetch<FitnessResult>("/api/fitness/preview", { ...json(body), signal: s }),
   createRole: (body: CustomRoleBody) => apiFetch<RoleProfile>("/api/roles/custom", json(body)),
   deleteRole: (id: string) => apiFetch<{ status: string }>(`/api/roles/custom/${enc(id)}`, { method: "DELETE" }),
+};
+
+// ---------------------------------------------------------------- Opportunity Intelligence
+const put = (body: unknown): RequestInit => ({ method: "PUT", body: JSON.stringify(body) });
+const opp = (id: string) => `/api/opportunities/${enc(id)}`;
+
+export const hoiApi = {
+  status: (s?: AbortSignal) => apiFetch<HoiStatus>("/api/hoi/status", {}, s),
+  skills: (s?: AbortSignal) => apiFetch<{ skills: { skill_id: string; name: string }[] }>("/api/hoi/skills", {}, s),
+  list: (s?: AbortSignal) => apiFetch<{ opportunities: HoiOpportunity[] }>("/api/opportunities", {}, s),
+  create: (body: Record<string, unknown>) => apiFetch<HoiOpportunity>("/api/opportunities", json(body)),
+  get: (id: string, s?: AbortSignal) => apiFetch<HoiOpportunity>(opp(id), {}, s),
+  documents: (id: string, s?: AbortSignal) => apiFetch<{ documents: HoiDocument[] }>(`${opp(id)}/documents`, {}, s),
+  upload: (id: string, body: { doc_type: string; filename: string; content_b64: string }) =>
+    apiFetch<HoiDocument>(`${opp(id)}/documents`, json(body)),
+  extract: (id: string, use_llm: boolean) => apiFetch<HoiRequirements>(`${opp(id)}/extract`, json({ use_llm })),
+  requirements: (id: string, s?: AbortSignal) => apiFetch<HoiRequirements>(`${opp(id)}/requirements`, {}, s),
+  saveRequirements: (id: string, versionId: string, roles: HoiRole[]) =>
+    apiFetch<HoiRequirements>(`${opp(id)}/requirements/${enc(versionId)}`, put({ roles })),
+  approveRequirements: (id: string, versionId: string) =>
+    apiFetch<HoiRequirements>(`${opp(id)}/requirements/approve`, json({ version_id: versionId })),
+  reviseRequirements: (id: string) => apiFetch<HoiRequirements>(`${opp(id)}/requirements/revise`, { method: "POST" }),
+  match: (id: string) => apiFetch<HoiShortlist>(`${opp(id)}/internal-match`, json({})),
+  shortlist: (id: string, s?: AbortSignal) => apiFetch<HoiShortlist>(`${opp(id)}/shortlist`, {}, s),
+  marketAnalysis: (id: string) => apiFetch<HoiMarketAnalysis>(`${opp(id)}/market-analysis`, { method: "POST" }),
+  scenarios: (id: string, s?: AbortSignal) => apiFetch<{ scenarios: HoiScenario[] }>(`${opp(id)}/scenarios`, {}, s),
+  compare: (id: string, body: Record<string, unknown>) =>
+    apiFetch<{ scenarios: HoiScenario[]; notes: string[] }>(`${opp(id)}/scenarios/compare`, json(body)),
+  createScenario: (id: string, body: Record<string, unknown>) => apiFetch<HoiScenario>(`${opp(id)}/scenarios`, json(body)),
+  approve: (id: string, body: Record<string, unknown>) => apiFetch<HoiScenario>(`${opp(id)}/approvals`, json(body)),
+  exportReport: (id: string, scenario_id: string, format: "json" | "markdown") =>
+    apiFetch<{ format: string; report?: unknown; content?: string }>(`${opp(id)}/export`, json({ scenario_id, format })),
+  audit: (id: string, s?: AbortSignal) => apiFetch<HoiAudit>(`${opp(id)}/audit`, {}, s),
+  benchmarks: (q: { role?: string; geography?: string; basis?: string }, s?: AbortSignal) => {
+    const sp = new URLSearchParams();
+    Object.entries(q).forEach(([k, v]) => v && sp.set(k, v));
+    return apiFetch<{ benchmarks: HoiBenchmark[]; note: string; synthetic_rows: number }>(`/api/market/benchmarks?${sp}`, {}, s);
+  },
+  importBenchmarks: (csv_text: string, declare_synthetic: boolean) =>
+    apiFetch<{ import_batch: string; rows: number; synthetic_rows: number }>("/api/market/benchmarks/import", json({ csv_text, declare_synthetic })),
+  policies: (s?: AbortSignal) => apiFetch<{ policies: HoiParam[] }>("/api/finance/cost-policies", {}, s),
+  rateCards: (s?: AbortSignal) => apiFetch<{ rate_cards: HoiParam[] }>("/api/rate-cards", {}, s),
+  putPolicy: (name: string, payload: Record<string, unknown>) =>
+    apiFetch<{ version: number }>(`/api/finance/cost-policies/${enc(name)}`, put({ payload })),
+  putRateCard: (name: string, payload: Record<string, unknown>) =>
+    apiFetch<{ version: number }>(`/api/finance/rate-cards/${enc(name)}`, put({ payload })),
+  addCosts: (rows: Record<string, unknown>[]) => apiFetch<{ rows_added: number }>("/api/finance/loaded-costs", json({ rows })),
+  financeSummary: (s?: AbortSignal) =>
+    apiFetch<{ loaded_cost_rows: Record<string, number>; policies: number; rate_cards: number }>("/api/finance/summary", {}, s),
+  accessLog: (s?: AbortSignal) =>
+    apiFetch<{ events: { access_id: string; actor: string; action: string; context: string; created_at: string }[] }>("/api/finance/access-log", {}, s),
 };

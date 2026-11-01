@@ -24,7 +24,7 @@ describe("routing and auth", () => {
     renderApp("/login", { signedIn: false });
     expect(await screen.findByRole("button", { name: /Continue as a manager/ })).toBeTruthy();
     fireEvent.click(await screen.findByRole("button", { name: /demo-manager$/ }));
-    expect(await screen.findByRole("heading", { name: "Overview" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Executive Overview" })).toBeTruthy();
     expect(calls.find((c) => c.path === "/api/auth/token")?.body).toEqual({ sub: "demo-manager" });
     expect(localStorage.length).toBe(0);
     expect(Object.keys(sessionStorage)).toEqual(["hermes.token"]);
@@ -33,20 +33,26 @@ describe("routing and auth", () => {
   it("shows the full navigation to a manager", async () => {
     mockApi({ "GET /api/session": { body: MANAGER_SESSION }, "GET /api/overview": { body: contract.overview }, "GET /api/data-quality": { body: contract.data_quality } });
     renderApp("/");
-    expect(await screen.findByRole("heading", { name: "Overview" }));
+    expect(await screen.findByRole("heading", { name: "Executive Overview" }));
     expect(navLabels()).toEqual([
-      "Overview",
-      "Find people",
+      "Executive Overview",
+      "Staffing & Fitment",
       "Team skills",
-      "Learning",
+      "Learning & Gaps",
       "Update skills",
       "Requests",
       "Approvals",
       "Workforce",
-      "Skills",
+      "Skills Intelligence",
       "Insights",
       "Bulk update",
       "Role lab",
+      "RFP/SOW Workspace",
+      "Commercial Simulator",
+      "Market Intelligence",
+      "Scenario Optimizer",
+      "Architecture & Workflow",
+      "Decisions & Audit",
     ]);
     expect(screen.queryByTestId("welcome-guide")).toBeNull();
   });
@@ -55,7 +61,7 @@ describe("routing and auth", () => {
     mockApi({ "GET /api/session": { body: EMPLOYEE_SESSION } });
     renderApp("/overview");
     expect(await screen.findByText("Not available for your role")).toBeTruthy();
-    expect(navLabels()).toEqual(["My skills", "My growth", "Learning"]);
+    expect(navLabels()).toEqual(["My skills", "My growth", "Learning & Gaps", "Architecture & Workflow"]);
     expect(screen.queryByTestId("welcome-guide")).toBeNull();
   });
 
@@ -73,14 +79,14 @@ describe("routing and auth", () => {
   });
 
   it.each([
-    ["/overview", "Overview"],
+    ["/overview", "Executive Overview"],
     ["/workforce", "Workforce"],
-    ["/skills", "Skills atlas"],
+    ["/skills", "Skills Intelligence"],
     ["/matrix", "Team skills"],
     ["/update-skills", "Update skills"],
     ["/requests", "Requests"],
-    ["/capability", "Find people"],
-    ["/learning", "Learning"],
+    ["/capability", "Staffing & Fitment"],
+    ["/learning", "Learning & Gaps"],
     ["/insights", "Insights"],
     ["/data-quality", "Data quality"],
     ["/profile", "My skills"],
@@ -124,7 +130,7 @@ describe("routing and auth", () => {
     expect(Object.keys(sessionStorage)).toEqual(["hermes.token"]);
     fireEvent.click(screen.getByRole("button", { name: "Start looking" }));
     expect(sessionStorage.getItem("hermes.guide.seen")).toBe("1");
-    expect(await screen.findByRole("heading", { level: 1, name: "Find people" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { level: 1, name: "Staffing & Fitment" })).toBeTruthy();
     expect(screen.queryByTestId("welcome-guide")).toBeNull();
   });
 

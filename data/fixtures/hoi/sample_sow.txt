@@ -1,0 +1,28 @@
+STATEMENT OF WORK — SYNTHETIC DEMONSTRATION DOCUMENT
+Customer: Northstar (fictional alias). Project: Cloud Platform Modernisation.
+This document is invented for demonstration. It names no real customer or person.
+
+1. Staffing requirements
+
+Role: Senior Cloud Engineer
+Headcount: 2
+FTE: 1
+Location: Remote (EU time zones)
+Start date: 2027-01-11
+End date: 2027-06-30
+Must-have skills: Container Orchestration (level 4), Azure Networking (level 4), Infrastructure as Code (level 3)
+Preferred skills: Monitoring (level 3)
+Certifications: Azure Administrator Associate (AZ-104)
+Experience: minimum 6 years of relevant experience
+
+Role: Platform SRE Lead
+Headcount: 1
+FTE: 0.5
+Location: Hybrid
+Start date: 2027-01-11
+End date: 2027-06-30
+Must-have skills: Incident Management (level 4), Monitoring (level 3), Quantum Compliance Mesh
+Preferred skills: Container Orchestration
+
+2. Commercial terms
+Time and materials, monthly billing. Payment 45 days.

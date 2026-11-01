@@ -59,7 +59,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
         </div>
         <nav className="nav">
-          {(["Start here", "Explore", "System"] as const).map((group) => {
+          {(["Start here", "Explore", "Opportunity Intelligence", "System"] as const).map((group) => {
             const groupItems = items.filter((n) => n.group === group);
             if (groupItems.length === 0) return null;
             return (

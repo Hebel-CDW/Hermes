@@ -61,6 +61,12 @@ def default_db_path() -> Path:
     return Path(__file__).resolve().parents[2] / "data" / "hermes.db"
 
 
+def extra_schema_paths(dialect: str = "sqlite") -> List[Path]:
+    """Ordered additive migrations (002_*.sql, 003_*.sql ...) applied after the base schema."""
+    root = Path(__file__).resolve().parents[2] / "infra" / ("postgres" if dialect == "postgres" else "sqlite")
+    return sorted(p for p in root.glob("[0-9][0-9][0-9]_*.sql") if not p.name.startswith("001_"))
+
+
 def schema_path(dialect: str = "sqlite") -> Path:
     root = Path(__file__).resolve().parents[2] / "infra"
     return (root / "postgres" / "001_schema.sql") if dialect == "postgres" else (root / "sqlite" / "001_schema.sql")
@@ -214,6 +220,8 @@ class HermesDB:
         ddl = schema_path(self.dialect).read_text(encoding="utf-8")
         with self.session() as conn:
             conn.executescript(ddl)
+            for extra in extra_schema_paths(self.dialect):
+                conn.executescript(extra.read_text(encoding="utf-8"))
             cols = {r["name"] for r in conn.execute("PRAGMA table_info(staffing_requests)")}
             if "excluded_json" not in cols:
                 conn.execute(
