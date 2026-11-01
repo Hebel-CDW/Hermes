@@ -28,6 +28,7 @@ from fastapi.staticfiles import StaticFiles
 from api.dependencies import get_service, reset_service_for_tests  # noqa: F401  (re-exported)
 from api.routers import (
     assist,
+    copilot,
     auth,
     candidates,
     certificates,
@@ -38,6 +39,7 @@ from api.routers import (
     requests,
     skills,
     team,
+    workflow,
 )
 from shared.errors import HermesError
 from shared.oidc_auth import is_production_auth, load_oidc_config
@@ -123,6 +125,8 @@ for _router_module in (
     certificates,
     team,
     assist,
+    copilot,
+    workflow,
 ):
     app.include_router(_router_module.router)
 

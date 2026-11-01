@@ -11,6 +11,7 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
+PORT_WAS_SET="${PORT:-}"
 PORT="${PORT:-8000}"
 CHECK=1
 OPEN=1
@@ -25,17 +26,11 @@ done
 
 say() { printf '\n\033[1m%s\033[0m\n' "$*"; }
 
-# Seed the synthetic demo database WITHOUT refreshing the committed sample files under
-# data/fixtures (`python -m scripts.ingest_fixtures` always rewrites them, which would dirty
-# tracked files on every run). ingest() recreates the database from scratch, so seeding is
-# repeatable.
+# Seed the synthetic demo organisation (36 people, 10 role scenarios, one open dispute) into a
+# fresh database. seed() recreates the database from scratch and never rewrites the committed
+# sample files under data/fixtures, so seeding is repeatable and leaves tracked files alone.
 seed_db() {
-    .venv/bin/python -c '
-import sys
-from pathlib import Path
-from scripts.ingest_fixtures import ingest
-ingest(Path("data/fixtures/pilot_population.json"), Path(sys.argv[1]), write_samples=False)
-' "$1" >/dev/null
+    .venv/bin/python -m scripts.seed_demo_org --db "$1" >/dev/null
 }
 
 SERVER=""
@@ -51,9 +46,16 @@ if [ ! -x .venv/bin/python ]; then
     echo "Missing .venv. Run once:  python3 -m venv .venv && source .venv/bin/activate && pip install -e '.[dev]'" >&2
     exit 1
 fi
-if curl -sf "http://127.0.0.1:${PORT}/health" >/dev/null 2>&1; then
-    echo "Something is already serving on port ${PORT}. Stop it, or use PORT=<other> $0" >&2
-    exit 1
+port_busy() { lsof -nP -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1; }
+if port_busy "${PORT}"; then
+    if [ -n "${PORT_WAS_SET:-}" ]; then
+        echo "Port ${PORT} is already in use. Stop whatever is using it, or pick another with PORT=<other> $0" >&2
+        exit 1
+    fi
+    # Default port is taken (another app, Docker, an old run): use the next free one.
+    BUSY="${PORT}"
+    while port_busy "${PORT}"; do PORT=$((PORT + 1)); done
+    echo "Port ${BUSY} is in use by another program; using ${PORT} instead."
 fi
 
 say "1/4  Web app"
@@ -70,6 +72,8 @@ WORK="$(mktemp -d "${TMPDIR:-/tmp}/hermes-demo.XXXXXX")"
 export HERMES_TEST_MODE=1
 export HERMES_DB_PATH="${WORK}/demo.db"
 export PYTHONPATH="src:."
+# Copilot: local Ollama. If it is not running the copilot answers from the data directly instead.
+export OLLAMA_MODEL="${OLLAMA_MODEL:-qwen2.5:7b-instruct}"
 seed_db "${HERMES_DB_PATH}"
 echo "seeded ${HERMES_DB_PATH}"
 
@@ -100,6 +104,14 @@ if [ "$CHECK" = "1" ]; then
     echo "database reset to a clean demo state"
 else
     say "4/4  Self-check skipped"
+fi
+
+# Load the copilot model into memory now so the first question in the room is not slow.
+if curl -sf -m 2 http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
+    (curl -s -m 120 http://127.0.0.1:11434/api/generate -d "{\"model\":\"${OLLAMA_MODEL}\",\"prompt\":\"hi\",\"stream\":false,\"keep_alive\":\"60m\",\"options\":{\"num_ctx\":${OLLAMA_NUM_CTX:-8192}}}" >/dev/null 2>&1 &)
+    echo "Copilot model ${OLLAMA_MODEL}: warming up"
+else
+    echo "Ollama is not running: the copilot will answer directly from the data instead."
 fi
 
 say "Hermes is ready:  http://127.0.0.1:${PORT}"

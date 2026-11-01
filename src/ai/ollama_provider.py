@@ -31,7 +31,15 @@ class OllamaProvider:
             )
 
     def generate(self, prompt: str, *, system: Optional[str] = None, timeout: float = 30.0) -> str:
-        payload = {"model": self.model, "prompt": prompt, "stream": False}
+        # Ollama's default context is 2048 tokens and silently drops the START of a longer prompt,
+        # which is where the instructions live. Ask for a window that fits grounded fact sheets.
+        num_ctx = int(os.getenv("OLLAMA_NUM_CTX", "8192"))
+        payload = {
+            "model": self.model,
+            "prompt": prompt,
+            "stream": False,
+            "options": {"num_ctx": num_ctx, "temperature": 0.2},
+        }
         if system:
             payload["system"] = system
         try:

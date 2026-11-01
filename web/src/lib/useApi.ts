@@ -31,3 +31,13 @@ export function useApi<T>(load: (signal: AbortSignal) => Promise<T>, deps: Depen
   useEffect(() => reload(), [reload]);
   return { ...state, reload } as ApiState<T> & { reload: () => void };
 }
+
+/**
+ * The last successful data, kept on screen while a refresh is in flight. For views that reload after a
+ * save: the page stays mounted (form state, scroll and open panels survive) instead of flashing empty.
+ */
+export function useStale<T>(state: ApiState<T>): T | undefined {
+  const last = useRef<T | undefined>(undefined);
+  if (state.status === "success") last.current = state.data;
+  return state.status === "success" ? state.data : last.current;
+}

@@ -39,65 +39,57 @@ export default function Skills() {
   );
 }
 
-const W = 960;
-
 function Atlas({ skills, selected, onSelect }: { skills: SkillSummaryRow[]; selected: string | null; onSelect: (id: string) => void }) {
-  const { domains, pos, H } = useMemo(() => {
-    const domains = [...new Map(skills.map((s) => [s.domain_id, s.domain_name])).entries()];
-    const colW = W / domains.length;
-    const pos = new Map<string, { x: number; y: number }>();
-    let maxRows = 1;
-    domains.forEach(([id], ci) => {
-      const members = skills.filter((s) => s.domain_id === id);
-      maxRows = Math.max(maxRows, members.length);
-      members.forEach((s, k) => pos.set(s.skill_id, { x: colW * ci + colW / 2 + (k % 2 ? 70 : -70), y: 120 + k * 88 }));
-    });
-    return { domains: domains.map(([id, name], i) => ({ id, name, x: colW * i + colW / 2, colW })), pos, H: Math.max(340, 150 + maxRows * 88) };
+  const domains = useMemo(() => {
+    const byDomain = new Map<string, { id: string; name: string; members: SkillSummaryRow[] }>();
+    for (const s of skills) {
+      if (!byDomain.has(s.domain_id)) byDomain.set(s.domain_id, { id: s.domain_id, name: s.domain_name, members: [] });
+      byDomain.get(s.domain_id)!.members.push(s);
+    }
+    return [...byDomain.values()];
   }, [skills]);
-  const edges = skills.flatMap((s) => s.relations.filter((r) => pos.has(r)).map((r) => [s.skill_id, r] as const));
+  const current = skills.find((s) => s.skill_id === selected);
+  const related = new Set<string>([
+    ...(current?.relations ?? []),
+    ...skills.filter((s) => selected && s.relations.includes(selected)).map((s) => s.skill_id),
+  ]);
 
   return (
-    <div className="canvas">
-      <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label="Skill topology">
-        {domains.map((d, i) => (
-          <g key={d.id}>
-            {i > 0 && <line x1={d.colW * i} x2={d.colW * i} y1={24} y2={H - 24} stroke="#E5E7EB" strokeDasharray="3 5" />}
-            <text className="cluster-label" x={d.x} y={52} textAnchor="middle">
-              {d.name}
-            </text>
-          </g>
+    <div className="atlas" role="group" aria-label="Skill topology">
+      <div className="atlas-grid">
+        {domains.map((d) => (
+          <section key={d.id} className="atlas-domain" aria-label={d.name}>
+            <h3>
+              {d.name} <span className="muted num">{d.members.length}</span>
+            </h3>
+            <div className="atlas-skills">
+              {d.members.map((s) => {
+                const active = s.skill_id === selected;
+                return (
+                  <button
+                    key={s.skill_id}
+                    type="button"
+                    className={`atlas-skill${active ? " is-active" : ""}${related.has(s.skill_id) ? " is-related" : ""}`}
+                    aria-pressed={active}
+                    aria-label={s.name}
+                    onClick={() => onSelect(s.skill_id)}
+                  >
+                    {s.name}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
         ))}
-        {edges.map(([a, b]) => {
-          const p = pos.get(a)!;
-          const q = pos.get(b)!;
-          const hot = a === selected || b === selected;
-          return <line key={`${a}-${b}`} x1={p.x} y1={p.y} x2={q.x} y2={q.y} stroke={hot ? "#B5122B" : "#CBD5E1"} strokeWidth={1.5} strokeDasharray={hot ? undefined : "4 4"} />;
-        })}
-        {skills.map((s) => {
-          const p = pos.get(s.skill_id)!;
-          const active = s.skill_id === selected;
-          return (
-            <g
-              key={s.skill_id}
-              className="node"
-              role="button"
-              tabIndex={0}
-              aria-pressed={active}
-              aria-label={s.name}
-              onClick={() => onSelect(s.skill_id)}
-              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onSelect(s.skill_id))}
-            >
-              <circle className="node-core" cx={p.x} cy={p.y} r={active ? 14 : 10} fill={active ? "#B5122B" : "#FFFFFF"} stroke={active ? "#B5122B" : "#94A3B8"} strokeWidth={1.5} />
-              <text x={p.x} y={p.y + 32} textAnchor="middle" fontSize={12} fontWeight={active ? 600 : 500} fill={active ? "#B5122B" : "#0F172A"}>
-                {s.name}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
+      </div>
       <div className="canvas-legend">
         <span>{int(skills.length)} governed skills</span>
-        <span>Lines = governed relations (adjacency)</span>
+        <span>
+          <i className="atlas-key is-active" /> Selected
+        </span>
+        <span>
+          <i className="atlas-key is-related" /> Related (adjacent) skills
+        </span>
       </div>
     </div>
   );

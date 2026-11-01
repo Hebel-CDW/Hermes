@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { StepLoader } from "../ui/Loader";
 import { useNavigate } from "react-router-dom";
 import { requestsApi, skillsApi } from "../api/endpoints";
 import type { RankBody, RoleProfile, SkillSummaryRow } from "../api/types";
@@ -69,7 +70,11 @@ function CapabilityForm({ skills, roles }: { skills: SkillSummaryRow[]; roles: R
     if (minCoverage.trim() !== "") body.min_coverage_ratio = Number(minCoverage);
     if (roleId) body.role_id = roleId;
     try {
+      const started = Date.now();
       const result = await requestsApi.rank(body);
+      // Ranking is near-instant; keep the progress card up long enough to read what Hermes is doing.
+      const hold = import.meta.env.MODE === "test" ? 0 : 1300 - (Date.now() - started);
+      if (hold > 0) await new Promise((r) => setTimeout(r, hold));
       navigate(`/requests/${encodeURIComponent(result.request_id)}`);
     } catch (err) {
       setError(err as Error);
@@ -79,6 +84,21 @@ function CapabilityForm({ skills, roles }: { skills: SkillSummaryRow[]; roles: R
 
   return (
     <form className="split" onSubmit={submit}>
+      {pending && (
+        <div className="working-overlay">
+          <StepLoader
+            title="Finding the best people"
+            steps={[
+              "Reading everyone's proof of work",
+              "Checking each person against the role",
+              "Scoring skill by skill",
+              "Working out who is ahead, and why",
+              "Preparing the explanation",
+            ]}
+            every={250}
+          />
+        </div>
+      )}
       <section className="panel">
         <div className="panel-head">
           <h2>Who are we looking for?</h2>

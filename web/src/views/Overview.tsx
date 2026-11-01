@@ -4,6 +4,7 @@ import type { ExcelSunset, Overview as OverviewData } from "../api/types";
 import { fixed, int, pct, shortTime } from "../lib/format";
 import { useApi } from "../lib/useApi";
 import { Bar, Kpi, PageHead, Ring, StatusChip } from "../ui/Bits";
+import { InboxNudge } from "../ui/InboxNudge";
 import { PipelineStates } from "../ui/Pipeline";
 import { EmptyState, ErrorState, Loading } from "../ui/States";
 
@@ -21,6 +22,7 @@ export default function Overview() {
   return (
     <>
       <PageHead trail={["Overview"]} title="Overview" lede="Where the team stands today: who has proof of which skills." />
+      <InboxNudge />
       {q.status === "loading" && <Loading label="Loading overview" rows={4} />}
       {q.status === "error" && <ErrorState error={q.error} onRetry={q.reload} />}
       {q.status === "success" &&
@@ -87,9 +89,10 @@ function OverviewBody({ data, dq, sunset }: { data: OverviewData; dq: import("..
               <Ring value={data.skill_coverage_ratio} label="Identities with skill evidence" />
             )}
             <div style={{ flex: 1, minWidth: 160 }}>
-              <div className="label">People with proof of skills</div>
+              <div className="label">People with a skill on file</div>
               <p className="ink-2" style={{ margin: "6px 0 0" }}>
-                {int(data.identities_with_evidence)} of {int(data.people)} people have at least one skill backed by real work.
+                {int(data.identities_with_evidence)} of {int(data.people)} people have at least one skill recorded. Proof from real work is the
+                stricter measure shown above.
               </p>
             </div>
           </div>
@@ -108,7 +111,7 @@ function OverviewBody({ data, dq, sunset }: { data: OverviewData; dq: import("..
               <div className="domain-bar" key={d.domain_id}>
                 <span>{d.name}</span>
                 <span className="muted num hc" title="Identities with evidence">
-                  {int(d.identities_with_evidence)} people
+                  {int(d.identities_with_evidence)} {d.identities_with_evidence === 1 ? "person" : "people"}
                 </span>
                 <Bar value={d.coverage_ratio} />
                 <span className="num" style={{ textAlign: "right" }}>

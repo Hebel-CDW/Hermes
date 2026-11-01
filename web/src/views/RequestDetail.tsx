@@ -5,13 +5,15 @@ import { requestsApi } from "../api/endpoints";
 import { ApiError } from "../api/http";
 import type { DecisionBody, DecisionStatus, RequestDetail as Detail } from "../api/types";
 import { useAuth } from "../lib/auth";
-import { exclusionText, fixed, int, pct, shortTime } from "../lib/format";
+import { exclusionExplain, verdict } from "../lib/explain";
+import { fixed, int, pct, shortTime } from "../lib/format";
 import { displayName, useNames } from "../lib/names";
 import { useSkillName } from "../lib/skills";
 import { useApi } from "../lib/useApi";
 import { useResolvedNames } from "../lib/useResolvedNames";
 import { useMotionSafe } from "../motion/PageMotion";
 import { PageHead, StatusChip } from "../ui/Bits";
+import { HowToRead, PersonStory, VerdictBanner } from "../ui/Explain";
 import { IconArrowLeft, IconLock } from "../ui/Icons";
 import { rememberRequest } from "../ui/Guide";
 import { EmptyState, ErrorState, InlineError, Loading } from "../ui/States";
@@ -57,7 +59,16 @@ function DetailBody({ data, reload }: { data: Detail; reload: () => void }) {
         trail={["Find people", "Who fits"]}
         title="Who fits"
         lede="Ranked from skills they have already shown. You still choose."
-        aside={<StatusChip status={data.status} />}
+        aside={
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            {candidates.length >= 2 && (
+              <Link className="btn btn-sm" to={`/requests/${encodeURIComponent(data.request_id)}/compare`}>
+                Compare people
+              </Link>
+            )}
+            <StatusChip status={data.status} />
+          </div>
+        }
       />
 
       <div className="grid cols-3">
@@ -119,6 +130,7 @@ function DetailBody({ data, reload }: { data: Detail; reload: () => void }) {
         </div>
       ) : (
         <>
+          <VerdictBanner v={verdict(candidates, (coded) => shown(coded) ?? coded)} />
           <section className="panel section">
             <div className="panel-head">
               <h2>Who fits</h2>
@@ -196,34 +208,80 @@ function DetailBody({ data, reload }: { data: Detail; reload: () => void }) {
             {excluded.length === 0 ? (
               <div className="panel-body muted">No candidates were excluded.</div>
             ) : (
-              <div className="table-wrap">
-                <table className="data">
-                  <thead>
-                    <tr>
-                      <th>Person</th>
-                      <th>Why not</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {excluded.map((e) => (
-                      <tr key={e.coded_identity} data-testid="excluded-row">
-                        <td>
-                          {shown(e.coded_identity) ? (
-                            <div style={{ fontWeight: 600 }}>{shown(e.coded_identity)}</div>
-                          ) : null}
-                          <div className="person-token">{e.coded_identity}</div>
-                        </td>
-                        <td>{exclusionText(e.reason)}</td>
-                        <td className="sr-only" data-testid="excluded-reason">
-                          {e.reason}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <>
+                {excluded.some((e) => e.reason !== "no_evidence_on_any_required_skill") && (
+                  <div className="table-wrap">
+                    <table className="data">
+                      <thead>
+                        <tr>
+                          <th>Person</th>
+                          <th>Why not</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {excluded
+                          .filter((e) => e.reason !== "no_evidence_on_any_required_skill")
+                          .map((e) => (
+                            <tr key={e.coded_identity} data-testid="excluded-row">
+                              <td style={{ whiteSpace: "nowrap" }}>
+                                {shown(e.coded_identity) ? <div style={{ fontWeight: 600 }}>{shown(e.coded_identity)}</div> : null}
+                                <div className="person-token">{e.coded_identity}</div>
+                              </td>
+                              <td style={{ whiteSpace: "normal", minWidth: 280 }}>
+                                {exclusionExplain(e, data.requirements.critical_skills, data.requirements.min_coverage_ratio, skillName)}
+                              </td>
+                              <td className="sr-only" data-testid="excluded-reason">
+                                {e.reason}
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                {excluded.some((e) => e.reason === "no_evidence_on_any_required_skill") && (
+                  <details className="disclosure" style={{ padding: "10px 16px 14px" }}>
+                    <summary>
+                      {int(excluded.filter((e) => e.reason === "no_evidence_on_any_required_skill").length)} people have nothing on file for these skills
+                    </summary>
+                    <div className="chips" style={{ marginTop: 8 }}>
+                      {excluded
+                        .filter((e) => e.reason === "no_evidence_on_any_required_skill")
+                        .map((e) => (
+                          <span key={e.coded_identity} className="chip" data-testid="excluded-row">
+                            {shown(e.coded_identity) ?? e.coded_identity}
+                            <span className="sr-only" data-testid="excluded-reason">
+                              {e.reason}
+                            </span>
+                          </span>
+                        ))}
+                    </div>
+                  </details>
+                )}
+              </>
             )}
           </section>
+
+          {candidates.length > 0 && (
+            <section className="section" aria-label="Why each person ranks where they do">
+              <h2 style={{ fontSize: 16, margin: "0 0 4px" }}>Why each person ranks where they do</h2>
+              <p className="muted" style={{ margin: "0 0 10px" }}>
+                Open anyone to see what is strong, what falls short, and why they are not ahead of the first choice.
+              </p>
+              {candidates.map((c, i) => (
+                <PersonStory
+                  key={c.coded_identity}
+                  c={c}
+                  name={shown(c.coded_identity) ?? c.coded_identity}
+                  top={candidates[0]}
+                  topName={shown(candidates[0].coded_identity) ?? candidates[0].coded_identity}
+                  nameOf={skillName}
+                  defaultOpen={i < 2}
+                />
+              ))}
+            </section>
+          )}
+          <HowToRead />
 
           <div className={`grid ${synthetic ? "" : "cols-2"} section`}>
             {synthetic && <InlineError error={resolveError} />}

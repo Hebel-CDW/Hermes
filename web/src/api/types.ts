@@ -251,6 +251,7 @@ export type MeResult = {
     source_ref: string;
     occurred_at: string;
   }[];
+  contests?: { contest_id: string; skill_id: string | null; reason: string; status: string; created_at: string }[];
 };
 
 /** GET /api/data-quality — aggregate pipeline state. Never names, raw rows or client labels. */
@@ -359,3 +360,43 @@ export type ExcelSunset = {
   };
 };
 
+
+/** Employee proposals and manager approvals (GET /api/me/workflow, GET /api/team/inbox). */
+export type ChangeKind = "skill_claim" | "certificate" | "skill_check";
+export type ChangeStatus = "pending" | "approved" | "declined" | "withdrawn";
+
+export type ChangeRequest = {
+  request_id: string;
+  coded_identity: string;
+  kind: ChangeKind;
+  payload: { skill_id?: string; proficiency?: number; cert_code?: string; earned_at?: string; note?: string };
+  status: ChangeStatus;
+  created_at: string;
+  decided_by: string | null;
+  decided_at: string | null;
+  decision_note: string | null;
+  skill_name?: string;
+};
+
+export type Goal = { role_id: string; role_name: string; required_skills: Record<string, number>; set_at: string };
+export type MyWorkflow = { requests: ChangeRequest[]; goal: Goal | null };
+export type TimelineEvent = { seq: number; at: string; event_type: string; title: string; detail: string };
+export type InboxContest = OpenContest & { skill_name: string };
+export type Inbox = { requests: ChangeRequest[]; contests: InboxContest[] };
+export type GridCell = { level: number; confidence: number; freshness: number };
+export type TeamGrid = { people: string[]; cells: Record<string, Record<string, GridCell>> };
+export type CertEntry = { code: string; skill_id: string; skill_name: string };
+
+export type SubmitBody =
+  | { kind: "skill_claim"; skill_id: string; proficiency: number; note?: string }
+  | { kind: "skill_check"; skill_id: string; note?: string }
+  | { kind: "certificate"; cert_code: string; earned_at: string; note?: string };
+
+export type DecideBody = { decision: "approve" | "decline"; proficiency?: number; earned_at?: string; note?: string };
+export type BulkItem = { coded_identity: string; skill_id: string; proficiency: number; note?: string };
+export type CustomRoleBody = {
+  role_name: string;
+  required_skills: Record<string, number>;
+  critical_skills: string[];
+  min_coverage_ratio: number;
+};

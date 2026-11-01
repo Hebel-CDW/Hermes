@@ -1,10 +1,14 @@
 import type { ReactNode } from "react";
 import { ApiError } from "../api/http";
+import { Spinner } from "./Loader";
 
 export function Loading({ label = "Loading", rows = 3 }: { label?: string; rows?: number }) {
   return (
     <div role="status" aria-live="polite" aria-label={label} className="grid" style={{ gap: 10 }}>
-      <span className="sr-only">{label}…</span>
+      <div className="loading-head">
+        <Spinner />
+        <span>{label}…</span>
+      </div>
       {Array.from({ length: rows }, (_, i) => (
         <div key={i} className="skeleton" style={{ height: i === 0 ? 72 : 44 }} />
       ))}

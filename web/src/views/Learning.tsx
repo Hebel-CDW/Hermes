@@ -74,8 +74,8 @@ function GapAnalysis({ session, roles, subjects }: { session: Session; roles: Ro
             <select name="subject" className="select" value={subject} onChange={(e) => (setSubject(e.target.value), setResult(null))}>
               {subjects.map((s) => (
                 <option key={s} value={s}>
-                  {label(s)}
-                  {s === session.coded_identity ? " (you)" : ""}
+                  {s === session.coded_identity && label(s) === s ? "You" : label(s)}
+                  {s === session.coded_identity && label(s) !== s ? " (you)" : ""}
                 </option>
               ))}
             </select>
@@ -132,10 +132,19 @@ function GapAnalysis({ session, roles, subjects }: { session: Session; roles: Ro
                           No direct proof of this skill on file. Related skills can still earn partial credit on the Who fits page.
                         </p>
                       )}
-                      <p className="muted" style={{ marginBottom: 0, fontSize: 12 }}>
-                        <span>Detail: </span>
-                        <span>{g.reasoning}</span>
+                      <p className="muted" style={{ marginBottom: 0, fontSize: 13 }}>
+                        {g.current_level === null
+                          ? `The role needs level ${g.required_level}.`
+                          : `The role needs level ${g.required_level}. They are at level ${g.current_level}.`}
                       </p>
+                      <details style={{ marginTop: 8 }}>
+                        <summary className="muted" style={{ cursor: "pointer", fontSize: 12 }}>
+                          How this was worked out
+                        </summary>
+                        <p className="muted mono" style={{ margin: "6px 0 0", fontSize: 12 }}>
+                          {g.reasoning}
+                        </p>
+                      </details>
                     </div>
                   </section>
                 ))}

@@ -7,8 +7,14 @@ import { SkillProvider } from "./lib/skills";
 import { homeFor } from "./routes";
 import { WelcomeGuide } from "./ui/Guide";
 import { Shell } from "./ui/Shell";
-import { EmptyState, Loading } from "./ui/States";
+import { BootSplash } from "./ui/Loader";
+import { EmptyState } from "./ui/States";
 import Capability from "./views/Capability";
+import Compare from "./views/Compare";
+import Growth from "./views/Growth";
+import Inbox from "./views/Inbox";
+import RoleLab from "./views/RoleLab";
+import TeamGrid from "./views/TeamGrid";
 import DataQuality from "./views/DataQuality";
 import CandidateDetail from "./views/CandidateDetail";
 import Insights from "./views/Insights";
@@ -27,6 +33,7 @@ import Workforce from "./views/Workforce";
 const STAFF: Role[] = ["manager", "admin"];
 const MANAGER: Role[] = ["manager"];
 const ANY: Role[] = ["employee", "manager", "admin"];
+const EMPLOYEE: Role[] = ["employee"];
 
 function Guard({ roles, children }: { roles: Role[]; children: ReactNode }) {
   const { session } = useAuth();
@@ -46,11 +53,7 @@ export default function App() {
 
   if (session === undefined) {
     return (
-      <div className="login">
-        <div className="login-card">
-          <Loading label="Restoring session" rows={2} />
-        </div>
-      </div>
+      <BootSplash message="Restoring your session" />
     );
   }
   if (session === null) {
@@ -82,6 +85,11 @@ export default function App() {
               <Route path="/update-skills" element={page(STAFF, <SkillUpdate />)} />
               <Route path="/requests" element={page(MANAGER, <Requests />)} />
               <Route path="/requests/:id" element={page(MANAGER, <RequestDetail />)} />
+              <Route path="/requests/:id/compare" element={page(MANAGER, <Compare />)} />
+              <Route path="/inbox" element={page(STAFF, <Inbox />)} />
+              <Route path="/team-grid" element={page(STAFF, <TeamGrid />)} />
+              <Route path="/role-lab" element={page(MANAGER, <RoleLab />)} />
+              <Route path="/growth" element={page(EMPLOYEE, <Growth />)} />
               <Route path="/capability" element={page(MANAGER, <Capability />)} />
               <Route path="/capability/:id" element={page(MANAGER, <CandidateDetail />)} />
               <Route path="/learning" element={page(ANY, <Learning />)} />

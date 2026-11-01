@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { requestsApi } from "../api/endpoints";
 import type { RequestSummary } from "../api/types";
 import { int, shortTime } from "../lib/format";
+import { PersonName } from "../lib/names";
+import { useSkillName } from "../lib/skills";
 import { useApi } from "../lib/useApi";
 import { Kpi, PageHead, StatusChip } from "../ui/Bits";
 import { IconPlus } from "../ui/Icons";
@@ -23,7 +25,7 @@ export default function Requests() {
       <PageHead
         trail={["Requests", "Staffing pipeline"]}
         title="Requests"
-        lede="Staffing requests you own. Rankings are stored exactly as the engine returned them."
+        lede="Staffing requests you own, and who was chosen for each."
         aside={newButton}
       />
       {q.status === "loading" && <Loading label="Loading requests" />}
@@ -34,6 +36,7 @@ export default function Requests() {
 }
 
 function RequestsBody({ requests, tab, setTab }: { requests: RequestSummary[]; tab: Tab; setTab: (t: Tab) => void }) {
+  const skillName = useSkillName();
   const open = requests.filter((r) => r.status === "open");
   const decided = requests.filter((r) => r.status !== "open");
   const shown = tab === "open" ? open : tab === "decided" ? decided : requests;
@@ -110,7 +113,7 @@ function RequestsBody({ requests, tab, setTab }: { requests: RequestSummary[]; t
                     <div className="chips">
                       {Object.entries(r.requirements.required_skills ?? {}).map(([skill, lvl]) => (
                         <span key={skill} className={`chip ${r.requirements.critical_skills?.includes(skill) ? "chip-crimson" : ""}`}>
-                          {skill} · L{lvl}
+                          {skillName(skill)} · L{lvl}
                         </span>
                       ))}
                       {!r.requirements.required_skills && <span className="muted">Not recorded</span>}
@@ -123,7 +126,11 @@ function RequestsBody({ requests, tab, setTab }: { requests: RequestSummary[]; t
                   </td>
                   <td>
                     {r.decision.status ? (
-                      <span className="mono">{r.decision.chosen_coded_identity ?? "No candidate"}</span>
+                      r.decision.chosen_coded_identity ? (
+                        <PersonName coded={r.decision.chosen_coded_identity} />
+                      ) : (
+                        <span className="muted">No one chosen</span>
+                      )
                     ) : (
                       <span className="muted">Awaiting owner</span>
                     )}

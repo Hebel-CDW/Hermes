@@ -1,10 +1,12 @@
 import { matrixApi, overviewApi } from "../api/endpoints";
 import { fixed, int, pct } from "../lib/format";
+import { useSkillName } from "../lib/skills";
 import { useApi } from "../lib/useApi";
 import { Bar, Kpi, PageHead } from "../ui/Bits";
-import { EmptyState, ErrorState, Loading } from "../ui/States";
+import { ErrorState, Loading } from "../ui/States";
 
 export default function Insights() {
+  const skillName = useSkillName();
   const q = useApi(
     async (s) => {
       const [overview, dashboard, runs] = await Promise.all([overviewApi.get(s), matrixApi.dashboard(s), matrixApi.runs(s)]);
@@ -15,9 +17,9 @@ export default function Insights() {
   return (
     <>
       <PageHead
-        trail={["Analytics", "Enterprise observability"]}
+        trail={["Insights", "Team overview"]}
         title="Insights"
-        lede="Domain coverage, evidence freshness and computation history, as reported by the API."
+        lede="How well each area is covered, and how recent the proof of work is."
       />
       {q.status === "loading" && <Loading label="Loading insights" rows={4} />}
       {q.status === "error" && <ErrorState error={q.error} onRetry={q.reload} />}
@@ -31,7 +33,7 @@ export default function Insights() {
                 <Kpi label="Governed skills" value={int(overview.governed_skills)} />
                 <Kpi label="Skill records" value={int(overview.skill_records)} />
                 <Kpi label="Identities with evidence" value={pct(overview.skill_coverage_ratio)} note={`${overview.identities_with_evidence} of ${overview.people}`} />
-                <Kpi label="Computation runs" value={int(runs.length)} />
+                <Kpi label="Score updates" value={int(runs.length)} />
               </section>
 
               <section className="panel section">
@@ -86,7 +88,7 @@ export default function Insights() {
                     ) : (
                       freshness.map(([skill, value]) => (
                         <div key={skill} className="metric-row">
-                          <span className="ink-2">{skill}</span>
+                          <span className="ink-2">{skillName(skill)}</span>
                           <span className="num">{pct(value)}</span>
                           <Bar value={value} tone={value < 0.5 ? "crimson" : undefined} />
                         </div>
@@ -96,18 +98,20 @@ export default function Insights() {
                 </section>
                 <section className="panel">
                   <div className="panel-head">
-                    <h2>Computation runs</h2>
+                    <h2>Score updates</h2>
                     <span className="muted" style={{ fontSize: 12 }}>
                       Newest first
                     </span>
                   </div>
                   {runs.length === 0 ? (
-                    <div className="panel-body muted">No computation runs recorded.</div>
+                    <div className="panel-body muted">No score updates recorded yet.</div>
                   ) : (
                     <ul className="activity">
                       {runs.map((r, i) => (
                         <li key={r}>
-                          <span className="mono">{r}</span>
+                          <span>
+                            Update {runs.length - i} <span className="mono muted">· {r.slice(0, 8)}</span>
+                          </span>
                           {i === 0 && <span className="chip chip-teal">Latest</span>}
                         </li>
                       ))}
@@ -116,11 +120,6 @@ export default function Insights() {
                 </section>
               </div>
 
-              <div className="section">
-                <EmptyState title="Trend analytics not available">
-                  The API does not yet expose time-series capability metrics, so no velocity or demand trend is shown.
-                </EmptyState>
-              </div>
             </>
           );
         })()}

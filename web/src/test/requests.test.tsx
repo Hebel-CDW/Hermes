@@ -1,5 +1,6 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { humanSkill } from "../lib/format";
 import { contract, fixed4, MANAGER_SESSION, mockApi, renderApp } from "./harness";
 
 const detail = contract.request_detail;
@@ -19,7 +20,7 @@ describe("requests (real API contract payloads)", () => {
     expect(within(row).getByText(ID)).toBeTruthy();
     expect(within(row).getByText("Open")).toBeTruthy();
     for (const [skill, lvl] of Object.entries(summary.requirements.required_skills)) {
-      expect(within(row).getByText(`${skill} · L${lvl}`)).toBeTruthy();
+      expect(within(row).getByText(`${humanSkill(skill)} · L${lvl}`)).toBeTruthy();
     }
     expect(within(row).getByText(String(summary.candidate_count))).toBeTruthy();
     expect(within(row).getByText(String(summary.excluded_count))).toBeTruthy();

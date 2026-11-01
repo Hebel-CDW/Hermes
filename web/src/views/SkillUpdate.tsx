@@ -191,7 +191,7 @@ function PersonReview({ coded, skills }: { coded: string; skills: SkillSummaryRo
             <div className="panel-head">
               <h2>Your update</h2>
             </div>
-            <form className="panel-body" onSubmit={save}>
+            <form className="panel-body form-stack" onSubmit={save}>
               <p className="ink-2">
                 Tickets and certificates still count more. Use this when the work has not shown up in tickets yet.
               </p>

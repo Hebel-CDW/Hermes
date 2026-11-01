@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { workforceApi } from "../api/endpoints";
-import type { Workforce as WorkforceData, WorkforceIdentity } from "../api/types";
+import type { Workforce as WorkforceData } from "../api/types";
 import { int } from "../lib/format";
 import { useNames } from "../lib/names";
 import { useApi } from "../lib/useApi";
@@ -15,7 +15,7 @@ export default function Workforce() {
       <PageHead
         trail={["Workforce", "Capability topology"]}
         title="Workforce"
-        lede="Everyone, grouped by their main area. Bigger circles mean more skills; a fuller ring means stronger proof."
+        lede="Everyone, grouped by their main skill area, with how many skills each person has proof for and how sure Hermes is."
       />
       {q.status === "loading" && <Loading label="Loading workforce" />}
       {q.status === "error" && <ErrorState error={q.error} onRetry={q.reload} />}
@@ -29,33 +29,15 @@ export default function Workforce() {
   );
 }
 
-const W = 960;
 const UNASSIGNED = "__none__";
 
-type Placed = { id: WorkforceIdentity; x: number; y: number; r: number };
-
-/** Layout only: positions are geometry; the encoded values (skill_count, mean_confidence) come from the API. */
-function layout(data: WorkforceData) {
-  data = { ...data, identities: data.identities.filter((i) => i.skill_count > 0) };
-  const clusters = [...data.domains.map((d) => ({ key: d.domain_id, name: d.name })), { key: UNASSIGNED, name: "No evidence" }].filter(
-    (c) => data.identities.some((i) => (i.primary_domain ?? UNASSIGNED) === c.key),
-  );
-  const colW = W / Math.max(clusters.length, 1);
-  const perCol = clusters.map((c) => data.identities.filter((i) => (i.primary_domain ?? UNASSIGNED) === c.key));
-  const rowsNeeded = Math.max(1, ...perCol.map((m) => Math.ceil(m.length / 3)));
-  const H = Math.max(360, 140 + rowsNeeded * 140);
-  const nodes: Placed[] = [];
-  perCol.forEach((members, ci) => {
-    const cols = Math.min(3, members.length);
-    members.forEach((id, k) => {
-      const row = Math.floor(k / 3);
-      const inRow = Math.min(cols, members.length - row * 3);
-      const cx = colW * ci + colW / 2 + (k % 3 - (inRow - 1) / 2) * 130;
-      const cy = 130 + row * 140 + (k % 2 ? 28 : 0);
-      nodes.push({ id, x: cx, y: cy, r: 12 + Math.min(id.skill_count, 8) * 7 });
-    });
-  });
-  return { clusters, colW, nodes, H };
+/** Group scored people by their main domain. Layout only: every value shown comes from the API. */
+function groupByDomain(data: WorkforceData) {
+  const scored = data.identities.filter((i) => i.skill_count > 0);
+  const groups = [...data.domains.map((d) => ({ key: d.domain_id, name: d.name })), { key: UNASSIGNED, name: "No evidence" }]
+    .map((g) => ({ ...g, members: scored.filter((i) => (i.primary_domain ?? UNASSIGNED) === g.key) }))
+    .filter((g) => g.members.length > 0);
+  return groups;
 }
 
 const UNSCORED_PAGE = 60;
@@ -66,7 +48,7 @@ function WorkforceBody({ data }: { data: WorkforceData }) {
   const unscored = data.identities.filter((i) => i.skill_count === 0);
   const [selected, setSelected] = useState<string>((scored[0] ?? data.identities[0]).coded_identity);
   const [filter, setFilter] = useState("");
-  const { clusters, colW, nodes, H } = useMemo(() => layout(data), [data]);
+  const groups = useMemo(() => groupByDomain(data), [data]);
   const current = data.identities.find((i) => i.coded_identity === selected) ?? data.identities[0];
   const domainName = (id: string) => data.domains.find((d) => d.domain_id === id)?.name ?? id;
   const needle = filter.trim().toLowerCase();
@@ -83,68 +65,38 @@ function WorkforceBody({ data }: { data: WorkforceData }) {
             </p>
           </div>
         ) : (
-        <div className="canvas">
-          <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label="Workforce topology">
-            {clusters.map((c, i) => (
-              <g key={c.key}>
-                {i > 0 && <line x1={colW * i} x2={colW * i} y1={24} y2={H - 24} stroke="#E5E7EB" strokeDasharray="3 5" />}
-                <text className="cluster-label" x={colW * i + colW / 2} y={48} textAnchor="middle">
-                  {c.name}
-                </text>
-              </g>
+        <div className="atlas" role="group" aria-label="Workforce topology">
+          <div className="atlas-grid">
+            {groups.map((g) => (
+              <section key={g.key} className="atlas-domain" aria-label={g.name}>
+                <h3>
+                  {g.name} <span className="muted num">{g.members.length}</span>
+                </h3>
+                <div className="people-list">
+                  {g.members.map((id) => (
+                    <button
+                      key={id.coded_identity}
+                      type="button"
+                      className={`person-row${id.coded_identity === current.coded_identity ? " is-active" : ""}`}
+                      aria-pressed={id.coded_identity === current.coded_identity}
+                      aria-label={`${id.coded_identity}, ${id.skill_count} skills`}
+                      onClick={() => setSelected(id.coded_identity)}
+                    >
+                      <span className="person-row-name">{label(id.coded_identity)}</span>
+                      <span className="person-row-meta">
+                        {id.skill_count} skill{id.skill_count === 1 ? "" : "s"} · {id.mean_confidence === null ? "no proof yet" : `${Math.round(id.mean_confidence * 100)}% sure`}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </section>
             ))}
-            {nodes.map(({ id, x, y, r }) => {
-              const active = id.coded_identity === current.coded_identity;
-              const ringR = r + 6;
-              const circ = 2 * Math.PI * ringR;
-              const conf = id.mean_confidence ?? 0;
-              return (
-                <g
-                  key={id.coded_identity}
-                  className="node"
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={active}
-                  aria-label={`${id.coded_identity}, ${id.skill_count} skills`}
-                  onClick={() => setSelected(id.coded_identity)}
-                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), setSelected(id.coded_identity))}
-                >
-                  <circle cx={x} cy={y} r={ringR} fill="none" stroke="#E5E7EB" strokeWidth={3} />
-                  <circle
-                    cx={x}
-                    cy={y}
-                    r={ringR}
-                    fill="none"
-                    stroke={active ? "#B5122B" : "#004A5D"}
-                    strokeWidth={3}
-                    strokeDasharray={`${circ * conf} ${circ}`}
-                    transform={`rotate(-90 ${x} ${y})`}
-                  />
-                  <circle
-                    className="node-core"
-                    cx={x}
-                    cy={y}
-                    r={r}
-                    fill={active ? "#FFF1F2" : "#FFFFFF"}
-                    stroke={active ? "#B5122B" : "#CBD5E1"}
-                    strokeWidth={1.5}
-                  />
-                  <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight={600} fill="#0F172A">
-                    {id.skill_count}
-                  </text>
-                  <text className="node-label" x={x} y={y + ringR + 16} textAnchor="middle">
-                    {label(id.coded_identity)}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
+          </div>
           <div className="canvas-legend">
-            <span>Node size = skill breadth (records)</span>
-            <span>Ring = mean confidence</span>
             <span>
               {int(scored.length)} scored of {int(data.identities.length)} coded identities
             </span>
+            <span>Grouped by each person's main skill area. Pick someone to see their skills on the right.</span>
           </div>
         </div>
         )}

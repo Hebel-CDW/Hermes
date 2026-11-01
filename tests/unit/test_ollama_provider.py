@@ -92,3 +92,21 @@ def test_response_missing_response_field_raises_unavailable(monkeypatch):
     monkeypatch.setattr("ai.ollama_provider.httpx.post", fake_post)
     with pytest.raises(LLMUnavailableError):
         provider.generate("prompt")
+
+
+def test_request_asks_for_a_context_window_large_enough_for_fact_sheets(monkeypatch):
+    # Ollama's 2048-token default silently drops the start of a long prompt (the instructions).
+    monkeypatch.delenv("OLLAMA_NUM_CTX", raising=False)
+    provider = OllamaProvider(model="x")
+    captured = {}
+
+    def fake_post(url, json, timeout):
+        captured.update(json)
+        return httpx.Response(200, json={"response": "ok"}, request=httpx.Request("POST", url))
+
+    monkeypatch.setattr("ai.ollama_provider.httpx.post", fake_post)
+    provider.generate("prompt")
+    assert captured["options"]["num_ctx"] >= 8192
+    monkeypatch.setenv("OLLAMA_NUM_CTX", "4096")
+    provider.generate("prompt")
+    assert captured["options"]["num_ctx"] == 4096

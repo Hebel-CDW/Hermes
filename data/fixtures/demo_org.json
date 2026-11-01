@@ -1,0 +1,1542 @@
+{
+ "pilot_population": [
+  {
+   "employee_id": "E1001",
+   "display_name": "Alex Rivera"
+  },
+  {
+   "employee_id": "E1002",
+   "display_name": "Jordan Lee"
+  },
+  {
+   "employee_id": "E1003",
+   "display_name": "Sam Patel"
+  },
+  {
+   "employee_id": "E1004",
+   "display_name": "Casey Nguyen"
+  },
+  {
+   "employee_id": "E1005",
+   "display_name": "Riley Brooks"
+  },
+  {
+   "employee_id": "E1006",
+   "display_name": "Priya Nair"
+  },
+  {
+   "employee_id": "E1007",
+   "display_name": "Marcus Webb"
+  },
+  {
+   "employee_id": "E1008",
+   "display_name": "Elena Petrova"
+  },
+  {
+   "employee_id": "E1009",
+   "display_name": "Tomas Herrera"
+  },
+  {
+   "employee_id": "E1010",
+   "display_name": "Walter Okafor"
+  },
+  {
+   "employee_id": "E1011",
+   "display_name": "Hannah Kim"
+  },
+  {
+   "employee_id": "E1012",
+   "display_name": "Dev Malhotra"
+  },
+  {
+   "employee_id": "E1013",
+   "display_name": "Nina Rossi"
+  },
+  {
+   "employee_id": "E1014",
+   "display_name": "Callum Reid"
+  },
+  {
+   "employee_id": "E1015",
+   "display_name": "Gregory Baptiste"
+  },
+  {
+   "employee_id": "E1016",
+   "display_name": "Aisha Rahman"
+  },
+  {
+   "employee_id": "E1017",
+   "display_name": "Lucas Ferreira"
+  },
+  {
+   "employee_id": "E1018",
+   "display_name": "Sofia Lindqvist"
+  },
+  {
+   "employee_id": "E1019",
+   "display_name": "Omar Haddad"
+  },
+  {
+   "employee_id": "E1020",
+   "display_name": "Mei Tanaka"
+  },
+  {
+   "employee_id": "E1021",
+   "display_name": "Daniel Osei"
+  },
+  {
+   "employee_id": "E1022",
+   "display_name": "Chloe Bernard"
+  },
+  {
+   "employee_id": "E1023",
+   "display_name": "Rahul Verma"
+  },
+  {
+   "employee_id": "E1024",
+   "display_name": "Isabel Cortez"
+  },
+  {
+   "employee_id": "E1025",
+   "display_name": "Ethan Walsh"
+  },
+  {
+   "employee_id": "E1026",
+   "display_name": "Fatima Zahra"
+  },
+  {
+   "employee_id": "E1027",
+   "display_name": "Jonas Keller"
+  },
+  {
+   "employee_id": "E1028",
+   "display_name": "Amara Okoye"
+  },
+  {
+   "employee_id": "E1029",
+   "display_name": "Victor Lam"
+  },
+  {
+   "employee_id": "E1030",
+   "display_name": "Grace Mensah"
+  },
+  {
+   "employee_id": "E1031",
+   "display_name": "Noah Fischer"
+  },
+  {
+   "employee_id": "E1032",
+   "display_name": "Leila Karimi"
+  },
+  {
+   "employee_id": "E1033",
+   "display_name": "Ben Carter"
+  },
+  {
+   "employee_id": "E1034",
+   "display_name": "Yuki Sato"
+  },
+  {
+   "employee_id": "E1035",
+   "display_name": "Diego Morales"
+  },
+  {
+   "employee_id": "E1036",
+   "display_name": "Tara Doyle"
+  }
+ ],
+ "evidence": [
+  {
+   "employee_id": "E1001",
+   "kind": "D",
+   "skill_id": "container_orchestration",
+   "proficiency": 4,
+   "days_ago": 40,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1001",
+   "kind": "C",
+   "skill_id": "container_orchestration",
+   "proficiency": 4,
+   "days_ago": 330,
+   "detail": "CKA"
+  },
+  {
+   "employee_id": "E1001",
+   "kind": "S",
+   "skill_id": "container_orchestration",
+   "proficiency": 3,
+   "days_ago": 260,
+   "detail": true
+  },
+  {
+   "employee_id": "E1001",
+   "kind": "D",
+   "skill_id": "workload_migration",
+   "proficiency": 4,
+   "days_ago": 55,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1001",
+   "kind": "D",
+   "skill_id": "active_directory",
+   "proficiency": 3,
+   "days_ago": 90,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1002",
+   "kind": "D",
+   "skill_id": "azure_networking",
+   "proficiency": 3,
+   "days_ago": 60,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1002",
+   "kind": "C",
+   "skill_id": "azure_networking",
+   "proficiency": 3,
+   "days_ago": 700,
+   "detail": "AZ-700"
+  },
+  {
+   "employee_id": "E1002",
+   "kind": "D",
+   "skill_id": "network_security",
+   "proficiency": 2,
+   "days_ago": 75,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1002",
+   "kind": "D",
+   "skill_id": "identity_access_management",
+   "proficiency": 2,
+   "days_ago": 100,
+   "detail": 1
+  },
+  {
+   "employee_id": "E1003",
+   "kind": "C",
+   "skill_id": "azure_compute",
+   "proficiency": 3,
+   "days_ago": 210,
+   "detail": "AZ-104"
+  },
+  {
+   "employee_id": "E1003",
+   "kind": "D",
+   "skill_id": "azure_compute",
+   "proficiency": 3,
+   "days_ago": 25,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1003",
+   "kind": "D",
+   "skill_id": "infrastructure_as_code",
+   "proficiency": 3,
+   "days_ago": 18,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1003",
+   "kind": "D",
+   "skill_id": "azure_networking",
+   "proficiency": 2,
+   "days_ago": 40,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1003",
+   "kind": "D",
+   "skill_id": "container_orchestration",
+   "proficiency": 2,
+   "days_ago": 60,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1003",
+   "kind": "D",
+   "skill_id": "monitoring",
+   "proficiency": 3,
+   "days_ago": 30,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1003",
+   "kind": "D",
+   "skill_id": "python",
+   "proficiency": 2,
+   "days_ago": 90,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1004",
+   "kind": "D",
+   "skill_id": "incident_management",
+   "proficiency": 4,
+   "days_ago": 30,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1004",
+   "kind": "D",
+   "skill_id": "itil",
+   "proficiency": 3,
+   "days_ago": 45,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1004",
+   "kind": "D",
+   "skill_id": "servicenow",
+   "proficiency": 3,
+   "days_ago": 30,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1005",
+   "kind": "D",
+   "skill_id": "azure_compute",
+   "proficiency": 2,
+   "days_ago": 150,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1005",
+   "kind": "D",
+   "skill_id": "workload_migration",
+   "proficiency": 3,
+   "days_ago": 110,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1005",
+   "kind": "S",
+   "skill_id": "azure_compute",
+   "proficiency": 2,
+   "days_ago": 480,
+   "detail": true
+  },
+  {
+   "employee_id": "E1005",
+   "kind": "D",
+   "skill_id": "monitoring",
+   "proficiency": 2,
+   "days_ago": 60,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1006",
+   "kind": "D",
+   "skill_id": "container_orchestration",
+   "proficiency": 4,
+   "days_ago": 14,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1006",
+   "kind": "C",
+   "skill_id": "container_orchestration",
+   "proficiency": 4,
+   "days_ago": 200,
+   "detail": "CKA"
+  },
+  {
+   "employee_id": "E1006",
+   "kind": "D",
+   "skill_id": "azure_networking",
+   "proficiency": 4,
+   "days_ago": 21,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1006",
+   "kind": "C",
+   "skill_id": "azure_networking",
+   "proficiency": 4,
+   "days_ago": 260,
+   "detail": "AZ-700"
+  },
+  {
+   "employee_id": "E1006",
+   "kind": "D",
+   "skill_id": "infrastructure_as_code",
+   "proficiency": 4,
+   "days_ago": 10,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1006",
+   "kind": "C",
+   "skill_id": "infrastructure_as_code",
+   "proficiency": 3,
+   "days_ago": 150,
+   "detail": "AZ-400"
+  },
+  {
+   "employee_id": "E1006",
+   "kind": "D",
+   "skill_id": "azure_compute",
+   "proficiency": 3,
+   "days_ago": 35,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1007",
+   "kind": "D",
+   "skill_id": "incident_management",
+   "proficiency": 4,
+   "days_ago": 12,
+   "detail": 6
+  },
+  {
+   "employee_id": "E1007",
+   "kind": "D",
+   "skill_id": "container_orchestration",
+   "proficiency": 4,
+   "days_ago": 20,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1007",
+   "kind": "D",
+   "skill_id": "monitoring",
+   "proficiency": 3,
+   "days_ago": 25,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1007",
+   "kind": "D",
+   "skill_id": "infrastructure_as_code",
+   "proficiency": 3,
+   "days_ago": 30,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1007",
+   "kind": "D",
+   "skill_id": "linux_administration",
+   "proficiency": 4,
+   "days_ago": 15,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1008",
+   "kind": "C",
+   "skill_id": "container_orchestration",
+   "proficiency": 4,
+   "days_ago": 120,
+   "detail": "CKAD"
+  },
+  {
+   "employee_id": "E1008",
+   "kind": "D",
+   "skill_id": "incident_management",
+   "proficiency": 4,
+   "days_ago": 28,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1008",
+   "kind": "D",
+   "skill_id": "monitoring",
+   "proficiency": 4,
+   "days_ago": 22,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1008",
+   "kind": "D",
+   "skill_id": "infrastructure_as_code",
+   "proficiency": 3,
+   "days_ago": 45,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1008",
+   "kind": "C",
+   "skill_id": "infrastructure_as_code",
+   "proficiency": 3,
+   "days_ago": 300,
+   "detail": "AZ-400"
+  },
+  {
+   "employee_id": "E1008",
+   "kind": "D",
+   "skill_id": "linux_administration",
+   "proficiency": 3,
+   "days_ago": 40,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1009",
+   "kind": "D",
+   "skill_id": "network_security",
+   "proficiency": 4,
+   "days_ago": 18,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1009",
+   "kind": "D",
+   "skill_id": "identity_access_management",
+   "proficiency": 4,
+   "days_ago": 25,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1009",
+   "kind": "D",
+   "skill_id": "load_balancing",
+   "proficiency": 3,
+   "days_ago": 40,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1009",
+   "kind": "D",
+   "skill_id": "cisco_networking",
+   "proficiency": 4,
+   "days_ago": 22,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1014",
+   "kind": "D",
+   "skill_id": "firewall_administration",
+   "proficiency": 4,
+   "days_ago": 20,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1014",
+   "kind": "D",
+   "skill_id": "network_security",
+   "proficiency": 3,
+   "days_ago": 30,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1016",
+   "kind": "D",
+   "skill_id": "network_security",
+   "proficiency": 4,
+   "days_ago": 35,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1016",
+   "kind": "D",
+   "skill_id": "identity_access_management",
+   "proficiency": 3,
+   "days_ago": 50,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1016",
+   "kind": "D",
+   "skill_id": "cisco_networking",
+   "proficiency": 3,
+   "days_ago": 60,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1010",
+   "kind": "C",
+   "skill_id": "disaster_recovery",
+   "proficiency": 4,
+   "days_ago": 1100,
+   "detail": "DRII-CBCP"
+  },
+  {
+   "employee_id": "E1010",
+   "kind": "D",
+   "skill_id": "disaster_recovery",
+   "proficiency": 4,
+   "days_ago": 900,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1010",
+   "kind": "D",
+   "skill_id": "backup_restore",
+   "proficiency": 4,
+   "days_ago": 880,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1010",
+   "kind": "D",
+   "skill_id": "storage_administration",
+   "proficiency": 3,
+   "days_ago": 950,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1011",
+   "kind": "D",
+   "skill_id": "disaster_recovery",
+   "proficiency": 3,
+   "days_ago": 25,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1011",
+   "kind": "D",
+   "skill_id": "backup_restore",
+   "proficiency": 3,
+   "days_ago": 18,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1011",
+   "kind": "D",
+   "skill_id": "storage_administration",
+   "proficiency": 3,
+   "days_ago": 30,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1017",
+   "kind": "D",
+   "skill_id": "backup_restore",
+   "proficiency": 3,
+   "days_ago": 50,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1017",
+   "kind": "D",
+   "skill_id": "storage_administration",
+   "proficiency": 2,
+   "days_ago": 70,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1012",
+   "kind": "S",
+   "skill_id": "python",
+   "proficiency": 4,
+   "days_ago": 40,
+   "detail": true
+  },
+  {
+   "employee_id": "E1012",
+   "kind": "S",
+   "skill_id": "ansible",
+   "proficiency": 4,
+   "days_ago": 40,
+   "detail": true
+  },
+  {
+   "employee_id": "E1012",
+   "kind": "D",
+   "skill_id": "bash_scripting",
+   "proficiency": 2,
+   "days_ago": 80,
+   "detail": 1
+  },
+  {
+   "employee_id": "E1013",
+   "kind": "D",
+   "skill_id": "python",
+   "proficiency": 3,
+   "days_ago": 16,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1013",
+   "kind": "D",
+   "skill_id": "ansible",
+   "proficiency": 3,
+   "days_ago": 22,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1013",
+   "kind": "D",
+   "skill_id": "powershell",
+   "proficiency": 3,
+   "days_ago": 30,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1013",
+   "kind": "D",
+   "skill_id": "bash_scripting",
+   "proficiency": 3,
+   "days_ago": 28,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1018",
+   "kind": "D",
+   "skill_id": "powershell",
+   "proficiency": 4,
+   "days_ago": 20,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1018",
+   "kind": "D",
+   "skill_id": "active_directory",
+   "proficiency": 4,
+   "days_ago": 25,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1018",
+   "kind": "D",
+   "skill_id": "python",
+   "proficiency": 2,
+   "days_ago": 90,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1019",
+   "kind": "D",
+   "skill_id": "azure_compute",
+   "proficiency": 4,
+   "days_ago": 20,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1019",
+   "kind": "C",
+   "skill_id": "azure_compute",
+   "proficiency": 4,
+   "days_ago": 180,
+   "detail": "AZ-104"
+  },
+  {
+   "employee_id": "E1019",
+   "kind": "D",
+   "skill_id": "azure_networking",
+   "proficiency": 3,
+   "days_ago": 35,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1019",
+   "kind": "D",
+   "skill_id": "infrastructure_as_code",
+   "proficiency": 3,
+   "days_ago": 28,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1021",
+   "kind": "D",
+   "skill_id": "container_orchestration",
+   "proficiency": 4,
+   "days_ago": 25,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1021",
+   "kind": "D",
+   "skill_id": "infrastructure_as_code",
+   "proficiency": 4,
+   "days_ago": 15,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1015",
+   "kind": "D",
+   "skill_id": "ibm_i",
+   "proficiency": 4,
+   "days_ago": 10,
+   "detail": 6
+  },
+  {
+   "employee_id": "E1015",
+   "kind": "D",
+   "skill_id": "high_availability",
+   "proficiency": 4,
+   "days_ago": 20,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1015",
+   "kind": "D",
+   "skill_id": "clp_programming",
+   "proficiency": 4,
+   "days_ago": 25,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1015",
+   "kind": "D",
+   "skill_id": "rpgle",
+   "proficiency": 3,
+   "days_ago": 40,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1015",
+   "kind": "D",
+   "skill_id": "hmc",
+   "proficiency": 3,
+   "days_ago": 55,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1015",
+   "kind": "D",
+   "skill_id": "job_scheduling",
+   "proficiency": 3,
+   "days_ago": 30,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1030",
+   "kind": "S",
+   "skill_id": "ibm_i",
+   "proficiency": 2,
+   "days_ago": 200,
+   "detail": true
+  },
+  {
+   "employee_id": "E1020",
+   "kind": "D",
+   "skill_id": "aws_compute",
+   "proficiency": 3,
+   "days_ago": 45,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1022",
+   "kind": "D",
+   "skill_id": "aws_compute",
+   "proficiency": 4,
+   "days_ago": 20,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1022",
+   "kind": "C",
+   "skill_id": "aws_compute",
+   "proficiency": 3,
+   "days_ago": 400,
+   "detail": "AWS-SAA"
+  },
+  {
+   "employee_id": "E1023",
+   "kind": "S",
+   "skill_id": "gcp_compute",
+   "proficiency": 2,
+   "days_ago": 300,
+   "detail": true
+  },
+  {
+   "employee_id": "E1020",
+   "kind": "D",
+   "skill_id": "container_orchestration",
+   "proficiency": 4,
+   "days_ago": 30,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1020",
+   "kind": "D",
+   "skill_id": "infrastructure_as_code",
+   "proficiency": 3,
+   "days_ago": 38,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1020",
+   "kind": "D",
+   "skill_id": "azure_compute",
+   "proficiency": 3,
+   "days_ago": 60,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1021",
+   "kind": "D",
+   "skill_id": "linux_administration",
+   "proficiency": 4,
+   "days_ago": 20,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1021",
+   "kind": "D",
+   "skill_id": "bash_scripting",
+   "proficiency": 3,
+   "days_ago": 28,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1022",
+   "kind": "D",
+   "skill_id": "azure_compute",
+   "proficiency": 2,
+   "days_ago": 90,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1022",
+   "kind": "D",
+   "skill_id": "infrastructure_as_code",
+   "proficiency": 2,
+   "days_ago": 70,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1023",
+   "kind": "D",
+   "skill_id": "vmware",
+   "proficiency": 4,
+   "days_ago": 22,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1023",
+   "kind": "D",
+   "skill_id": "virtualization",
+   "proficiency": 4,
+   "days_ago": 30,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1023",
+   "kind": "D",
+   "skill_id": "nutanix",
+   "proficiency": 3,
+   "days_ago": 60,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1024",
+   "kind": "D",
+   "skill_id": "servicenow",
+   "proficiency": 4,
+   "days_ago": 14,
+   "detail": 6
+  },
+  {
+   "employee_id": "E1024",
+   "kind": "D",
+   "skill_id": "itil",
+   "proficiency": 4,
+   "days_ago": 20,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1024",
+   "kind": "D",
+   "skill_id": "monitoring",
+   "proficiency": 3,
+   "days_ago": 25,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1024",
+   "kind": "D",
+   "skill_id": "incident_management",
+   "proficiency": 3,
+   "days_ago": 18,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1025",
+   "kind": "D",
+   "skill_id": "patch_management",
+   "proficiency": 4,
+   "days_ago": 12,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1025",
+   "kind": "D",
+   "skill_id": "os_patching",
+   "proficiency": 4,
+   "days_ago": 15,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1025",
+   "kind": "D",
+   "skill_id": "endpoint_compliance",
+   "proficiency": 3,
+   "days_ago": 30,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1025",
+   "kind": "D",
+   "skill_id": "windows_server",
+   "proficiency": 3,
+   "days_ago": 40,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1026",
+   "kind": "D",
+   "skill_id": "sql",
+   "proficiency": 4,
+   "days_ago": 20,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1026",
+   "kind": "D",
+   "skill_id": "java",
+   "proficiency": 3,
+   "days_ago": 45,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1026",
+   "kind": "D",
+   "skill_id": "backup_restore",
+   "proficiency": 3,
+   "days_ago": 40,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1027",
+   "kind": "D",
+   "skill_id": "datacenter_operations",
+   "proficiency": 4,
+   "days_ago": 18,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1027",
+   "kind": "D",
+   "skill_id": "server_lifecycle",
+   "proficiency": 4,
+   "days_ago": 24,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1027",
+   "kind": "D",
+   "skill_id": "storage_administration",
+   "proficiency": 4,
+   "days_ago": 35,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1028",
+   "kind": "D",
+   "skill_id": "microsoft_365",
+   "proficiency": 4,
+   "days_ago": 12,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1028",
+   "kind": "D",
+   "skill_id": "active_directory",
+   "proficiency": 3,
+   "days_ago": 30,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1028",
+   "kind": "D",
+   "skill_id": "ftp_sftp",
+   "proficiency": 3,
+   "days_ago": 55,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1029",
+   "kind": "D",
+   "skill_id": "citrix_adc",
+   "proficiency": 4,
+   "days_ago": 25,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1029",
+   "kind": "D",
+   "skill_id": "load_balancing",
+   "proficiency": 4,
+   "days_ago": 30,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1029",
+   "kind": "D",
+   "skill_id": "firewall_administration",
+   "proficiency": 3,
+   "days_ago": 50,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1030",
+   "kind": "D",
+   "skill_id": "aix",
+   "proficiency": 4,
+   "days_ago": 28,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1030",
+   "kind": "D",
+   "skill_id": "job_scheduling",
+   "proficiency": 4,
+   "days_ago": 35,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1030",
+   "kind": "D",
+   "skill_id": "linux_administration",
+   "proficiency": 3,
+   "days_ago": 50,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1031",
+   "kind": "D",
+   "skill_id": "gcp_compute",
+   "proficiency": 1,
+   "days_ago": 140,
+   "detail": 1
+  },
+  {
+   "employee_id": "E1031",
+   "kind": "D",
+   "skill_id": "container_runtime",
+   "proficiency": 3,
+   "days_ago": 45,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1032",
+   "kind": "D",
+   "skill_id": "monitoring",
+   "proficiency": 4,
+   "days_ago": 16,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1032",
+   "kind": "D",
+   "skill_id": "servicenow",
+   "proficiency": 3,
+   "days_ago": 30,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1032",
+   "kind": "D",
+   "skill_id": "python",
+   "proficiency": 3,
+   "days_ago": 40,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1033",
+   "kind": "D",
+   "skill_id": "workload_migration",
+   "proficiency": 4,
+   "days_ago": 22,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1033",
+   "kind": "D",
+   "skill_id": "vmware",
+   "proficiency": 3,
+   "days_ago": 40,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1033",
+   "kind": "D",
+   "skill_id": "azure_compute",
+   "proficiency": 3,
+   "days_ago": 35,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1034",
+   "kind": "D",
+   "skill_id": "ansible",
+   "proficiency": 4,
+   "days_ago": 14,
+   "detail": 5
+  },
+  {
+   "employee_id": "E1034",
+   "kind": "D",
+   "skill_id": "bash_scripting",
+   "proficiency": 4,
+   "days_ago": 20,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1034",
+   "kind": "D",
+   "skill_id": "linux_administration",
+   "proficiency": 4,
+   "days_ago": 26,
+   "detail": 4
+  },
+  {
+   "employee_id": "E1035",
+   "kind": "D",
+   "skill_id": "disaster_recovery",
+   "proficiency": 3,
+   "days_ago": 60,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1035",
+   "kind": "D",
+   "skill_id": "oracle_cloud",
+   "proficiency": 1,
+   "days_ago": 150,
+   "detail": 1
+  },
+  {
+   "employee_id": "E1035",
+   "kind": "D",
+   "skill_id": "ibm_cloud",
+   "proficiency": 2,
+   "days_ago": 100,
+   "detail": 2
+  },
+  {
+   "employee_id": "E1036",
+   "kind": "D",
+   "skill_id": "network_security",
+   "proficiency": 3,
+   "days_ago": 20,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1036",
+   "kind": "D",
+   "skill_id": "firewall_administration",
+   "proficiency": 3,
+   "days_ago": 38,
+   "detail": 3
+  },
+  {
+   "employee_id": "E1036",
+   "kind": "D",
+   "skill_id": "cisco_networking",
+   "proficiency": 3,
+   "days_ago": 45,
+   "detail": 3
+  }
+ ],
+ "demand_weights": {
+  "container_orchestration": 0.9,
+  "azure_networking": 0.85,
+  "azure_compute": 0.7,
+  "infrastructure_as_code": 0.75,
+  "incident_management": 0.7,
+  "monitoring": 0.6,
+  "firewall_administration": 0.65,
+  "network_security": 0.6,
+  "identity_access_management": 0.55,
+  "disaster_recovery": 0.7,
+  "backup_restore": 0.6,
+  "storage_administration": 0.45,
+  "python": 0.65,
+  "ansible": 0.6,
+  "powershell": 0.5,
+  "ibm_i": 0.5,
+  "high_availability": 0.45,
+  "clp_programming": 0.4,
+  "gcp_compute": 0.8,
+  "oracle_cloud": 0.4,
+  "aws_compute": 0.75,
+  "servicenow": 0.55,
+  "itil": 0.5,
+  "workload_migration": 0.8,
+  "vmware": 0.5
+ },
+ "roles": [
+  {
+   "role_id": "senior_cloud_engineer",
+   "role_name": "Senior Cloud Engineer",
+   "required_skills": {
+    "container_orchestration": 4,
+    "azure_networking": 4,
+    "infrastructure_as_code": 3
+   },
+   "critical_skills": [
+    "container_orchestration"
+   ],
+   "min_coverage_ratio": 0.6
+  },
+  {
+   "role_id": "platform_sre_lead",
+   "role_name": "Platform SRE Lead",
+   "required_skills": {
+    "incident_management": 4,
+    "container_orchestration": 4,
+    "monitoring": 3,
+    "infrastructure_as_code": 3
+   },
+   "critical_skills": [
+    "incident_management"
+   ],
+   "min_coverage_ratio": 0.6
+  },
+  {
+   "role_id": "firewall_security_lead",
+   "role_name": "Firewall and Security Lead",
+   "required_skills": {
+    "firewall_administration": 4,
+    "network_security": 4,
+    "identity_access_management": 3
+   },
+   "critical_skills": [
+    "firewall_administration"
+   ],
+   "min_coverage_ratio": 0.6
+  },
+  {
+   "role_id": "data_protection_engineer",
+   "role_name": "Data Protection Engineer",
+   "required_skills": {
+    "disaster_recovery": 4,
+    "backup_restore": 4,
+    "storage_administration": 3
+   },
+   "critical_skills": [
+    "disaster_recovery"
+   ],
+   "min_coverage_ratio": 0.6
+  },
+  {
+   "role_id": "automation_engineer",
+   "role_name": "Automation Engineer",
+   "required_skills": {
+    "python": 4,
+    "ansible": 3,
+    "powershell": 3
+   },
+   "critical_skills": [
+    "python"
+   ],
+   "min_coverage_ratio": 0.6
+  },
+  {
+   "role_id": "azure_platform_engineer",
+   "role_name": "Azure Platform Engineer",
+   "required_skills": {
+    "azure_compute": 4,
+    "azure_networking": 3,
+    "infrastructure_as_code": 3
+   },
+   "critical_skills": [],
+   "min_coverage_ratio": 0.6
+  },
+  {
+   "role_id": "ibm_i_support_engineer",
+   "role_name": "IBM i Support Engineer",
+   "required_skills": {
+    "ibm_i": 4,
+    "high_availability": 3,
+    "clp_programming": 3
+   },
+   "critical_skills": [
+    "ibm_i"
+   ],
+   "min_coverage_ratio": 0.6
+  },
+  {
+   "role_id": "multi_cloud_architect",
+   "role_name": "Multi-Cloud Architect",
+   "required_skills": {
+    "gcp_compute": 4,
+    "oracle_cloud": 3,
+    "aws_compute": 4
+   },
+   "critical_skills": [
+    "gcp_compute"
+   ],
+   "min_coverage_ratio": 0.6
+  },
+  {
+   "role_id": "service_operations_lead",
+   "role_name": "Service Operations Lead",
+   "required_skills": {
+    "servicenow": 4,
+    "itil": 4,
+    "monitoring": 3,
+    "incident_management": 3
+   },
+   "critical_skills": [
+    "itil"
+   ],
+   "min_coverage_ratio": 0.6
+  },
+  {
+   "role_id": "infrastructure_modernisation_lead",
+   "role_name": "Infrastructure Modernisation Lead",
+   "required_skills": {
+    "workload_migration": 4,
+    "vmware": 3,
+    "azure_compute": 3
+   },
+   "critical_skills": [
+    "workload_migration"
+   ],
+   "min_coverage_ratio": 0.6
+  }
+ ],
+ "contests": [
+  {
+   "employee_id": "E1003",
+   "skill_id": "infrastructure_as_code",
+   "reason": "My Terraform work on the Contoso landing-zone project was done outside tickets and is not counted. I would rate this Advanced."
+  }
+ ],
+ "org_edges": [
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1002"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1003"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1006"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1007"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1008"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1009"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1010"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1011"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1012"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1013"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1014"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1015"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1016"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1017"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1018"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1019"
+  },
+  {
+   "manager_employee_id": "E1001",
+   "report_employee_id": "E1020"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1005"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1021"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1022"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1023"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1024"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1025"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1026"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1027"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1028"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1029"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1030"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1031"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1032"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1033"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1034"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1035"
+  },
+  {
+   "manager_employee_id": "E1004",
+   "report_employee_id": "E1036"
+  }
+ ]
+}

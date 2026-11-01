@@ -87,3 +87,16 @@ export function LogoMark({ size = 32 }: { size?: number }) {
     </svg>
   );
 }
+
+export const IconInbox = (p: P) => (
+  <svg {...base(p)}><path d="M3.5 13.5 6 5.5h12l2.5 8" /><path d="M3.5 13.5v5h17v-5h-5.2a3.3 3.3 0 0 1-6.6 0H3.5Z" /></svg>
+);
+export const IconGrid = (p: P) => (
+  <svg {...base(p)}><rect x="3.5" y="4.5" width="17" height="15" rx="1" /><path d="M3.5 9.5h17M9 4.5v15M14.5 4.5v15" /><path d="m16.2 15.2 1.1 1.1 2-2.4" /></svg>
+);
+export const IconGrowth = (p: P) => (
+  <svg {...base(p)}><path d="M4 19.5h16" /><path d="M6 16l4-4.5 3 2.5 5-6.5" /><path d="M14.5 7.5H18V11" /></svg>
+);
+export const IconLab = (p: P) => (
+  <svg {...base(p)}><path d="M9.5 3.5h5M10.5 3.5v5.2L5.2 17.6a2 2 0 0 0 1.7 3h10.2a2 2 0 0 0 1.7-3l-5.3-8.9V3.5" /><path d="M7.8 14.5h8.4" /></svg>
+);

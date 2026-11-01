@@ -6,6 +6,8 @@ import { useAuth } from "../lib/auth";
 import { shortTime } from "../lib/format";
 import { PageMotion } from "../motion/PageMotion";
 import { NAV } from "../routes";
+import Copilot from "./Copilot";
+import { useInboxCount } from "./InboxNudge";
 import { IconBell, IconClose, IconMenu, IconSearch, IconSignOut, LogoMark } from "./Icons";
 
 /** Label for the database the server says it is serving; never inferred client-side. */
@@ -29,6 +31,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const location = useLocation();
   const [navOpen, setNavOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const inboxCount = useInboxCount();
   const roles = session?.roles ?? [];
   const items = NAV.filter((n) => n.primary && n.roles.some((r) => roles.includes(r)));
   const current = NAV.find((n) => location.pathname.startsWith(n.path));
@@ -66,6 +69,11 @@ export function Shell({ children }: { children: ReactNode }) {
                   <NavLink key={path} to={path} end className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
                     <Icon />
                     {label}
+                    {path === "/inbox" && inboxCount > 0 && (
+                      <span className="nav-badge" aria-label={`${inboxCount} waiting`}>
+                        {inboxCount}
+                      </span>
+                    )}
                   </NavLink>
                 ))}
             </div>
@@ -102,6 +110,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </main>
       </div>
       {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
+      <Copilot />
     </div>
   );
 }

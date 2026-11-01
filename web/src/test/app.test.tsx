@@ -41,9 +41,12 @@ describe("routing and auth", () => {
       "Learning",
       "Update skills",
       "Requests",
+      "Approvals",
       "Workforce",
       "Skills",
       "Insights",
+      "Bulk update",
+      "Role lab",
     ]);
     expect(screen.queryByTestId("welcome-guide")).toBeNull();
   });
@@ -52,7 +55,7 @@ describe("routing and auth", () => {
     mockApi({ "GET /api/session": { body: EMPLOYEE_SESSION } });
     renderApp("/overview");
     expect(await screen.findByText("Not available for your role")).toBeTruthy();
-    expect(navLabels()).toEqual(["Learning"]);
+    expect(navLabels()).toEqual(["My skills", "My growth", "Learning"]);
     expect(screen.queryByTestId("welcome-guide")).toBeNull();
   });
 
@@ -80,7 +83,7 @@ describe("routing and auth", () => {
     ["/learning", "Learning"],
     ["/insights", "Insights"],
     ["/data-quality", "Data quality"],
-    ["/profile", "Profile"],
+    ["/profile", "My skills"],
   ])("route %s renders its page with contract data", async (path, heading) => {
     mockApi({
       "GET /api/session": { body: MANAGER_SESSION },

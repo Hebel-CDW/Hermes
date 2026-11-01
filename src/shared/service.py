@@ -39,6 +39,7 @@ from shared.models import (
 )
 from shared.secrets import require_identity_map_secret
 from shared.taxonomy import load_taxonomy
+from shared.workflow import Workflow
 from skill_inference.engine import SkillInferenceEngine
 
 
@@ -78,6 +79,8 @@ class HermesService:
         )
         self.resolution = IdentityResolutionGateway(self.gate, audit=self.audit)
         self.last_computation_run_id = ""
+        # Employee proposals and manager approvals; creates its own table, touches no scoring path.
+        self.workflow = Workflow(self)
 
     # ------------------------------------------------------------- DB trust
     def mark_database(self, classification: str) -> None:
@@ -238,6 +241,39 @@ class HermesService:
         )
         return result
 
+    def preview_rank(
+        self,
+        request: StaffingRequest,
+        availability: Optional[Mapping[str, bool]] = None,
+        critical_skills: Optional[Sequence[str]] = None,
+        min_coverage_ratio: Optional[float] = None,
+    ):
+        """What-if ranking: the same engine and inputs as ``rank``, but nothing is stored or audited."""
+        matrix = self.db.load_skills_matrix()
+        alloc = dict(self.db.get_allocation())
+        for k, v in (availability or {}).items():
+            alloc[k] = 1.0 if v else 0.0
+        # A separate engine with a throwaway in-memory ledger: the ranking engine audits itself, and a
+        # preview must leave no trace (nor touch the live engine while a real ranking may be running).
+        engine = FitnessGapEngine(
+            config=self.fitness.config,
+            audit=AuditLedger(),
+            demand_weights=self.db.get_demand(),
+            adjacency=self.fitness.adjacency,
+            skill_decay=self.fitness.skill_decay,
+            evidence_source_refs=self.db.evidence_source_refs_by_skill(),
+        )
+        stamped = {r.computation_run_id for r in matrix if r.computation_run_id}
+        run_id = self.last_computation_run_id or (sorted(stamped)[0] if len(stamped) == 1 else "")
+        return engine.rank_candidates(
+            request,
+            matrix,
+            allocation=alloc,
+            computation_run_id=run_id or "",
+            critical_skills=critical_skills,
+            min_coverage_ratio=min_coverage_ratio,
+        )
+
     def gaps(self, coded_identity: str, role: TargetRoleProfile):
         matrix = self.db.load_skills_matrix()
         self.fitness.demand_weights = self.db.get_demand()
@@ -355,6 +391,8 @@ class HermesService:
                 }
                 for e in evidence
             ],
+            # The person's own open disputes, so they can see them being reviewed.
+            "contests": self.db.list_open_contests(coded_identity),
         }
 
     def contest(
