@@ -34,6 +34,6 @@ describe("copilot", () => {
     expect(await screen.findByText(/AI model offline/)).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Ask Hermes a question"), { target: { value: "Who should I pick?" } });
     fireEvent.click(screen.getByRole("button", { name: "Ask" }));
-    expect(await screen.findByText(/Answered directly from your data/)).toBeTruthy();
+    expect(await screen.findByText(/Fixed summary from your data \(model offline\), not an AI answer/)).toBeTruthy();
   });
 });

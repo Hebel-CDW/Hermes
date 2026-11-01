@@ -82,7 +82,7 @@ export default function Copilot() {
     <>
       {!open && (
         <button className="copilot-fab" onClick={() => setOpen(true)} aria-label="Ask Hermes">
-          <span aria-hidden>✦</span> Ask Hermes
+          Ask Hermes
         </button>
       )}
       {open && (
@@ -118,7 +118,7 @@ export default function Copilot() {
                 <div style={{ whiteSpace: "pre-wrap" }}>{m.text}</div>
                 {m.from === "hermes" && (
                   <div className="copilot-src">
-                    {m.source === "model" ? `AI answer · ${m.model ?? "local model"} · based on your data` : "Answered directly from your data (model offline)"}
+                    {m.source === "model" ? `AI answer · ${m.model ?? "local model"} · generated from your data; scores and evidence on the Staffing pages are authoritative` : "Fixed summary from your data (model offline), not an AI answer"}
                   </div>
                 )}
               </div>

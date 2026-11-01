@@ -26,6 +26,15 @@ describe("requests (real API contract payloads)", () => {
     expect(within(row).getByText(String(summary.excluded_count))).toBeTruthy();
   });
 
+  it("labels a request created by an opportunity match as ranking only, never as approved staffing", async () => {
+    const hoiReq = { ...contract.requests.requests[0], request_id: "hoi-mr_abc-1" };
+    mockApi({ ...base, "GET /api/staffing/requests": { body: { requests: [hoiReq, contract.requests.requests[0]] } } });
+    renderApp("/requests");
+    const row = await screen.findByTestId("request-hoi-mr_abc-1");
+    expect(within(row).getByText(/ranking only, not an approved staffing decision/)).toBeTruthy();
+    expect(within(await screen.findByTestId(`request-${ID}`)).queryByText(/ranking only/)).toBeNull();
+  });
+
   it("shows an empty state when there are no requests", async () => {
     mockApi({ ...base, "GET /api/staffing/requests": { body: { requests: [] } } });
     renderApp("/requests");

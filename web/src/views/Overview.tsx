@@ -126,10 +126,13 @@ function OverviewBody({ data, dq, sunset }: { data: OverviewData; dq: import("..
         </section>
       </div>
 
-      <div className="grid cols-2 section">
+      <div className="grid cols-2 section" style={{ alignItems: "start" }}>
         <section className="panel">
           <div className="panel-head">
             <h2>Staffing requests</h2>
+            <span className="muted" style={{ fontSize: 12 }}>
+              Open = ranked, awaiting a person's decision
+            </span>
           </div>
           {statuses.length === 0 ? (
             <div className="panel-body muted">No staffing requests have been ranked yet.</div>
@@ -161,7 +164,7 @@ function OverviewBody({ data, dq, sunset }: { data: OverviewData; dq: import("..
                     <span className="mono muted" style={{ marginRight: 10 }}>
                       #{a.seq}
                     </span>
-                    {a.event_type.replace(/_/g, " ")}
+                    {eventLabel(a.event_type)}
                   </span>
                   <span className="muted num">{shortTime(a.created_at)}</span>
                 </li>
@@ -182,4 +185,12 @@ function OverviewBody({ data, dq, sunset }: { data: OverviewData; dq: import("..
       </details>
     </>
   );
+}
+
+/** Audit event codes are machine names ("hoi.internal_match_run"); show them as a short phrase. */
+function eventLabel(code: string): string {
+  const hoi = code.startsWith("hoi.");
+  const text = code.replace(/^hoi\./, "").replace(/[._]/g, " ").trim();
+  const sentence = text.charAt(0).toUpperCase() + text.slice(1);
+  return hoi ? `Opportunity: ${text}` : sentence;
 }

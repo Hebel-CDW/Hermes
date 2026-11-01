@@ -148,7 +148,10 @@ export function OpportunityPipeline() {
         <tbody>
           {q.data.opportunities.map((o) => (
             <tr key={o.opportunity_id}>
-              <td><Link to="/rfp" onClick={() => select(o.opportunity_id)}>{o.opportunity_id}</Link>{o.is_synthetic && <span className="muted"> · synthetic</span>}</td>
+              <td>
+                <Link to="/rfp" onClick={() => select(o.opportunity_id)}>{o.name}</Link>
+                <div className="muted mono" style={{ fontSize: 12 }}>{o.opportunity_id}{o.is_synthetic && " · synthetic data"}</div>
+              </td>
               <td>{o.client_alias}</td>
               <td><Chip>{pretty(o.stage)}</Chip></td>
               <td>{o.readiness.documents}</td>

@@ -71,3 +71,20 @@ def test_hybrid_uses_the_certified_engineer_and_requires_hr(seeded):
     hy = kinds["hybrid"]
     assert hy["uses_individual_cost"] is True and hy["approvals"]["required"] == ["delivery", "finance", "hr"]
     assert hy["unresolved_constraints"] == [] and hy["no_automatic_assignment"] is True
+
+
+def test_ready_copy_adds_a_matched_example_and_keeps_the_live_opportunity_first(tmp_path, monkeypatch):
+    """--ready-copy: a finished example exists, and the live-walkthrough opportunity is the one the app lists first."""
+    monkeypatch.setenv("HOI_STORAGE_DIR", str(tmp_path / "store"))
+    db_path = tmp_path / "r.db"
+    seed_org(db_path)
+    out = seed_hoi(db_path, "uploaded", ready_copy=True)
+    svc = HermesService(db=HermesDB(db_path), mapping_secret=os.getenv("IDENTITY_MAP_SECRET"))
+    hoi = HoiService(svc)
+    opps = {o["opportunity_id"]: o for o in hoi.list_opportunities(A)}
+    assert set(opps) == {out["opportunity_id"], out["ready_opportunity_id"]}
+    assert opps[out["ready_opportunity_id"]]["stage"] == "internal_matched"
+    assert opps[out["ready_opportunity_id"]]["readiness"]["has_approved_requirements"] is True
+    assert opps[out["opportunity_id"]]["stage"] == "intake"
+    assert list(opps)[0] == out["opportunity_id"]  # newest first: the live opportunity is selected by default
+    assert hoi.shortlist(M, out["ready_opportunity_id"])["requirements"]  # the finished example has match results

@@ -5,7 +5,7 @@ Everything here is invented: capacity (availability) for the 36 demo people, Fin
 rate card, loaded costs (a few individual, the rest role bands), curated-style market benchmarks and one
 opportunity with the sample SOW uploaded. No real employee or payroll data is read or written.
 
-    python -m scripts.seed_hoi_demo --db data/hermes_demo.db [--stage uploaded|approved|matched]
+    python -m scripts.seed_hoi_demo --db data/hermes_demo.db [--stage uploaded|approved|matched] [--ready-copy]
 
 Stages let a demo start at the beginning (default), after requirement approval, or after internal matching.
 Run scripts.seed_demo_org first. Storage for encrypted documents follows HOI_STORAGE_DIR.
@@ -50,7 +50,7 @@ def add_extra_people(svc: HermesService, db: HermesDB) -> list:
     return list(coded.values())
 
 
-def seed(db_path: Path, stage: str = "uploaded") -> dict:
+def seed(db_path: Path, stage: str = "uploaded", ready_copy: bool = False) -> dict:
     os.environ.setdefault("HERMES_TEST_MODE", "1")
     db = HermesDB(db_path)
     svc = HermesService(db=db, mapping_secret=os.getenv("IDENTITY_MAP_SECRET"))
@@ -79,8 +79,22 @@ def seed(db_path: Path, stage: str = "uploaded") -> dict:
     hoi.vault.add_costs("demo-finance", rows)
     hoi.market.import_rows("demo-finance", parse_csv((FIX / "market_benchmarks_synthetic.csv").read_text(), True))
 
+    # The finished example is created first so the live-walkthrough opportunity is the newest one, which the
+    # app lists (and selects) first.
+    ready_id = None
+    if ready_copy:
+        ready_id = build_opportunity(hoi, sales, mgr, "Cloud Platform Modernisation (completed example)", "matched")["opportunity_id"]
+    live_name = "Cloud Platform Modernisation (live walkthrough)" if ready_copy else "Cloud Platform Modernisation"
+    out = build_opportunity(hoi, sales, mgr, live_name, stage)
+    out.update({"people_with_capacity": len(people), "extra_synthetic_people": len(extra)})
+    if ready_id:
+        out["ready_opportunity_id"] = ready_id
+    return out
+
+
+def build_opportunity(hoi: HoiService, sales: AuthPrincipal, mgr: AuthPrincipal, name: str, stage: str) -> dict:
     opp = hoi.create_opportunity(sales, {
-        "client_alias": "Northstar (fictional)", "name": "Cloud Platform Modernisation", "currency": "USD",
+        "client_alias": "Northstar (fictional)", "name": name, "currency": "USD",
         "contract_type": "time_and_materials", "duration_months": 6, "geography": "Remote (EU time zones)",
         "start_date": "2027-01-11", "bid_deadline": "2026-12-15", "is_synthetic": True})
     oid = opp["opportunity_id"]
@@ -88,7 +102,7 @@ def seed(db_path: Path, stage: str = "uploaded") -> dict:
         hoi.add_member(sales, oid, sub, role)
     hoi.upload_document(sales, oid, "sow", "northstar_sow_synthetic.txt",
                         base64.b64encode((FIX / "sample_sow.txt").read_bytes()).decode())
-    out = {"opportunity_id": oid, "stage": "uploaded", "people_with_capacity": len(people), "extra_synthetic_people": len(extra)}
+    out = {"opportunity_id": oid, "stage": "uploaded"}
     if stage in ("approved", "matched"):
         cur = hoi.extract(sales, oid, None)["current"]
         for r in cur["roles"]:
@@ -110,8 +124,9 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--db", type=Path, default=Path(os.getenv("HERMES_DB_PATH", "data/hermes_demo.db")))
     ap.add_argument("--stage", choices=("uploaded", "approved", "matched"), default="uploaded")
+    ap.add_argument("--ready-copy", action="store_true", help="also create a second opportunity already at the matched stage")
     a = ap.parse_args(argv)
-    print(seed(a.db, a.stage))
+    print(seed(a.db, a.stage, a.ready_copy))
     return 0
 
 

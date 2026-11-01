@@ -338,9 +338,20 @@ function Editor({ oid, data, skillList, reload }: { oid: string; data: HoiRequir
         </section>
       ))}
       {problems.length > 0 && (
-        <div className="inline-error" role="alert">Before approval: {problems.map(pretty).join(" · ")}</div>
+        <div className="inline-error" role="alert">
+          <strong>Before you can approve:</strong>
+          <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+            {problems.map((c) => <li key={c}>{describeProblem(c, roles)}</li>)}
+          </ul>
+        </div>
       )}
       <InlineError error={err} />
+      {editable && (
+        <p className="muted" style={{ margin: "0 0 12px" }}>
+          Demo limitation: there is no separate-reviewer rule yet. Any user with write access to this opportunity, including the person who
+          extracted the document, can approve these requirements. The approver is recorded in the audit trail; independent review is not enforced.
+        </p>
+      )}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         {editable && <button className="btn" disabled={busy || !dirty} onClick={save}>Save draft</button>}
         {editable && <button className="btn btn-primary" disabled={busy || problems.length > 0} onClick={approve}>Approve requirements</button>}
@@ -444,4 +455,29 @@ function SummaryTab({ oid, readiness }: { oid: string; readiness: { documents: n
       </div></section>
     </div>
   );
+}
+
+/**
+ * The API reports approval blockers as stable codes ("role[2]:skill_unmapped:Quantum Compliance Mesh"). Say the same
+ * thing in words, naming the role, so a reviewer knows what to change. Unknown codes are shown as-is rather than guessed.
+ */
+export function describeProblem(code: string, roles: HoiRole[]): string {
+  if (code === "no_roles") return "Add at least one role.";
+  const m = /^role\[(\d+)\]:([a-z_]+)(?::(.*))?$/.exec(code);
+  if (!m) return pretty(code);
+  const role = roles[Number(m[1]) - 1];
+  const who = role?.role_name?.trim() || `Role ${m[1]}`;
+  const arg = m[3] ?? "";
+  switch (m[2]) {
+    case "role_name_missing": return `Role ${m[1]}: enter a role name.`;
+    case "headcount_unknown": return `${who}: set the headcount (a whole number, 1 or more).`;
+    case "fte_unknown": return `${who}: set FTE per head (more than 0, up to 1).`;
+    case "no_must_have_skill": return `${who}: mark at least one skill as must-have.`;
+    case "skill_unmapped": return `${who}: map "${arg}" to a Hermes skill, or dismiss it.`;
+    case "skill_level_unknown": {
+      const sk = role?.skills.find((x) => x.skill_id === arg);
+      return `${who}: set the required level for ${sk?.text || pretty(arg)}; the document did not state it.`;
+    }
+    default: return `${who}: ${pretty(m[2])}`;
+  }
 }

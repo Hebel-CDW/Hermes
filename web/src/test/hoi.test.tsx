@@ -55,7 +55,8 @@ describe("Opportunity Intelligence UI", () => {
     mockApi({ ...common, "GET /api/opportunities": { body: { opportunities: [OPP] } } });
     const first = renderApp("/overview");
     const panel = await screen.findByRole("region", { name: "Opportunity pipeline" });
-    expect(within(panel).getByText("OPP-2026-ABC123")).toBeTruthy();
+    expect(within(panel).getByText("Cloud Modernisation")).toBeTruthy(); // the name leads; the id sits beneath it
+    expect(within(panel).getByText(/OPP-2026-ABC123/)).toBeTruthy();
     expect(within(panel).getByText("Northstar")).toBeTruthy();
     expect(within(panel).getByText("1")).toBeTruthy(); // readiness.documents, straight from the API
     expect(within(panel).getByText(/0 \(0 approved\)/)).toBeTruthy();
@@ -110,7 +111,7 @@ describe("Opportunity Intelligence UI", () => {
     fireEvent.click(await screen.findByRole("tab", { name: /Validate requirements/ }));
     const approve = (await screen.findByRole("button", { name: "Approve requirements" })) as HTMLButtonElement;
     expect(approve.disabled).toBe(true);
-    expect(screen.getByRole("alert").textContent).toMatch(/skill level unknown/);
+    expect(screen.getByRole("alert").textContent).toMatch(/set the required level for Monitoring/);
     expect(screen.getByText(/“Monitoring”/)).toBeTruthy(); // source quote shown
     expect((screen.getByLabelText("Headcount") as HTMLInputElement).value).toBe("2");
     expect((screen.getByLabelText("Taxonomy for Monitoring") as HTMLSelectElement).value).toBe("monitoring"); // mapped skill is shown as mapped

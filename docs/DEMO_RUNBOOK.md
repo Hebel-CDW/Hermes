@@ -5,9 +5,31 @@ Everything below uses the built-in demo organisation: 36 invented people across 
 
 ## Start
 
-Double-click `start.command` (or run `./start.command`). It installs what is missing, builds the app,
-seeds a fresh database, checks itself (64 end-to-end checks), loads the copilot model, and opens the browser.
-If port 8000 is busy it uses the next free port and prints it. Every start is a clean slate.
+**Presenting: double-click `start-all.command`** (or run `./start-all.command`). It checks Python, the
+environment and the web build, starts Hermes through `scripts/run_demo.sh`, waits for the backend health check and
+the web app, prints a banner with the URL, then opens the browser. Keep its window open; **Ctrl+C** stops it.
+
+- It installs nothing. If something is missing it prints the exact command to run (first-time setup: `./start.command`).
+- If the default port 8000 is busy (Docker, another app) it uses the next free one and prints it; it never stops another program.
+- Clicking it twice does not start a second server: the second click just reopens the running one.
+- Demo data lives in `.demo-data/` (git-ignored) and **survives restarts**: whatever you did in a rehearsal is still there.
+  It is seeded only when empty: 36 people plus one synthetic Azure-certified engineer, and two opportunities
+  (one at intake for the live walkthrough, one "completed example" already approved and matched).
+- **Reset to the clean starting state (explicit, demo-only):** stop the demo (Ctrl+C), run `scripts/reset_demo.sh`, then start again.
+  It deletes only the demo database and encrypted demo documents inside `.demo-data/`, refuses to run while the demo is up,
+  and is never called automatically.
+- **Two opportunities, on purpose.** "Cloud Platform Modernisation (live walkthrough)" is at intake with an uploaded SOW:
+  present the journey on this one. "Cloud Platform Modernisation (completed example)" is already extracted, approved and
+  internally matched, so you can show a finished result without waiting. The RFP/SOW and Scenario Optimizer pickers show the stage.
+- **Say these two things out loud (known limitations).**
+  1. *No maker-checker rule.* The person who extracted a document can also approve its requirements, and the creator of a scenario
+     can approve their own lane. The approver is recorded in the audit trail, but independent review is not enforced. Do not
+     present this as separation of duties; it is listed as a next-milestone control.
+  2. *Opportunity matches are ranking only.* An internal match creates ordinary Hermes staffing requests (IDs starting `hoi-`).
+     They show as "Open" (ranked, awaiting a person's decision) on Overview and Requests, labelled "ranking only". No one is assigned
+     or approved for staffing by Hermes; approving a scenario records the decision, it does not allocate anyone.
+- Clean-room run with an automatic 64-check self-check and a throwaway database each time:
+  `./start.command` (or `scripts/run_demo.sh`).
 
 Sign in with **Continue as a manager** (Alex Rivera, manages 17 people). The employee view is
 **View as an employee** (Sam Patel).

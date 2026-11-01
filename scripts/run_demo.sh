@@ -5,9 +5,14 @@
 #   scripts/run_demo.sh --no-check   skip the automatic end-to-end self-check
 #   scripts/run_demo.sh --no-open    do not open the browser
 #   PORT=8001 scripts/run_demo.sh    use another port
+#   scripts/run_demo.sh --persist DIR   keep the demo database in DIR across restarts. It is seeded only
+#                                       when DIR holds no database yet and is never reset automatically
+#                                       (reset explicitly with scripts/reset_demo.sh). Skips the self-check,
+#                                       because the self-check writes records.
+#   scripts/run_demo.sh --url-file F    write the final URL to F once the server is ready
 #
-# Every run starts from a clean database in a temp directory, so the demo always looks the
-# same and nothing from a previous rehearsal is left behind. Press Ctrl+C to stop.
+# Without --persist every run starts from a clean database in a temp directory, so the demo always
+# looks the same and nothing from a previous rehearsal is left behind. Press Ctrl+C to stop.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -15,13 +20,18 @@ PORT_WAS_SET="${PORT:-}"
 PORT="${PORT:-8000}"
 CHECK=1
 OPEN=1
-for arg in "$@"; do
-    case "$arg" in
+PERSIST=""
+URL_FILE=""
+while [ $# -gt 0 ]; do
+    case "$1" in
         --no-check) CHECK=0 ;;
         --no-open) OPEN=0 ;;
-        -h|--help) sed -n '2,10p' "$0"; exit 0 ;;
-        *) echo "unknown option: $arg" >&2; exit 2 ;;
+        --persist) [ $# -ge 2 ] || { echo "--persist needs a directory" >&2; exit 2; }; PERSIST="$2"; shift ;;
+        --url-file) [ $# -ge 2 ] || { echo "--url-file needs a path" >&2; exit 2; }; URL_FILE="$2"; shift ;;
+        -h|--help) sed -n '2,16p' "$0"; exit 0 ;;
+        *) echo "unknown option: $1" >&2; exit 2 ;;
     esac
+    shift
 done
 
 say() { printf '\n\033[1m%s\033[0m\n' "$*"; }
@@ -32,7 +42,7 @@ say() { printf '\n\033[1m%s\033[0m\n' "$*"; }
 seed_db() {
     .venv/bin/python -m scripts.seed_demo_org --db "$1" >/dev/null
     # Opportunity Intelligence: synthetic capacity, Finance inputs, benchmarks and one uploaded SOW.
-    .venv/bin/python -m scripts.seed_hoi_demo --db "$1" >/dev/null
+    .venv/bin/python -m scripts.seed_hoi_demo --db "$1" --ready-copy >/dev/null
 }
 
 SERVER=""
@@ -69,16 +79,38 @@ else
     echo "web/dist is up to date"
 fi
 
-say "2/4  Fresh synthetic demo database"
-WORK="$(mktemp -d "${TMPDIR:-/tmp}/hermes-demo.XXXXXX")"
 export HERMES_TEST_MODE=1
-export HERMES_DB_PATH="${WORK}/demo.db"
-export HOI_STORAGE_DIR="${WORK}/hoi_store"
 export PYTHONPATH="src:."
 # Copilot: local Ollama. If it is not running the copilot answers from the data directly instead.
 export OLLAMA_MODEL="${OLLAMA_MODEL:-qwen2.5:7b-instruct}"
-seed_db "${HERMES_DB_PATH}"
-echo "seeded ${HERMES_DB_PATH}"
+if [ -n "$PERSIST" ]; then
+    say "2/4  Persistent synthetic demo database"
+    mkdir -p "$PERSIST"
+    PERSIST="$(cd "$PERSIST" && pwd)"
+    export HERMES_DB_PATH="${PERSIST}/demo.db"
+    export HOI_STORAGE_DIR="${PERSIST}/hoi_store"
+    CHECK=0
+    if [ -f "${HERMES_DB_PATH}" ]; then
+        echo "keeping existing demo database ${HERMES_DB_PATH} (not reset; see scripts/reset_demo.sh)"
+    else
+        # Seed beside the final name and move into place, so an interrupted seed never leaves a half-built database.
+        rm -f "${HERMES_DB_PATH}.seeding" "${HERMES_DB_PATH}.seeding-wal" "${HERMES_DB_PATH}.seeding-shm"
+        seed_db "${HERMES_DB_PATH}.seeding"
+        mv "${HERMES_DB_PATH}.seeding" "${HERMES_DB_PATH}"
+        rm -f "${HERMES_DB_PATH}.seeding-wal" "${HERMES_DB_PATH}.seeding-shm"
+        [ -f "${HERMES_DB_PATH}.seeding.audit-anchor.json" ] && mv "${HERMES_DB_PATH}.seeding.audit-anchor.json" "${HERMES_DB_PATH}.audit-anchor.json"
+        echo "seeded ${HERMES_DB_PATH}"
+    fi
+    # Marker read by scripts/reset_demo.sh: it only ever deletes inside a directory carrying this file.
+    echo "Hermes synthetic demo data. Safe to reset with scripts/reset_demo.sh." > "${PERSIST}/.hermes-demo-home"
+else
+    say "2/4  Fresh synthetic demo database"
+    WORK="$(mktemp -d "${TMPDIR:-/tmp}/hermes-demo.XXXXXX")"
+    export HERMES_DB_PATH="${WORK}/demo.db"
+    export HOI_STORAGE_DIR="${WORK}/hoi_store"
+    seed_db "${HERMES_DB_PATH}"
+    echo "seeded ${HERMES_DB_PATH}"
+fi
 
 say "3/4  Starting Hermes on http://127.0.0.1:${PORT}"
 .venv/bin/python -m uvicorn api.main:app --host 127.0.0.1 --port "${PORT}" --log-level warning &
@@ -119,5 +151,6 @@ fi
 
 say "Hermes is ready:  http://127.0.0.1:${PORT}"
 echo "Sign in with 'Continue as a manager'. Walkthrough: docs/DEMO_RUNBOOK.md"
+[ -n "$URL_FILE" ] && echo "http://127.0.0.1:${PORT}" > "$URL_FILE"
 [ "$OPEN" = "1" ] && command -v open >/dev/null 2>&1 && open "http://127.0.0.1:${PORT}" || true
 wait "$SERVER"

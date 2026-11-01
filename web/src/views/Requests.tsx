@@ -108,6 +108,11 @@ function RequestsBody({ requests, tab, setTab }: { requests: RequestSummary[]; t
                     <div className="muted" style={{ fontSize: 12 }}>
                       Owner {r.owner}
                     </div>
+                    {r.request_id.startsWith("hoi-") && (
+                      <div className="muted" style={{ fontSize: 12 }}>
+                        From an opportunity match · ranking only, not an approved staffing decision
+                      </div>
+                    )}
                   </td>
                   <td>
                     <div className="chips">

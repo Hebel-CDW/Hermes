@@ -78,3 +78,7 @@ data/*.xlsx
 
 # HOI encrypted document store (default location) — never commit
 data/hoi_storage/
+
+# Local demo state (start-all.command)
+.demo-data/
+.run/

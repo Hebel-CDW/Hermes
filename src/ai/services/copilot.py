@@ -442,14 +442,26 @@ def employee_facts(svc: HermesService, coded: str) -> List[str]:
     return out
 
 
+_DIRECTIVE = re.compile(r"\s*\((?:[^()]*\b)?already worked out\b[^()]*\)", re.IGNORECASE)
+
+
+def _plain(line: str) -> str:
+    """Facts carry instructions meant for the model, such as "(already worked out, state it as the answer)". Never show those to a person."""
+    return _DIRECTIVE.sub("", line).strip()
+
+
 def offline_answer(facts: List[str], role: str) -> str:
-    head = "The AI model is not reachable right now, so here is what Hermes can tell you directly from your data."
-    keep = [f for f in facts if not f.startswith("  ")][:6]
+    head = ("The AI model is not reachable right now, so this is a fixed summary taken directly from your Hermes data. "
+            "It is not an answer to your exact question; ask again when the model is online.")
+    top = [f for f in facts if not f.startswith(" ") and f.startswith(("FOCUS", "HEAD TO HEAD"))]
+    keep = [f for f in facts if not f.startswith(" ") and f not in top][:6]
     if role == "manager":
         recent = [f for f in facts if f.startswith("Request ") or f.startswith("  #") or f.startswith("  NOT SHORTLISTED")][:8]
-        return head + "\n" + "\n".join(keep + recent)
-    gaps = [f for f in facts if "Gaps:" in f][:4]
-    return head + "\n" + "\n".join(keep + gaps)
+        lines = top + keep + recent
+    else:
+        gaps = [f for f in facts if "Gaps:" in f][:4]
+        lines = top + keep + gaps
+    return head + "\n" + "\n".join(_plain(x) for x in lines)
 
 
 def ask(provider: Optional[LLMProvider], facts: List[str], question: str, role: str, timeout: float = 90.0) -> Dict[str, Any]:

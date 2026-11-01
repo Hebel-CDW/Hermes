@@ -79,6 +79,20 @@ def test_offline_fallback_when_model_is_down(client):
     assert "not reachable" in body["answer"]
 
 
+def test_offline_fallback_never_shows_internal_model_directives(client):
+    """Facts contain instructions for the model ("already worked out, state it as the answer"); a person must never see them."""
+    reset_llm_provider_for_tests(MockLLMProvider(fail=True))
+    for sub, q in (("demo-manager", "Who should I pick for the Senior Cloud Engineer role?"), ("demo-employee", "What should I learn next?")):
+        body = client.post("/api/copilot/ask", json={"question": q}, headers=_auth(client, sub)).json()
+        text = body["answer"].lower()
+        assert body["source"] == "offline"
+        assert "already worked out" not in text and "state it as the answer" not in text and "state exactly this" not in text
+        assert "not an answer to your exact question" in text
+    manager = client.post("/api/copilot/ask", json={"question": "Who should I pick for the Senior Cloud Engineer role?"},
+                          headers=_auth(client, "demo-manager")).json()["answer"]
+    assert "Priya Nair" in manager  # the focus line for the named role leads the summary
+
+
 def test_offline_fallback_when_no_model_configured(client, monkeypatch):
     monkeypatch.delenv("OLLAMA_MODEL", raising=False)
     reset_llm_provider_for_tests(None)
